@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - BEEPREPARE</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--card-grey);
+            /* Fixed var name */
+            border: 1px solid var(--border-grey);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .profile-menu-item:hover {
+            transform: translateY(-2px);
+            background: var(--light-grey);
+            /* Light hover */
+        }
+
+        .menu-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 16px;
+            /* Remove grayscale to show brand colors if any, or keep neutral */
+            opacity: 0.8;
+        }
+
+        .menu-text {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .menu-arrow {
+            width: 16px;
+            opacity: 0.5;
+            filter: invert(0);
+            /* Default is usually black/grey svg */
+        }
+
+        /* Modal specific */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            /* Lighter overly */
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: var(--card-grey);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 16px;
+            padding: 24px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-grey);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            background: var(--dark-bg);
+            /* Use theme bg (light grey) */
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--border-grey);
+            color: var(--text-primary);
+        }
+
+        .checkbox-label input {
+            margin-right: 10px;
+            accent-color: var(--yellow);
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Tabs */
+        .modal-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-grey);
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: var(--yellow);
+            border-bottom: 2px solid var(--yellow);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        /* Chapter Management */
+        .chapter-list {
+            background: var(--dark-bg);
+            border: 1px solid var(--border-grey);
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 150px;
+            margin: 16px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .chapter-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: var(--card-grey);
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            min-width: auto;
+        }
+
+        .add-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* New Subjects Row Styles */
+        .profile-subjects-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .mini-subject-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--card-grey);
+            padding: 4px 12px 4px 4px;
+            border-radius: 30px;
+            border: 1px solid var(--border-grey);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <a href="home.html">
+                    <img src="../assets/images/icon-arrow-left.svg" alt="Back" style="width: 24px;">
+                </a>
+            </div>
+            <div class="header-center">
+                <h1 class="app-logo-text">Profile</h1>
+            </div>
+            <div class="header-right">
+                <!-- Placeholder for balance -->
+            </div>
+        </header>
+
+        <main class="main-content fade-in" style="padding-bottom: 40px;">
+
+            <!-- Profile Overview -->
+            <div class="profile-header-section" style="margin-bottom: 32px; text-align: center;">
+                <img src="../assets/images/avatar-placeholder.png" alt="User" class="profile-avatar-lg"
+                    style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--card-grey); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <div class="profile-name" id="profileNameDisplay"
+                    style="font-size: 1.5rem; margin-top: 16px; font-weight: 700; color: var(--text-primary);">
+                    Loading...</div>
+                <div class="profile-email" id="profileEmailDisplay" style="color: var(--text-secondary);">...</div>
+
+                <!-- NEW: Subjects Display -->
+                <div id="profileSubjectsContainer" class="profile-subjects-row">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <!-- Menu List -->
+            <div style="max-width: 600px; margin: 0 auto;">
+
+                <!-- Edit Profile -->
+                <div class="profile-menu-item" onclick="openEditProfile()">
+                    <img src="../assets/images/icon-edit.svg" class="menu-icon" alt="Edit">
+                    <span class="menu-text">Edit Profile (Subjects & Classes)</span>
+                    <img src="../assets/images/icon-arrow-left.svg" class="menu-arrow"
+                        style="transform: rotate(180deg);">
+                </div>
+
+                <!-- View Questions -->
+                <a href="user-questions.html" class="profile-menu-item" style="text-decoration: none; color: inherit;">
+                    <img src="../assets/images/icon-bank.svg" class="menu-icon" alt="Questions">
+                    <span class="menu-text">View My Questions</span>
+                    <img src="../assets/images/icon-arrow-left.svg" class="menu-arrow"
+                        style="transform: rotate(180deg);">
+                </a>
+
+                <!-- Records/History -->
+                <div class="profile-menu-item" onclick="openHistory()">
+                    <img src="../assets/images/icon-file.svg" class="menu-icon" alt="Records"
+                        onerror="this.src='../assets/images/icon-menu.svg'">
+                    <span class="menu-text">Records (History)</span>
+                    <img src="../assets/images/icon-arrow-left.svg" class="menu-arrow"
+                        style="transform: rotate(180deg);">
+                </div>
+
+                <!-- Theme -->
+                <div class="profile-menu-item" onclick="toggleTheme()">
+                    <img src="../assets/images/icon-eye.svg" class="menu-icon" alt="Theme"
+                        onerror="this.src='../assets/images/icon-menu.svg'">
+                    <span class="menu-text">Dark Theme</span>
+                    <label class="toggle-switch" onclick="event.stopPropagation()">
+                        <input type="checkbox" checked id="themeToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Notifications -->
+                <div class="profile-menu-item">
+                    <img src="../assets/images/icon-check.svg" class="menu-icon" alt="Notify"
+                        onerror="this.src='../assets/images/icon-menu.svg'">
+                    <span class="menu-text">Notifications</span>
+                    <label class="toggle-switch" onclick="event.stopPropagation()">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Logout -->
+                <button class="btn btn-outline"
+                    style="width: 100%; margin-top: 24px; border-color: #ff4d4d; color: #ff4d4d;" id="logoutBtn">
+                    Log Out
+                </button>
+
+            </div>
+        </main>
+
+        <!-- Bottom Nav -->
+        <nav class="bottom-nav">
+            <!-- ... existing nav ... -->
+            <a href="home.html" class="nav-item">
+                <img src="../assets/images/icon-home.svg" class="nav-icon" alt="Home">
+                <span>Home</span>
+            </a>
+            <a href="question-bank.html" class="nav-item">
+                <img src="../assets/images/icon-bank.svg" class="nav-icon" alt="Bank">
+                <span>Bank</span>
+            </a>
+            <a href="blueprint.html" class="nav-item">
+                <img src="../assets/images/icon-plus.svg" class="nav-icon" alt="Generate">
+                <span>Generate</span>
+            </a>
+            <a href="profile.html" class="nav-item active">
+                <img src="../assets/images/icon-profile.svg" class="nav-icon" alt="Profile">
+                <span>Profile</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-card">
+            <h2 style="margin-top: 0; color: var(--text-primary);">Edit Preferences</h2>
+
+            <div class="modal-tabs">
+                <div class="tab active" onclick="switchTab('general')">Subjects & Classes</div>
+                <div class="tab" onclick="switchTab('chapters')">Chapters</div>
+            </div>
+
+            <!-- TAB 1: GENERAL -->
+            <div id="tab-general" class="tab-content active">
+                <div class="form-group">
+                    <label class="form-label" style="font-weight: 600; color: var(--text-primary);">Subjects</label>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-label"><input type="checkbox" value="Physics" class="subject-chk">
+                            Physics</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Chemistry" class="subject-chk">
+                            Chemistry</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Mathematics" class="subject-chk">
+                            Mathematics</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Biology" class="subject-chk">
+                            Biology</label>
+                        <label class="checkbox-label"><input type="checkbox" value="English" class="subject-chk">
+                            English</label>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 24px;">
+                    <label class="form-label" style="font-weight: 600; color: var(--text-primary);">Classes</label>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-label"><input type="checkbox" value="Class 6" class="class-chk"> Class
+                            6</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Class 7" class="class-chk"> Class
+                            7</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Class 8" class="class-chk"> Class
+                            8</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Class 9" class="class-chk"> Class
+                            9</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Class 10" class="class-chk"> Class
+                            10</label>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 32px; justify-content: flex-end;">
+                    <button class="btn btn-primary" onclick="saveProfileChanges()" style="width: 100%;">Save
+                        Selection</button>
+                    <button class="btn btn-outline" onclick="closeEditProfile()">Close</button>
+                </div>
+            </div>
+
+            <!-- TAB 2: CHAPTERS -->
+            <div id="tab-chapters" class="tab-content">
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">
+                    Select a Class and Subject to manage its chapters. These chapters will appear when you add
+                    questions.
+                </p>
+
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 12px; display: grid;">
+                    <select id="manageClassSelect" class="form-select" onchange="loadChaptersForSelection()">
+                        <option value="">Select Class</option>
+                    </select>
+                    <select id="manageSubjectSelect" class="form-select" onchange="loadChaptersForSelection()">
+                        <option value="">Select Subject</option>
+                    </select>
+                </div>
+
+                <div id="chapterManagerArea"
+                    style="opacity: 0.5; pointer-events: none; transition: opacity 0.3s; margin-top: 16px;">
+                    <label class="form-label" style="font-size: 0.9rem;">Chapters List</label>
+                    <div id="chapterListContainer" class="chapter-list">
+                        <!-- Items injected here -->
+                        <div style="text-align: center; color: var(--text-secondary); padding-top: 40px;">Select Class &
+                            Subject</div>
+                    </div>
+
+                    <div class="add-row">
+                        <input type="text" id="newChapterName" class="form-input" placeholder="New Chapter Name">
+                        <button class="btn btn-primary btn-sm" onclick="addNewChapter()">Add</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 32px; justify-content: flex-end;">
+                    <button class="btn btn-outline" onclick="closeEditProfile()">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="modal">
+        <div class="modal-card">
+            <h2 style="margin-top: 0; color: var(--text-primary);">Activity History</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">Your recent actions and
+                added questions.</p>
+
+            <div id="historyListContainer" style="max-height: 400px; overflow-y: auto;">
+                <div style="text-align:center; padding:20px;">Loading...</div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+                <button class="btn btn-outline"
+                    onclick="document.getElementById('historyModal').classList.remove('active')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { logoutUser, updateProfileUI } from '../assets/js/firebase-auth.js';
+        import { getUserProfileData, saveUserSubjects, saveUserClasses, saveUserChapterPreferences, getUserActivity } from
+            '../assets/js/firestore.js';
+
+        // Load UI
+        updateProfileUI();
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+
+        // Get UID for operations
+        const userJson = localStorage.getItem('qp_user');
+        const user = userJson ? JSON.parse(userJson) : null;
+        let currentUserProfile = null; // Store fetched profile
+
+        const renderProfileSubjects = (subjects) => {
+            const container = document.getElementById('profileSubjectsContainer');
+            container.innerHTML = '';
+            if (!subjects || subjects.length === 0) return;
+
+            // Color Mapping (Same as Home)
+            const colors = {
+                'Physics': '#3B82F6', 'Chemistry': '#EF4444', 'Mathematics': '#8B5CF6',
+                'Biology': '#10B981', 'English': '#F59E0B', 'Computer': '#6366F1',
+                'History': '#78350F', 'Geography': '#059669'
+            };
+            const getRandomColor = (str) => {
+                const defaults = ['#6B7280', '#EC4899', '#14B8A6', '#F97316'];
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
+                return defaults[Math.abs(hash) % defaults.length];
+            };
+
+            subjects.forEach(sub => {
+                const color = colors[sub] || getRandomColor(sub);
+                const initial = sub.charAt(0).toUpperCase();
+                const badge = document.createElement('div');
+                badge.className = 'mini-subject-badge';
+                badge.innerHTML = `
+                    <div style="width:24px; height:24px; border-radius:50%; background:${color}; color:white; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">${initial}</div>
+                    <span>${sub}</span>
+                 `;
+                container.appendChild(badge);
+            });
+        };
+
+        const loadProfileData = async () => {
+            if (user) {
+                // Set name/email from local storage initially
+                document.getElementById('profileNameDisplay').textContent = user.displayName || 'User';
+                document.getElementById('profileEmailDisplay').textContent = user.email || '';
+
+                try {
+                    currentUserProfile = await getUserProfileData(user.uid);
+                    if (currentUserProfile) {
+                        renderProfileSubjects(currentUserProfile.subjects || []);
+                    }
+                } catch (e) {
+                    console.error("Profile load err", e);
+                }
+            }
+        };
+        loadProfileData();
+
+        // Tab Switching
+        window.switchTab = (tabName) => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            if (tabName === 'chapters') {
+                populateChapterDropdowns();
+            }
+        };
+
+        // Modal Logic
+        window.openEditProfile = async () => {
+            const modal = document.getElementById('editProfileModal');
+            modal.classList.add('active');
+
+            if (user && user.uid) {
+                if (!currentUserProfile) currentUserProfile = await getUserProfileData(user.uid); // fetch if missing
+
+                if (currentUserProfile) {
+                    if (currentUserProfile.subjects) {
+                        document.querySelectorAll('.subject-chk').forEach(chk => {
+                            chk.checked = currentUserProfile.subjects.includes(chk.value);
+                        });
+                    }
+                    if (currentUserProfile.classes) {
+                        document.querySelectorAll('.class-chk').forEach(chk => {
+                            chk.checked = currentUserProfile.classes.includes(chk.value);
+                        });
+                    }
+                }
+            }
+        };
+
+        window.closeEditProfile = () => {
+            document.getElementById('editProfileModal').classList.remove('active');
+        };
+
+        // SAVE GENERAL PREFERENCES
+        window.saveProfileChanges = async () => {
+            if (!user) return;
+            const btn = document.querySelector('#tab-general .btn-primary');
+            const originalText = btn.innerText;
+            btn.innerText = 'Saving...';
+
+            const selectedSubjects = Array.from(document.querySelectorAll('.subject-chk:checked')).map(c => c.value);
+            const selectedClasses = Array.from(document.querySelectorAll('.class-chk:checked')).map(c => c.value);
+
+            try {
+                await Promise.all([
+                    saveUserSubjects(user.uid, selectedSubjects),
+                    saveUserClasses(user.uid, selectedClasses)
+                ]);
+
+                // Update local cache
+                if (!currentUserProfile) currentUserProfile = {};
+                currentUserProfile.subjects = selectedSubjects;
+                currentUserProfile.classes = selectedClasses;
+
+                btn.innerText = 'Saved!';
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                }, 1000);
+            } catch (e) {
+                alert('Error saving profile');
+                btn.innerText = originalText;
+            }
+        };
+
+        // CHAPTER MANAGEMENT LOGIC
+        window.populateChapterDropdowns = () => {
+            const classSel = document.getElementById('manageClassSelect');
+            const subSel = document.getElementById('manageSubjectSelect');
+
+            // Clear current options
+            classSel.innerHTML = '<option value="">Select Class</option>';
+            subSel.innerHTML = '<option value="">Select Subject</option>';
+
+            // Use currently checked checkboxes as the source of truth for immediate feedback,
+            // or use fetched profile? Better to use checked boxes in case user just changed them but didn't close modal.
+            const currentClasses = Array.from(document.querySelectorAll('.class-chk:checked')).map(c => c.value);
+            const currentSubjects = Array.from(document.querySelectorAll('.subject-chk:checked')).map(c => c.value);
+
+            currentClasses.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.innerText = c;
+                classSel.appendChild(opt);
+            });
+
+            currentSubjects.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.innerText = s;
+                subSel.appendChild(opt);
+            });
+        };
+
+        let currentChapterList = []; // Local state for the selected combo
+
+        window.loadChaptersForSelection = () => {
+            const cls = document.getElementById('manageClassSelect').value;
+            const sub = document.getElementById('manageSubjectSelect').value;
+            const area = document.getElementById('chapterManagerArea');
+            const listContainer = document.getElementById('chapterListContainer');
+
+            if (!cls || !sub) {
+                area.style.opacity = '0.5';
+                area.style.pointerEvents = 'none';
+                listContainer.innerHTML = '<div style="text-align: center; color: #555; padding-top: 40px;">Select Class & Subject</div>';
+                return;
+            }
+
+            area.style.opacity = '1';
+            area.style.pointerEvents = 'all';
+            listContainer.innerHTML = '<div style="color: #888; text-align: center;">Loading...</div>';
+
+            // Key logic
+            const key = `${cls}_${sub}`; // e.g., "Class 10_Physics"
+
+            // Check if we have it in profile
+            currentChapterList = [];
+            if (currentUserProfile && currentUserProfile.chapterPreferences && currentUserProfile.chapterPreferences[key]) {
+                currentChapterList = [...currentUserProfile.chapterPreferences[key]];
+            }
+
+            renderChapterList();
+        };
+
+        window.renderChapterList = () => {
+            const listContainer = document.getElementById('chapterListContainer');
+            listContainer.innerHTML = '';
+
+            if (currentChapterList.length === 0) {
+                listContainer.innerHTML = '<div style="text-align: center; color: #555; padding-top: 20px;">No chapters added yet.</div>';
+                return;
+            }
+
+            currentChapterList.forEach((chap, index) => {
+                const div = document.createElement('div');
+                div.className = 'chapter-item';
+                div.innerHTML = `
+    <span>${chap}</span>
+    <button class="btn btn-outline btn-sm" style="border-color: #ff4d4d; color: #ff4d4d;"
+        onclick="removeChapter(${index})">
+        &times;
+    </button>
+    `;
+                listContainer.appendChild(div);
+            });
+        };
+
+        window.addNewChapter = async () => {
+            const input = document.getElementById('newChapterName');
+            const val = input.value.trim();
+            if (!val) return;
+
+            if (currentChapterList.includes(val)) {
+                alert('Chapter already exists!');
+                return;
+            }
+
+            currentChapterList.push(val);
+            input.value = '';
+            renderChapterList(); // optimistic update
+
+            // Auto-save
+            await verifyAndSaveChapters();
+        };
+
+        window.removeChapter = async (index) => {
+            if (confirm('Delete this chapter?')) {
+                currentChapterList.splice(index, 1);
+                renderChapterList();
+                await verifyAndSaveChapters();
+            }
+        };
+
+        window.verifyAndSaveChapters = async () => {
+            const cls = document.getElementById('manageClassSelect').value;
+            const sub = document.getElementById('manageSubjectSelect').value;
+            const key = `${cls}_${sub}`;
+
+            if (user && user.uid && cls && sub) {
+                await saveUserChapterPreferences(user.uid, key, currentChapterList);
+                // Update local profile object so we don't reload
+                if (!currentUserProfile.chapterPreferences) currentUserProfile.chapterPreferences = {};
+                currentUserProfile.chapterPreferences[key] = currentChapterList;
+            }
+        };
+
+
+        // Theme Toggle (Dummy visual for now as main.css handles defaults)
+        window.toggleTheme = () => {
+            const chk = document.getElementById('themeToggle');
+            chk.checked = !chk.checked;
+        };
+    </script>
+</body>
+
+</html>

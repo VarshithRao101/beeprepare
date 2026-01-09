@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Question Paper Bee</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="app-container">
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <!-- Empty left side or Logo could go here if centered text wasn't there -->
+            </div>
+            <div class="header-center">
+                <h1 class="app-logo-text">BEEPREPARE</h1>
+            </div>
+            <div class="header-right">
+                <a href="profile.html">
+                    <img src="../assets/images/avatar-placeholder.png" alt="Profile" class="profile-avatar">
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content fade-in">
+            <div style="padding-bottom: 20px;">
+
+                <!-- 1. SUBJECTS SECTION -->
+                <section class="section-home">
+                    <div class="section-header">
+                        <h2 class="section-title">Your Subjects</h2>
+                        <!-- Link to Profile -->
+                        <a href="profile.html" style="opacity:0.5; color: inherit;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    <div id="homeSubjectsGrid" class="subjects-grid">
+                        <div style="color:#666; font-size:0.9rem;">Loading...</div>
+                    </div>
+                </section>
+
+                <!-- 2. CLASSES SECTION -->
+                <section class="section-home" style="margin-top: 32px;">
+                    <div class="section-header">
+                        <h2 class="section-title">Classes You Teach</h2>
+                        <a href="profile.html" class="icon-btn edit">
+                            <img src="../assets/images/icon-edit.svg" width="18" alt="Edit">
+                            <!-- Removed Invert for Light Mode -->
+                        </a>
+                    </div>
+                    <div id="homeClassesContainer" class="classes-scroll-container">
+                        <div style="color:#666; font-size:0.9rem;">Loading...</div>
+                    </div>
+                </section>
+
+                <!-- 3. ACTIVITY SECTION -->
+                <section class="section-home" style="margin-top: 32px;">
+                    <div class="section-header">
+                        <h2 class="section-title">Your Activity</h2>
+                    </div>
+                    <div class="activity-list">
+                        <!-- Placeholders - Real activity log would require a separate collection -->
+                        <div class="activity-item highlight">
+                            <div class="activity-dot"></div>
+                            <div class="activity-content">
+                                <div class="activity-title">Logged In</div>
+                                <div class="activity-time">Just now</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item active">
+                <img src="../assets/images/icon-home.svg" class="nav-icon" alt="Home">
+                <span>Home</span>
+            </a>
+            <a href="question-bank.html" class="nav-item">
+                <img src="../assets/images/icon-bank.svg" class="nav-icon" alt="Bank">
+                <span>Bank</span>
+            </a>
+            <a href="blueprint.html" class="nav-item">
+                <img src="../assets/images/icon-plus.svg" class="nav-icon" alt="Generate">
+                <span>Generate</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <img src="../assets/images/icon-profile.svg" class="nav-icon" alt="Profile">
+                <span>Profile</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <script type="module">
+        import { getUserProfileData, getUserActivity } from '../assets/js/firestore.js';
+
+        const initHome = async () => {
+            const userJson = localStorage.getItem('qp_user');
+            const user = userJson ? JSON.parse(userJson) : null;
+
+            if (user) {
+                try {
+                    // Parallel Fetch
+                    const [profile, activity] = await Promise.all([
+                        getUserProfileData(user.uid),
+                        getUserActivity(user.uid, 5) // Fetch last 5 items
+                    ]);
+
+                    renderSubjects(profile ? profile.subjects : []);
+                    renderClasses(profile ? profile.classes : []);
+                    renderActivity(activity);
+
+                } catch (e) {
+                    console.error("Home load error", e);
+                }
+            } else {
+                renderSubjects([]);
+                renderClasses([]);
+            }
+        };
+
+        const renderActivity = (activities) => {
+            const container = document.querySelector('.activity-list');
+            container.innerHTML = '';
+
+            if (!activities || activities.length === 0) {
+                container.innerHTML = '<div style="color:var(--text-secondary); font-size:0.9rem; text-align:center; padding:10px;">No recent activity.</div>';
+                return;
+            }
+
+            activities.forEach(act => {
+                // Convert Timestamp
+                let timeStr = 'Just now';
+                if (act.timestamp) {
+                    const date = act.timestamp.toDate ? act.timestamp.toDate() : new Date(act.timestamp);
+                    const now = new Date();
+                    const diffMins = Math.floor((now - date) / 60000);
+                    if (diffMins < 1) timeStr = 'Just now';
+                    else if (diffMins < 60) timeStr = `${diffMins} min ago`;
+                    else if (diffMins < 1440) timeStr = `${Math.floor(diffMins / 60)} hr ago`;
+                    else timeStr = date.toLocaleDateString();
+                }
+
+                const item = document.createElement('div');
+                item.className = 'activity-item highlight';
+                // Add fade-in animation inline or via class
+                item.style.animation = 'fadeIn 0.5s ease forwards';
+
+                item.innerHTML = `
+                    <div class="activity-dot"></div>
+                    <div class="activity-content">
+                        <div class="activity-title">${act.title}</div>
+                        <div style="font-size:0.85rem; color:var(--text-secondary); margin-top:2px;">${act.detail}</div>
+                        <div class="activity-time">${timeStr}</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            // Add a Login entry at the end if list is short, purely visual for "Premium" feel?
+            // User requested "with login".
+            // Since we don't track login history yet, we'll fake a "Logged in" at the bottom or just stick to real data.
+            // Let's stick to real question data for now as per "History" request.
+        };
+
+        const renderSubjects = (subjects) => {
+            const container = document.getElementById('homeSubjectsGrid');
+            container.innerHTML = '';
+
+            if (!subjects || subjects.length === 0) {
+                container.innerHTML = '<div style="color:var(--text-secondary); font-size:0.9rem;">No subjects selected. <a href="profile.html" style="color:var(--yellow)">Edit Profile</a></div>';
+                return;
+            }
+
+            // Simple Color Mapping
+            const colors = {
+                'Physics': '#3B82F6', // Blue
+                'Chemistry': '#EF4444', // Red
+                'Mathematics': '#8B5CF6', // Purple
+                'Maths': '#8B5CF6',
+                'Biology': '#10B981', // Green
+                'English': '#F59E0B', // Orange
+                'Computer': '#6366F1', // Indigo
+                'History': '#78350F', // Brown
+                'Geography': '#059669' // Teal
+            };
+
+            const getRandomColor = (str) => {
+                const defaults = ['#6B7280', '#EC4899', '#14B8A6', '#F97316'];
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                return defaults[Math.abs(hash) % defaults.length];
+            };
+
+            subjects.forEach(sub => {
+                const color = colors[sub] || getRandomColor(sub);
+                const initial = sub.charAt(0).toUpperCase();
+
+                const div = document.createElement('div');
+                div.className = 'subject-card';
+                div.innerHTML = `
+                    <div class="subject-icon" style="
+                        background-color: ${color}; 
+                        width: 48px; 
+                        height: 48px; 
+                        border-radius: 50%; 
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center;
+                        color: white;
+                        font-weight: 700;
+                        font-size: 1.25rem;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                        margin-bottom: 8px;
+                    ">
+                         ${initial}
+                    </div>
+                    <span class="subject-name" style="font-weight: 600; font-size: 0.9rem;">${sub}</span>
+                `;
+                container.appendChild(div);
+            });
+        };
+
+        const renderClasses = (classes) => {
+            const container = document.getElementById('homeClassesContainer');
+            container.innerHTML = '';
+
+            if (!classes || classes.length === 0) {
+                container.innerHTML = '<div style="color:var(--text-secondary); font-size:0.9rem;">No classes selected. <a href="profile.html" style="color:var(--yellow)">Edit Profile</a></div>';
+                return;
+            }
+
+            classes.forEach(cls => {
+                const div = document.createElement('div');
+                div.className = 'class-card';
+                div.innerHTML = `
+                    <div>
+                        <div class="class-name">${cls}</div>
+                        <div class="class-section">Enrolled</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        };
+
+        initHome();
+    </script>
+    <script type="module" src="../assets/js/firebase-auth.js"></script>
+</body>
+
+</html>

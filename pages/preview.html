@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview - BEEPREPARE</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- PDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+
+<body>
+
+    <div id="drawer">
+        <div class="drawer-overlay">
+            <a href="#" class="drawer-close-overlay" aria-label="Close menu"
+                style="position:absolute;width:100%;height:100%;"></a>
+        </div>
+        <aside class="side-drawer">
+            <div class="drawer-header">
+                <span class="app-logo-text">BEEPREPARE</span>
+                <a href="#" class="drawer-close">&times;</a>
+            </div>
+            <nav class="drawer-nav">
+                <ul>
+                    <li><a href="home.html" class="drawer-link">Home</a></li>
+                    <li><a href="question-bank.html" class="drawer-link">Question Bank</a></li>
+                    <li><a href="templates.html" class="drawer-link">Templates</a></li>
+                    <li><a href="profile.html" class="drawer-link">Profile</a></li>
+                    <li><a href="offline.html" class="drawer-link">Offline Mode</a></li>
+                </ul>
+            </nav>
+        </aside>
+    </div>
+
+    <div class="app-container">
+
+        <!-- Header with Back Button -->
+        <header class="app-header">
+            <div class="header-left">
+                <a href="blueprint.html" class="menu-trigger" style="padding: 4px;">
+                    <img src="../assets/images/icon-arrow-left.svg" alt="Back" style="width: 24px;">
+                </a>
+            </div>
+            <div class="header-center">
+                <h1 class="app-logo-text">Paper Preview</h1>
+            </div>
+            <div class="header-right">
+                <a href="#" class="menu-trigger">
+                    <img src="../assets/images/icon-edit.svg" alt="Edit" style="width: 20px; filter: grayscale(1);">
+                </a>
+            </div>
+        </header>
+
+        <main class="main-content fade-in" style="background-color: var(--dark-bg); position: relative;">
+
+            <div class="preview-container-wrapper">
+
+                <!-- A4 Paper Simulation -->
+                <div class="a4-paper">
+
+                    <!-- Paper Header -->
+                    <div class="paper-header-section">
+                        <div class="paper-inst-name">St. Xavier's High School</div>
+                        <div class="paper-exam-name">Mid-Term Examination 2026</div>
+                        <div class="paper-meta-grid">
+                            <span>Class: X | Subject: Mathematics</span>
+                            <span>Time: 3 Hrs | Max Marks: 80</span>
+                        </div>
+                    </div>
+
+                    <!-- Instructions -->
+                    <div
+                        style="margin-bottom: var(--spacing-lg); font-size: 0.9rem; border-bottom: 1px solid #ccc; padding-bottom: 8px;">
+                        <strong>General Instructions:</strong>
+                        <ul style="list-style-type: disc; margin-left: 20px; margin-top: 4px; font-size: 0.85rem;">
+                            <li>All questions are compulsory.</li>
+                            <li>The question paper consists of 30 questions divided into sections A, B, and C.</li>
+                            <li>Use of calculators is not permitted.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Paper Body -->
+                    <div class="paper-question-list">
+                        <!-- Populated dynamically by JS -->
+                        <div style="text-align: center; color: #666; padding: 20px;">
+                            Loading Preview...
+                        </div>
+                    </div>
+
+                    <!-- Paper Footer -->
+                    <div class="paper-footer-section">
+                        — End of Question Paper —<br>
+                        <span style="font-size: 0.8rem; margin-top: 8px; display: inline-block;">Page 1 of 1</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Scroll Spacer -->
+            <div style="height: 60px;"></div>
+
+        </main>
+
+        <!-- Sticky Action Bar -->
+        <div class="action-bar-sticky">
+            <button class="btn btn-outline"
+                style="flex: 1; border-color: var(--text-primary); color: var(--text-primary);">Edit</button>
+            <button class="btn btn-primary" style="flex: 1;">Finalize</button>
+            <button class="btn btn-disabled" style="flex: 1;" disabled>PDF</button>
+        </div>
+
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <img src="../assets/images/icon-home.svg" class="nav-icon" alt="Home">
+                <span>Home</span>
+            </a>
+            <a href="question-bank.html" class="nav-item">
+                <img src="../assets/images/icon-bank.svg" class="nav-icon" alt="Bank">
+                <span>Bank</span>
+            </a>
+            <a href="blueprint.html" class="nav-item">
+                <img src="../assets/images/icon-plus.svg" class="nav-icon" alt="Generate">
+                <span>Generate</span>
+            </a>
+            <a href="templates.html" class="nav-item">
+                <img src="../assets/images/icon-templates.svg" class="nav-icon" alt="Templates">
+                <span>Templates</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <img src="../assets/images/icon-profile.svg" class="nav-icon" alt="Profile">
+                <span>Profile</span>
+            </a>
+        </nav>
+
+        <!-- PDF Success Overlay -->
+        <div id="pdfSuccessOverlay" class="pdf-success-overlay">
+            <div class="pdf-icon-circle">
+                <img src="../assets/images/icon-check.svg" width="50" height="50" style="filter: invert(1);">
+            </div>
+            <h2 class="success-heading">Question Paper Generated!</h2>
+            <p class="success-subtext">Saved to your device as PDF.</p>
+
+            <div class="button-stack">
+                <button class="btn btn-primary" onclick="window.location.reload()">Download Again</button>
+                <button class="btn btn-outline" onclick="window.location.href='blueprint.html'">Create New
+                    Paper</button>
+                <button class="btn btn-outline" onclick="window.location.href='home.html'"
+                    style="border: none; color: var(--text-secondary);">Go Home</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { getPaperDraft } from '../assets/js/createPaper.js';
+        import { enableEditMode, disableEditMode, scrapePaperData } from '../assets/js/previewEditor.js';
+        import { saveFinalPaper } from '../assets/js/paperSave.js';
+        import { generateQuestionPaperPDF } from '../assets/js/pdfGenerator.js';
+
+        // Global Draft Ref
+        let currentDraft = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Load Draft
+            currentDraft = getPaperDraft();
+            if (!currentDraft) {
+                if (confirm("No active paper draft found. Create one now?")) {
+                    window.location.href = "blueprint.html";
+                }
+                return;
+            }
+
+            // 2. Render Initial State
+            renderPaper(currentDraft);
+
+            // 3. Enable Editing Immediately
+            // Make sure we enable editing for the text content
+            enableEditMode();
+        });
+
+        const renderPaper = (draft) => {
+            // Header
+            const meta = document.querySelector('.paper-meta-grid');
+            if (meta) {
+                meta.innerHTML = `<span>Class: ${draft.class} | Subject: ${draft.subject}</span>
+                                   <span>Marks: ${draft.totalMarks} | Time: ${Math.ceil(draft.totalMarks * 1.5)} Mins</span>`;
+            }
+
+            // Questions
+            const container = document.querySelector('.paper-question-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let globalQCount = 1;
+
+            const renderGroup = (label, marksKey, marksDisplay) => {
+                const subset = draft.questions.filter(q => q.marks == marksKey);
+                if (subset.length === 0) return;
+
+                // Create Header that is also potentially editable (via class .paper-header-section sibling logic if we want, but let's keep it static-ish or manually contenteditable)
+                const sectionHeader = document.createElement('div');
+                sectionHeader.style.cssText = "text-align: center; font-weight: 700; margin: 16px 0; text-decoration: underline;";
+                sectionHeader.textContent = `${label} (${marksDisplay} Marks Each)`;
+                container.appendChild(sectionHeader);
+
+                subset.forEach(q => {
+                    const el = document.createElement('div');
+                    el.className = 'paper-question-item';
+                    el.dataset.id = q.id || 'temp';
+                    el.innerHTML = `
+                        <div class="p-q-num">${globalQCount++}.</div>
+                        <div class="p-q-text">${q.questionText}</div>
+                        <div class="p-q-marks">[${q.marks === 'MCQ' ? 1 : q.marks}]</div>
+                    `;
+                    container.appendChild(el);
+                });
+            };
+
+            renderGroup("SECTION A", "MCQ", 1);
+            renderGroup("SECTION B", "2", 2);
+            renderGroup("SECTION C", "4", 4);
+            renderGroup("SECTION D", "8", 8);
+
+            if (container.children.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:20px;">No questions in draft.</div>';
+            }
+        };
+
+        // --- Interaction Logic ---
+        const finalizeBtn = document.querySelector('.btn-primary');
+        const pdfBtn = document.querySelector('.btn-disabled');
+
+        if (finalizeBtn) {
+            finalizeBtn.addEventListener('click', async () => {
+                if (finalizeBtn.disabled) return;
+
+                const originalText = finalizeBtn.textContent;
+                finalizeBtn.textContent = "Saving...";
+                finalizeBtn.disabled = true;
+
+                try {
+                    // 1. Scrape Final Data
+                    const finalData = scrapePaperData(currentDraft);
+
+                    // 2. Lock Editing
+                    disableEditMode();
+
+                    // 3. Save to Firestore
+                    const paperId = await saveFinalPaper(finalData);
+
+                    if (paperId) {
+                        finalizeBtn.textContent = "Finalized";
+                        // Update current draft with finalized data in case they want PDF right away
+                        // scrapePaperData returns the structure we need
+                        currentDraft = { ...currentDraft, ...finalData };
+
+                        // Enable PDF Button
+                        if (pdfBtn) {
+                            pdfBtn.disabled = false;
+                            pdfBtn.classList.remove('btn-disabled');
+                            pdfBtn.classList.add('btn-primary');
+                            pdfBtn.style.backgroundColor = 'var(--text-primary)';
+                            pdfBtn.style.color = '#000';
+                            pdfBtn.textContent = "Generate PDF";
+                        }
+                    } else {
+                        throw new Error("Save returned null");
+                    }
+
+                } catch (e) {
+                    console.error(e);
+                    alert("Error finalizing paper: " + e.message);
+                    finalizeBtn.disabled = false;
+                    finalizeBtn.textContent = originalText;
+                    enableEditMode();
+                }
+            });
+        }
+
+        if (pdfBtn) {
+            pdfBtn.addEventListener('click', async () => {
+                if (pdfBtn.disabled) return;
+
+                const element = document.querySelector('.a4-paper');
+                const overlay = document.getElementById('pdfSuccessOverlay');
+
+                // Show loading
+                const originalText = pdfBtn.textContent;
+                pdfBtn.textContent = "Downloading...";
+                pdfBtn.style.opacity = '0.7';
+
+                const success = await generateQuestionPaperPDF(element, {
+                    institution: currentDraft.institution || "School",
+                    subject: currentDraft.subject
+                });
+
+                pdfBtn.textContent = originalText;
+                pdfBtn.style.opacity = '1';
+
+                if (success && overlay) {
+                    overlay.classList.add('active');
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Question Paper - BEEPREPARE</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="app-container">
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <a href="home.html" class="menu-trigger">
+                    <img src="../assets/images/icon-arrow-left.svg" alt="Back" style="width: 24px;">
+                </a>
+            </div>
+            <div class="header-center">
+                <h1 class="app-logo-text">Create Question Paper</h1>
+            </div>
+            <div class="header-right">
+                <a href="profile.html">
+                    <img src="../assets/images/avatar-placeholder.png" alt="Profile" class="profile-avatar">
+                </a>
+            </div>
+        </header>
+
+        <main class="main-content fade-in">
+
+            <div style="max-width: 600px; margin: 0 auto; padding-bottom: 80px;">
+
+                <!-- Progress Indicator -->
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+                    <div style="font-weight: 700; color: var(--yellow);">Step 1 of 3</div>
+                    <div style="display: flex; gap: 4px;">
+                        <div style="width: 24px; height: 4px; background: var(--yellow); border-radius: 2px;"></div>
+                        <div style="width: 24px; height: 4px; background: var(--border-grey); border-radius: 2px;">
+                        </div>
+                        <div style="width: 24px; height: 4px; background: var(--border-grey); border-radius: 2px;">
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="card-title" style="margin-bottom: var(--spacing-md); font-size: 1.3rem;">Paper Configuration
+                </h2>
+
+                <!-- Basic Selection -->
+                <div class="content-card">
+                    <div class="form-group">
+                        <label class="form-label">Class</label>
+                        <select class="form-select">
+                            <option>Class 10</option>
+                            <option>Class 9</option>
+                            <option>Class 8</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Subject</label>
+                        <select class="form-select">
+                            <option>Science</option>
+                            <option>Mathematics</option>
+                            <option>Social Science</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Chapter</label>
+                        <select class="form-select">
+                            <option>All Chapters</option>
+                            <option>Ch 1: Chemical Reactions</option>
+                            <option>Ch 2: Acids, Bases and Salts</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Marks Distribution -->
+                <h3 class="card-title" style="margin-bottom: var(--spacing-sm); margin-top: var(--spacing-lg);">Question
+                    Selection</h3>
+                <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md); font-size: 0.9rem;">Select
+                    quantity for each question type</p>
+
+                <div class="content-card">
+                    <!-- 2 Marks -->
+                    <div class="counter-row">
+                        <div class="counter-label">
+                            <span style="display:block; font-weight: 600; color: var(--text-primary);">2 Marks</span>
+                            <span style="font-size: 0.8rem; color: var(--text-secondary);">Short Answer</span>
+                        </div>
+                        <div class="counter-control">
+                            <button class="counter-btn" onclick="updateCount(this, -1)">-</button>
+                            <input type="text" class="counter-input" value="5" readonly>
+                            <button class="counter-btn" onclick="updateCount(this, 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="separator"></div>
+
+                    <!-- 4 Marks -->
+                    <div class="counter-row">
+                        <div class="counter-label">
+                            <span style="display:block; font-weight: 600; color: var(--text-primary);">4 Marks</span>
+                            <span style="font-size: 0.8rem; color: var(--text-secondary);">Long Answer</span>
+                        </div>
+                        <div class="counter-control">
+                            <button class="counter-btn" onclick="updateCount(this, -1)">-</button>
+                            <input type="text" class="counter-input" value="3" readonly>
+                            <button class="counter-btn" onclick="updateCount(this, 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="separator"></div>
+
+                    <!-- 8 Marks -->
+                    <div class="counter-row">
+                        <div class="counter-label">
+                            <span style="display:block; font-weight: 600; color: var(--text-primary);">8 Marks</span>
+                            <span style="font-size: 0.8rem; color: var(--text-secondary);">Essay Type</span>
+                        </div>
+                        <div class="counter-control">
+                            <button class="counter-btn" onclick="updateCount(this, -1)">-</button>
+                            <input type="text" class="counter-input" value="1" readonly>
+                            <button class="counter-btn" onclick="updateCount(this, 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="separator"></div>
+
+                    <!-- MCQ -->
+                    <div class="counter-row">
+                        <div class="counter-label">
+                            <span style="display:block; font-weight: 600; color: var(--text-primary);">MCQ</span>
+                            <span style="font-size: 0.8rem; color: var(--text-secondary);">1 Mark Each</span>
+                        </div>
+                        <div class="counter-control">
+                            <button class="counter-btn" onclick="updateCount(this, -1)">-</button>
+                            <input type="text" class="counter-input" value="10" readonly>
+                            <button class="counter-btn" onclick="updateCount(this, 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: var(--spacing-xl); text-align: right;">
+                    <div style="margin-bottom: var(--spacing-sm); color: var(--text-secondary); font-size: 0.9rem;">
+                        Total Marks: <span id="totalMarks" style="color: var(--yellow); font-weight: 700;">35</span>
+                    </div>
+                    <button class="btn btn-primary btn-large-action">Next Step</button>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- New Bottom Nav (Active: Create) -->
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <img src="../assets/images/icon-home.svg" class="nav-icon" alt="Home">
+                <span>Home</span>
+            </a>
+            <a href="question-bank.html" class="nav-item">
+                <img src="../assets/images/icon-bank.svg" class="nav-icon" alt="Bank">
+                <span>Bank</span>
+            </a>
+            <a href="blueprint.html" class="nav-item active">
+                <img src="../assets/images/icon-plus.svg" class="nav-icon" alt="Generate">
+                <span>Generate</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <img src="../assets/images/icon-profile.svg" class="nav-icon" alt="Profile">
+                <span>Profile</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <script type="module">
+        import { generatePaperDraft } from '../assets/js/createPaper.js';
+        import { getUserProfileData } from '../assets/js/firestore.js';
+
+        // Initial State
+        let userProfile = null;
+
+        // DOM Elements
+        // Using specific IDs would be better, but selecting by class works if we are careful
+        const selects = document.querySelectorAll('.form-select');
+        const classSelect = selects[0];
+        const subjectSelect = selects[1];
+        const chapterSelect = selects[2];
+
+        // Initialization
+        const init = async () => {
+            const userJson = localStorage.getItem('qp_user');
+            const user = userJson ? JSON.parse(userJson) : null;
+
+            if (user) {
+                try {
+                    userProfile = await getUserProfileData(user.uid);
+                    if (userProfile) {
+                        populateClassDropdown();
+                        populateSubjectDropdown();
+                        // Initialize Chapter with "All"
+                        chapterSelect.innerHTML = '<option value="All Chapters">All Chapters</option>';
+                    }
+                } catch (e) {
+                    console.error("Error loading profile", e);
+                }
+            }
+        };
+
+        const populateClassDropdown = () => {
+            classSelect.innerHTML = '<option value="">Select Class</option>';
+            if (userProfile.classes && userProfile.classes.length > 0) {
+                userProfile.classes.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    opt.textContent = c;
+                    classSelect.appendChild(opt);
+                });
+            }
+        };
+
+        const populateSubjectDropdown = () => {
+            subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+            if (userProfile.subjects && userProfile.subjects.length > 0) {
+                userProfile.subjects.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s;
+                    opt.textContent = s;
+                    subjectSelect.appendChild(opt);
+                });
+            }
+        };
+
+        const updateChapterDropdown = () => {
+            const cls = classSelect.value;
+            const sub = subjectSelect.value;
+
+            chapterSelect.innerHTML = '<option value="All Chapters">All Chapters</option>';
+
+            if (cls && sub && userProfile && userProfile.chapterPreferences) {
+                const key = `${cls}_${sub}`;
+                const chapters = userProfile.chapterPreferences[key];
+
+                if (chapters && chapters.length > 0) {
+                    chapters.forEach(ch => {
+                        const opt = document.createElement('option');
+                        opt.value = ch;
+                        opt.textContent = ch;
+                        chapterSelect.appendChild(opt);
+                    });
+                }
+            }
+        };
+
+        // Listeners for dynamic updates
+        classSelect.addEventListener('change', updateChapterDropdown);
+        subjectSelect.addEventListener('change', updateChapterDropdown);
+
+        // Connect UI Controls to Logic
+        const inputs = document.querySelectorAll('.counter-input');
+
+        // Expose to window for onclick
+        window.updateCount = (btn, change) => {
+            const input = btn.parentNode.querySelector('input');
+            let val = parseInt(input.value);
+            val += change;
+            if (val < 0) val = 0;
+            input.value = val;
+            recalcTotal();
+        };
+
+        function recalcTotal() {
+            let total = 0;
+            const vals = Array.from(document.querySelectorAll('.counter-input')).map(i => parseInt(i.value));
+
+            total += (vals[0] * 2); // 2 Marks
+            total += (vals[1] * 4); // 4 Marks
+            total += (vals[2] * 8); // 8 Marks
+            total += (vals[3] * 1); // MCQ (1 Mark)
+
+            document.getElementById('totalMarks').textContent = total;
+        }
+
+        // Initial Calc
+        recalcTotal();
+        init();
+
+        // Handle Generation
+        document.querySelector('.btn-large-action').addEventListener('click', async () => {
+            const btn = document.querySelector('.btn-large-action');
+            if (btn.disabled) return;
+
+            // Simple validation
+            if (!classSelect.value) return alert("Please select a Class");
+            if (!subjectSelect.value) return alert("Please select a Subject");
+
+            const originalText = btn.textContent;
+            btn.textContent = "Generating...";
+            btn.disabled = true;
+
+            // Gather Config
+            const counters = document.querySelectorAll('.counter-input');
+
+            const config = {
+                class: classSelect.value,
+                subject: subjectSelect.value,
+                chapter: chapterSelect.value, // "All Chapters" or specific string
+                counts: {
+                    twoMark: parseInt(counters[0].value),
+                    fourMark: parseInt(counters[1].value),
+                    eightMark: parseInt(counters[2].value),
+                    mcq: parseInt(counters[3].value)
+                }
+            };
+
+            // Generate
+            const success = await generatePaperDraft(config);
+
+            if (success) {
+                window.location.href = "preview.html";
+            } else {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+    <script type="module" src="../assets/js/firebase-auth.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Questions - BEEPREPARE</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .filter-header {
+            background: var(--card-grey);
+            /* Fixed var */
+            padding: 16px;
+            border-bottom: 1px solid var(--border-grey);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 600px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: var(--card-grey);
+            /* White */
+            border: 1px solid var(--border-grey);
+            color: var(--text-primary);
+            width: 100%;
+        }
+
+        .filter-select:disabled {
+            opacity: 0.5;
+            background: var(--light-grey);
+            /* Visible disabled state */
+        }
+
+        .section-group {
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(255, 192, 0, 0.1);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            border: 1px solid rgba(255, 192, 0, 0.2);
+        }
+
+        .section-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--yellow-hover);
+            /* Darker yellow for text on light bg */
+        }
+
+        .section-header .count-badge {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+        }
+
+        .section-content {
+            display: block;
+        }
+
+        .section-content.collapsed {
+            display: none;
+        }
+
+        .question-item {
+            background: var(--card-grey);
+            border: 1px solid var(--border-grey);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 8px;
+            margin-left: 8px;
+            border-left: 3px solid var(--border-grey);
+        }
+
+        .question-item:hover {
+            border-left-color: var(--yellow);
+        }
+
+        .q-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .q-body {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .mcq-options {
+            display: grid;
+            gap: 4px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            background: var(--light-grey);
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .correct-opt {
+            color: var(--success, #4CAF50);
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container" style="padding-bottom: 20px;">
+
+        <!-- App Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <a href="profile.html">
+                    <img src="../assets/images/icon-arrow-left.svg" alt="Back" style="width: 24px;">
+                </a>
+            </div>
+            <div class="header-center">
+                <h1 class="app-logo-text">My Questions</h1>
+            </div>
+            <div class="header-right"></div>
+        </header>
+
+        <!-- Fixed Filter Bar -->
+        <div class="filter-header">
+            <div class="filter-grid">
+                <select id="filterClass" class="filter-select">
+                    <option value="">Select Class</option>
+                    <option value="Class 6">Class 6</option>
+                    <option value="Class 7">Class 7</option>
+                    <option value="Class 8">Class 8</option>
+                    <option value="Class 9">Class 9</option>
+                    <option value="Class 10">Class 10</option>
+                </select>
+                <select id="filterSubject" class="filter-select" disabled>
+                    <option value="">Select Subject</option>
+                    <option value="Physics">Physics</option>
+                    <option value="Chemistry">Chemistry</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Biology">Biology</option>
+                </select>
+                <select id="filterChapter" class="filter-select" disabled>
+                    <option value="">Select Chapter</option>
+                </select>
+            </div>
+        </div>
+
+        <main class="main-content fade-in" style="padding: 20px; max-width: 900px; margin: 0 auto;">
+
+            <!-- State: Initial -->
+            <div id="initialState" style="text-align: center; margin-top: 60px; color: #888;">
+                <p>Please select Class, Subject, and Chapter to view questions.</p>
+            </div>
+
+            <!-- State: Loading -->
+            <div id="loadingState" style="display: none; text-align: center; margin-top: 60px; color: var(--yellow);">
+                Loading...
+            </div>
+
+            <!-- State: Empty -->
+            <div id="emptyState" style="display: none; text-align: center; margin-top: 60px; color: #888;">
+                <p>No questions added yet for this chapter.</p>
+                <a href="add_question.html" class="btn btn-outline" style="margin-top: 16px;">Add New Question</a>
+            </div>
+
+            <!-- Content Area -->
+            <div id="contentArea" style="display: none;">
+                <!-- Groups will be injected here -->
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { getUserQuestions, getUserProfileData } from '../assets/js/firestore.js';
+        import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+        // DOM Inputs
+        const filterClass = document.getElementById('filterClass');
+        const filterSubject = document.getElementById('filterSubject');
+        const filterChapter = document.getElementById('filterChapter');
+
+        // DOM States
+        const initialState = document.getElementById('initialState');
+        const loadingState = document.getElementById('loadingState');
+        const emptyState = document.getElementById('emptyState');
+        const contentArea = document.getElementById('contentArea');
+
+        // Cache
+        let cachedQuestions = [];
+        let currentUid = null;
+        let userProfile = null;
+
+        // --- Init Auth ---
+        const init = async () => {
+            const localUser = JSON.parse(localStorage.getItem('qp_user'));
+            if (!localUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUid = localUser.uid;
+
+            // Fetch Profile for Dropdowns
+            try {
+                userProfile = await getUserProfileData(currentUid);
+                if (userProfile) {
+                    populateClassDropdown();
+                    populateSubjectDropdown();
+                }
+            } catch (e) {
+                console.error("Error loading profile", e);
+            }
+        };
+
+        const populateClassDropdown = () => {
+            filterClass.innerHTML = '<option value="">Select Class</option>';
+            if (userProfile.classes && userProfile.classes.length > 0) {
+                userProfile.classes.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    opt.textContent = c;
+                    filterClass.appendChild(opt);
+                });
+            } else {
+                // Fallback if no classes set? Or empty.
+            }
+        };
+
+        const populateSubjectDropdown = () => {
+            filterSubject.innerHTML = '<option value="">Select Subject</option>';
+            if (userProfile.subjects && userProfile.subjects.length > 0) {
+                userProfile.subjects.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s;
+                    opt.textContent = s;
+                    filterSubject.appendChild(opt);
+                });
+            }
+        };
+
+        // --- Event Listeners ---
+
+        filterClass.addEventListener('change', () => {
+            if (filterClass.value) {
+                filterSubject.disabled = false;
+                // If subject already selected, trigger refresh of chapters logic
+                if (filterSubject.value) {
+                    filterSubject.dispatchEvent(new Event('change'));
+                }
+            } else {
+                filterSubject.disabled = true;
+                filterSubject.value = "";
+                filterChapter.disabled = true;
+                filterChapter.value = "";
+                resetView();
+            }
+        });
+
+        filterSubject.addEventListener('change', () => {
+            const cls = filterClass.value;
+            const sub = filterSubject.value;
+
+            filterChapter.innerHTML = '<option value="">Select Chapter</option>';
+
+            if (cls && sub && userProfile && userProfile.chapterPreferences) {
+                const key = `${cls}_${sub}`;
+                const chapters = userProfile.chapterPreferences[key];
+
+                if (chapters && chapters.length > 0) {
+                    chapters.forEach(ch => {
+                        const opt = document.createElement('option');
+                        opt.value = ch;
+                        opt.textContent = ch;
+                        filterChapter.appendChild(opt);
+                    });
+                    filterChapter.disabled = false;
+                } else {
+                    // No chapters found for this combo
+                    filterChapter.disabled = true;
+                }
+            } else {
+                filterChapter.disabled = true;
+                filterChapter.value = "";
+            }
+            resetView();
+        });
+
+        init();
+
+        filterChapter.addEventListener('change', () => {
+            if (filterChapter.value) {
+                fetchAndDisplay();
+            } else {
+                resetView();
+            }
+        });
+
+
+        // --- Core Functions ---
+
+        function resetView() {
+            contentArea.style.display = 'none';
+            emptyState.style.display = 'none';
+            loadingState.style.display = 'none';
+            initialState.style.display = 'block';
+        }
+
+        async function fetchAndDisplay() {
+            initialState.style.display = 'none';
+            loadingState.style.display = 'block';
+            contentArea.style.display = 'none';
+            emptyState.style.display = 'none';
+
+            // Filter Criteria
+            const criteria = {
+                class: filterClass.value,
+                subject: filterSubject.value,
+                // FireStore function currently supports only these. 
+                // We will manually filter Chapter from the result set if needed, 
+                // or if we updated firestore.js to support more, we use it. 
+                // Currently firestore.js getUserQuestions supports 'class' and 'subject'.
+                // So we fetch by Subj/Class and filter Chapter in memory.
+            };
+
+            // Fetch
+            try {
+                // Determine if we need to re-fetch or use cache?
+                // For 'View My Questions', strict consistency is better. Let's fetch.
+                const allQuestions = await getUserQuestions(currentUid, criteria);
+
+                // In-Memory Filter for Chapter
+                const filtered = allQuestions.filter(q => q.chapter === filterChapter.value);
+
+                loadingState.style.display = 'none';
+
+                if (filtered.length === 0) {
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                renderGROUPS(filtered);
+                contentArea.style.display = 'block';
+
+            } catch (error) {
+                console.error(error);
+                loadingState.innerText = "Error fetching data.";
+            }
+        }
+
+        function renderGROUPS(questions) {
+            contentArea.innerHTML = '';
+
+            // Grouping Buckets
+            const groups = {
+                'MCQ': [],
+                '1-2 Marks': [],
+                '3-5 Marks': [],
+                '6-10 Marks': []
+            };
+
+            questions.forEach(q => {
+                if (q.questionType === 'MCQ' || q.marks === 'MCQ') {
+                    groups['MCQ'].push(q);
+                } else {
+                    const m = parseInt(q.marks) || 0;
+                    if (m >= 1 && m <= 2) groups['1-2 Marks'].push(q);
+                    else if (m >= 3 && m <= 5) groups['3-5 Marks'].push(q);
+                    else if (m >= 6) groups['6-10 Marks'].push(q);
+                }
+            });
+
+            // Render Each Group
+            Object.keys(groups).forEach(key => {
+                const list = groups[key];
+                if (list.length > 0) {
+                    const section = document.createElement('div');
+                    section.className = 'section-group';
+
+                    const sectionId = 'sec-' + key.replace(/ /g, '-');
+
+                    // Header
+                    section.innerHTML = `
+                        <div class="section-header" onclick="document.getElementById('${sectionId}').classList.toggle('collapsed')">
+                            <h3>${key}</h3>
+                            <span class="count-badge">${list.length}</span>
+                        </div>
+                        <div id="${sectionId}" class="section-content">
+                            ${list.map(q => renderQuestionHTML(q)).join('')}
+                        </div>
+                    `;
+                    contentArea.appendChild(section);
+                }
+            });
+        }
+
+        function renderQuestionHTML(q) {
+            let mcqHtml = '';
+            if ((q.questionType === 'MCQ' || q.marks === 'MCQ') && q.options) {
+                mcqHtml = `
+                    <div class="mcq-options">
+                        <div>A) ${q.options.A || ''} ${q.correctOption === 'A' ? '<span class="correct-opt">(Correct)</span>' : ''}</div>
+                        <div>B) ${q.options.B || ''} ${q.correctOption === 'B' ? '<span class="correct-opt">(Correct)</span>' : ''}</div>
+                        <div>C) ${q.options.C || ''} ${q.correctOption === 'C' ? '<span class="correct-opt">(Correct)</span>' : ''}</div>
+                        <div>D) ${q.options.D || ''} ${q.correctOption === 'D' ? '<span class="correct-opt">(Correct)</span>' : ''}</div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="question-item">
+                    <div class="q-meta">
+                        <span>Marks: ${q.marks}</span>
+                        <span>Type: ${q.questionType || 'Short'}</span>
+                    </div>
+                    <div class="q-body">${q.questionText}</div>
+                    ${mcqHtml}
+                </div>
+            `;
+        }
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Question - BEEPREPARE</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Local Styles for Add Question Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-select,
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--card-grey);
+            border: 1px solid var(--border-grey);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+
+        .form-select:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .question-input-large {
+            width: 100%;
+            padding: 12px;
+            background: var(--card-grey);
+            border: 1px solid var(--border-grey);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .mcq-section {
+            display: none;
+            background: var(--dark-bg);
+            /* Use theme bg for contrast against white card, or light grey */
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            border: 1px solid var(--border-grey);
+        }
+
+        .mcq-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .option-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .option-row input {
+            flex: 1;
+        }
+
+        .option-label {
+            font-weight: bold;
+            color: var(--yellow);
+            width: 20px;
+        }
+
+        .action-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-grey);
+            border-top: 1px solid var(--border-grey);
+            padding: 16px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .success-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .check-circle {
+            width: 80px;
+            height: 80px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .success-text {
+            color: var(--yellow);
+            font-size: 1.2rem;
+            margin-top: 16px;
+            font-weight: 500;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container" style="background-color: var(--dark-bg); min-height: 100vh;">
+
+        <!-- Header -->
+        <header class="app-header" style="border-bottom: none; background: transparent;">
+            <div class="header-left">
+                <a href="question-bank.html" class="menu-trigger">
+                    <img src="../assets/images/icon-arrow-left.svg" alt="Back" style="width: 24px;">
+                </a>
+            </div>
+            <div class="header-center">
+                <h1 class="app-logo-text" style="color: var(--text-primary); font-size: 1.1rem;">Add New Question</h1>
+            </div>
+            <div class="header-right"></div>
+        </header>
+
+        <main class="main-content fade-in" style="padding-top: 0; padding-bottom: 100px;">
+
+            <div style="max-width: 700px; margin: 0 auto;">
+
+                <!-- HIDDEN INPUTS FOR LOGIC -->
+                <input type="hidden" id="classInput">
+                <input type="hidden" id="subjectInput">
+                <input type="hidden" id="chapterInput">
+                <input type="hidden" id="marksInput">
+                <input type="hidden" id="typeInput">
+                <input type="hidden" id="topicInput">
+
+                <!-- 1. CONTEXT HEADER -->
+                <div
+                    style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid var(--yellow);">
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;">Adding Question
+                        For:</div>
+                    <div id="contextText" style="font-size: 1rem; font-weight: 500; color: var(--text-primary);">
+                        Loading Context...
+                    </div>
+                </div>
+
+                <!-- 2. QUESTION TEXT -->
+                <div class="form-group">
+                    <label class="form-label">Question Content</label>
+                    <textarea id="qInput" class="question-input-large" placeholder="Type the question content here..."
+                        style="min-height: 120px;" autofocus></textarea>
+                </div>
+
+                <!-- 3. MCQ SECTION (Conditional) -->
+                <div id="mcqSection" class="mcq-section">
+                    <h4 style="margin-top:0; margin-bottom:12px; color:var(--text-primary);">MCQ Options</h4>
+
+                    <div class="option-row">
+                        <span class="option-label">A</span>
+                        <input type="text" id="optA" class="form-input" placeholder="Option A text">
+                    </div>
+                    <div class="option-row">
+                        <span class="option-label">B</span>
+                        <input type="text" id="optB" class="form-input" placeholder="Option B text">
+                    </div>
+                    <div class="option-row">
+                        <span class="option-label">C</span>
+                        <input type="text" id="optC" class="form-input" placeholder="Option C text">
+                    </div>
+                    <div class="option-row">
+                        <span class="option-label">D</span>
+                        <input type="text" id="optD" class="form-input" placeholder="Option D text">
+                    </div>
+
+                    <div style="margin-top: 16px;">
+                        <label class="form-label">Correct Answer</label>
+                        <select id="correctAnswerSelect" class="form-select">
+                            <option value="">Select Correct Option</option>
+                            <option value="A">Option A</option>
+                            <option value="B">Option B</option>
+                            <option value="C">Option C</option>
+                            <option value="D">Option D</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- Fixed Action Footer -->
+        <footer class="action-footer">
+            <a href="question-bank.html" class="btn btn-outline" style="min-width: 100px;">Cancel</a>
+            <button class="btn btn-primary" onclick="window.validateAndSave()" style="min-width: 140px;">Save
+                Question</button>
+        </footer>
+
+        <!-- Success Overlay -->
+        <div id="successOverlay" class="success-overlay">
+            <div class="check-circle">
+                <img src="../assets/images/icon-check.svg" width="40" height="40" alt="Success"
+                    style="filter: invert(1);">
+            </div>
+            <div class="success-text">Question Saved via Bank!</div>
+            <div style="font-size: 0.9rem; margin-top: 8px; color: #aaa;">Redirecting to List...</div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { handleSaveNewQuestion } from '../assets/js/questionBank.js';
+
+        // DOM Elements
+        const qInput = document.getElementById('qInput');
+        const mcqSection = document.getElementById('mcqSection');
+        const contextText = document.getElementById('contextText');
+
+        // Logic Inputs
+        const classInput = document.getElementById('classInput');
+        const subjectInput = document.getElementById('subjectInput');
+        const chapterInput = document.getElementById('chapterInput');
+        const marksInput = document.getElementById('marksInput');
+        const typeInput = document.getElementById('typeInput');
+        const topicInput = document.getElementById('topicInput');
+
+        // Init
+        const init = () => {
+            const params = new URLSearchParams(window.location.search);
+
+            const cls = params.get('class') || 'Unknown Class';
+            const sub = params.get('subject') || 'Unknown Subject';
+            const ch = params.get('chapter') || 'Unknown Chapter';
+            const type = params.get('type') || 'Short Answer';
+            const marks = params.get('marks') || '1';
+            const topic = params.get('topic') || '';
+
+            // Set text
+            let display = `${cls} • ${sub} • ${ch}`;
+            if (topic) display += ` • ${topic}`;
+            display += ` • ${marks}M (${type})`;
+
+            contextText.innerText = display;
+
+            // Set Values
+            classInput.value = cls;
+            subjectInput.value = sub;
+            chapterInput.value = ch;
+            marksInput.value = marks;
+            typeInput.value = type;
+            topicInput.value = topic;
+
+            // Show MCQ if needed
+            if (type === 'MCQ') {
+                mcqSection.classList.add('active');
+            }
+        };
+
+        // Save Logic
+        window.validateAndSave = async () => {
+            const qText = qInput.value.trim();
+            if (!qText) return alert('Question content cannot be empty.');
+
+            // MCQ Validation
+            let extraData = {};
+            if (typeInput.value === 'MCQ') {
+                const optA = document.getElementById('optA').value.trim();
+                const optB = document.getElementById('optB').value.trim();
+                const optC = document.getElementById('optC').value.trim();
+                const optD = document.getElementById('optD').value.trim();
+                const ans = document.getElementById('correctAnswerSelect').value;
+
+                if (!optA || !optB || !optC || !optD) return alert('All MCQ options must be filled.');
+                if (!ans) return alert('Please select the correct MCQ answer.');
+
+                extraData = {
+                    type: 'MCQ',
+                    options: { A: optA, B: optB, C: optC, D: optD },
+                    correctAnswer: ans
+                };
+            } else {
+                extraData = {
+                    type: typeInput.value
+                };
+            }
+
+            // Button State
+            const btn = document.querySelector('.btn-primary');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = "Saving...";
+
+            // Create Payload
+            const payload = {
+                class: classInput.value,
+                subject: subjectInput.value,
+                chapter: chapterInput.value,
+                marks: marksInput.value,
+                topic: topicInput.value,
+                ...extraData
+            };
+
+            const success = await handleSaveNewQuestion(qText, payload);
+
+            if (success) {
+                // Success UI
+                const overlay = document.getElementById('successOverlay');
+                overlay.classList.add('active');
+
+                // Redirect to Question Bank to verify storage (as requested)
+                setTimeout(() => {
+                    window.location.href = 'question-bank.html';
+                }, 1500);
+            } else {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        };
+
+        init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Bank - BEEPREPARE</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="app-container">
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <!-- Back Arrow instead of Menu -->
+                <a href="home.html" class="menu-trigger">
+                    <img src="../assets/images/icon-arrow-left.svg" alt="Back" style="width: 24px;">
+                </a>
+            </div>
+            <div class="header-center">
+                <h1 class="app-logo-text">Question Bank</h1>
+            </div>
+            <div class="header-right">
+                <a href="profile.html">
+                    <img src="../assets/images/avatar-placeholder.png" alt="Profile" class="profile-avatar">
+                </a>
+            </div>
+        </header>
+
+        <main class="main-content fade-in">
+
+            <div style="max-width: 600px; margin: 0 auto;">
+
+                <!-- STEP 1: SELECT CLASS -->
+                <div class="step-card active" id="step1">
+                    <div class="step-header">
+                        <div class="step-indicator">1</div>
+                        <h3 class="step-title">Select Class</h3>
+                    </div>
+                    <div class="step-content">
+                        <div id="classSelectionGrid" class="selection-grid">
+                            <!-- Dynamic Content -->
+                            <div style="color: #888; grid-column: 1/-1; text-align: center;">Loading Classes...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: SELECT SUBJECT -->
+                <div class="step-card" id="step2">
+                    <div class="step-header">
+                        <div class="step-indicator">2</div>
+                        <h3 class="step-title">Select Subject</h3>
+                    </div>
+                    <div class="step-content">
+                        <div id="subjectSelectionGrid" class="selection-grid">
+                            <!-- Dynamic Content -->
+                            <div style="color: #888; grid-column: 1/-1; text-align: center;">Select a Class first</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: DETAILS -->
+                <div class="step-card" id="step3">
+                    <div class="step-header">
+                        <div class="step-indicator">3</div>
+                        <h3 class="step-title">Question Details</h3>
+                    </div>
+                    <div class="step-content">
+                        <div class="form-group">
+                            <label class="form-label">Chapter</label>
+                            <select class="form-input" id="chapterSelect" onchange="window.checkStep3()">
+                                <option value="">Select Chapter</option>
+                            </select>
+                        </div>
+
+                        <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="form-group">
+                                <label class="form-label">Question Type</label>
+                                <select class="form-input" id="typeSelect" onchange="window.checkStep3()">
+                                    <option value="">Select Type</option>
+                                    <option value="Short Answer">Short Answer</option>
+                                    <option value="Long Answer">Long Answer</option>
+                                    <option value="MCQ">Multiple Choice (MCQ)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Marks</label>
+                                <select class="form-input" id="marksSelect" onchange="window.checkStep3()">
+                                    <option value="">Select Marks</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="8">8</option>
+                                    <option value="10">10</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Topic (Optional)</label>
+                            <input type="text" class="form-input" id="topicInput" placeholder="e.g. Electrons">
+                        </div>
+
+                        <!-- Next Button for Form -->
+                        <div style="text-align: right; margin-top: 16px;">
+                            <button id="detailsNextBtn" class="btn btn-primary" onclick="validateStep3()" disabled
+                                style="opacity:0.5;">Confirm Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 4: ACTION -->
+                <div class="step-card" id="step4"
+                    style="border: none; background: transparent; padding: 0; opacity: 0; text-align: center;">
+                    <button class="btn btn-primary btn-large-action" onclick="goToAddQuestion()"
+                        style="box-shadow: 0 0 20px rgba(255, 192, 0, 0.4);">
+                        Add Question
+                    </button>
+                    <p style="margin-top: 12px; color: var(--text-secondary); font-size: 0.9rem;">
+                        Creates a new question for <span id="summaryText" style="color: var(--yellow);">...</span>
+                    </p>
+                </div>
+
+                <!-- Questions List Container -->
+                <div id="questionsContainer" style="margin-bottom: 80px;">
+                    <!-- Populated by JS -->
+                </div>
+
+            </div>
+
+        </main>
+
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <img src="../assets/images/icon-home.svg" class="nav-icon" alt="Home">
+                <span>Home</span>
+            </a>
+            <a href="question-bank.html" class="nav-item active">
+                <img src="../assets/images/icon-bank.svg" class="nav-icon" alt="Bank">
+                <span>Bank</span>
+            </a>
+            <a href="blueprint.html" class="nav-item">
+                <img src="../assets/images/icon-plus.svg" class="nav-icon" alt="Generate">
+                <span>Generate</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <img src="../assets/images/icon-profile.svg" class="nav-icon" alt="Profile">
+                <span>Profile</span>
+            </a>
+        </nav>
+
+        <!-- Inline Script for Guided Steps -->
+        <script type="module">
+            import { fetchAndRenderQuestions, setupGlobalDelete } from '../assets/js/questionBank.js';
+            import { getUserProfileData } from '../assets/js/firestore.js';
+
+            // Setup Global Delete Helper for the list items
+            setupGlobalDelete();
+
+            // GLOBALS
+            window.selectedClass = null;
+            window.selectedSubject = null;
+            window.selectedMarks = null;
+            let userProfile = null;
+
+            // INITIALIZATION
+            const init = async () => {
+                const userJson = localStorage.getItem('qp_user');
+                const user = userJson ? JSON.parse(userJson) : null;
+
+                if (user) {
+                    try {
+                        userProfile = await getUserProfileData(user.uid);
+                        if (userProfile) {
+                            renderClassGrid(userProfile.classes || []);
+                        } else {
+                            document.getElementById('classSelectionGrid').innerHTML = '<div style="grid-column:1/-1; text-align:center;">Profile not found. Please setup profile.</div>';
+                        }
+                    } catch (e) {
+                        console.error("Error loading profile", e);
+                    }
+                } else {
+                    document.getElementById('classSelectionGrid').innerHTML = '<div style="grid-column:1/-1; text-align:center;">Please login to view.</div>';
+                }
+            };
+
+            // RENDERERS
+            function renderClassGrid(classes) {
+                const grid = document.getElementById('classSelectionGrid');
+                grid.innerHTML = '';
+
+                if (classes.length === 0) {
+                    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px;">No Classes saved in Profile.<br><a href="profile.html" style="color:var(--yellow);">Go to Profile</a></div>';
+                    return;
+                }
+
+                classes.forEach(cls => {
+                    const btn = document.createElement('button');
+                    btn.className = 'selection-btn';
+                    btn.innerHTML = `
+                        <span>${cls}</span>
+                        <img src="../assets/images/icon-check.svg" class="selection-check" width="16" alt="Check" style="filter: invert(0);">
+                    `;
+                    btn.onclick = () => selectClass(btn, cls);
+                    grid.appendChild(btn);
+                });
+            }
+
+            function renderSubjectGrid(subjects) {
+                const grid = document.getElementById('subjectSelectionGrid');
+                grid.innerHTML = '';
+
+                if (subjects.length === 0) {
+                    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px;">No Subjects saved in Profile.<br><a href="profile.html" style="color:var(--yellow);">Go to Profile</a></div>';
+                    return;
+                }
+
+                subjects.forEach(sub => {
+                    const btn = document.createElement('button');
+                    btn.className = 'selection-btn';
+                    btn.innerHTML = `
+                        <span>${sub}</span>
+                        <img src="../assets/images/icon-check.svg" class="selection-check" width="16" alt="Check">
+                    `;
+                    btn.onclick = () => selectSubject(btn, sub);
+                    grid.appendChild(btn);
+                });
+            }
+
+            function populateChapterDropdown() {
+                const select = document.getElementById('chapterSelect');
+                select.innerHTML = '<option value="">Select Chapter</option>';
+
+                if (window.selectedClass && window.selectedSubject && userProfile && userProfile.chapterPreferences) {
+                    const key = `${window.selectedClass}_${window.selectedSubject}`;
+                    const chapters = userProfile.chapterPreferences[key] || [];
+
+                    if (chapters.length > 0) {
+                        chapters.forEach(ch => {
+                            const opt = document.createElement('option');
+                            opt.value = ch;
+                            opt.textContent = ch;
+                            select.appendChild(opt);
+                        });
+                    } else {
+                        const opt = document.createElement('option');
+                        opt.textContent = "No chapters found (Add in Profile)";
+                        opt.disabled = true;
+                        select.appendChild(opt);
+                    }
+                }
+            }
+
+            // SELECTION LOGIC
+            window.selectClass = (btn, className) => {
+                window.selectedClass = className;
+                // Highlight UI
+                document.querySelectorAll('#step1 .selection-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+
+                // Mark Step 1 Complete & Activate Step 2
+                window.markStepComplete('step1');
+                window.activateStep('step2');
+                window.updateSummary();
+
+                // Render Subjects (Assuming subjects are global for now, based on profile structure)
+                renderSubjectGrid(userProfile.classes && userProfile.subjects ? userProfile.subjects : []);
+
+                // Reset subsequent selections
+                window.selectedSubject = null;
+                document.getElementById('subjectSelectionGrid').innerHTML = ''; // Clear usually, but we just rendered it.
+                // Re-render actually
+                renderSubjectGrid(userProfile.subjects || []);
+            };
+
+            window.selectSubject = (btn, subjectName) => {
+                window.selectedSubject = subjectName;
+                // Highlight UI
+                document.querySelectorAll('#step2 .selection-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+
+                // Mark Step 2 Complete & Activate Step 3
+                window.markStepComplete('step2');
+                window.activateStep('step3');
+                window.updateSummary();
+
+                // Load Chapters
+                populateChapterDropdown();
+            };
+
+            // OLD selectMarks removed
+
+            window.checkStep3 = () => {
+                const chapter = document.getElementById('chapterSelect').value;
+                const type = document.getElementById('typeSelect').value;
+                const marks = document.getElementById('marksSelect').value;
+
+                const btn = document.getElementById('detailsNextBtn');
+
+                if (chapter && type && marks) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                } else {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                }
+            };
+
+            window.validateStep3 = () => {
+                window.markStepComplete('step3');
+                // Show final button
+                const step4 = document.getElementById('step4');
+                step4.classList.add('active');
+                step4.style.opacity = '1';
+                step4.style.pointerEvents = 'auto';
+                step4.classList.add('reveal-animation');
+
+                window.updateSummary();
+
+                // LOAD EXISTING QUESTIONS HERE
+                // We use the new logic to filter
+                const chapter = document.getElementById('chapterSelect').value;
+                const marks = document.getElementById('marksSelect').value;
+
+                fetchAndRenderQuestions('questionsContainer', {
+                    class: window.selectedClass,
+                    subject: window.selectedSubject,
+                    chapter: chapter,
+                    marks: marks
+                });
+            };
+
+            window.markStepComplete = (stepId) => {
+                const step = document.getElementById(stepId);
+                step.classList.add('completed');
+                step.classList.remove('active');
+            };
+
+            window.activateStep = (stepId) => {
+                const step = document.getElementById(stepId);
+                step.classList.add('active');
+                step.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            };
+
+            window.updateSummary = () => {
+                const summary = document.getElementById('summaryText');
+                const chapter = document.getElementById('chapterSelect').value || '...';
+                const type = document.getElementById('typeSelect').value;
+                const marks = document.getElementById('marksSelect').value;
+
+                let text = '';
+                if (window.selectedClass) text += window.selectedClass;
+                if (window.selectedSubject) text += ' • ' + window.selectedSubject;
+                if (chapter && chapter !== '...') text += ' • ' + chapter;
+                if (type && type !== '') text += ' • ' + type;
+                if (marks && marks !== '') text += ' • ' + marks + 'M';
+
+                summary.innerText = text;
+            };
+
+            window.goToAddQuestion = () => {
+                const chapter = document.getElementById('chapterSelect').value || 'Unspecified';
+                const type = document.getElementById('typeSelect').value || 'Short Answer';
+                const marks = document.getElementById('marksSelect').value || '1';
+                const topic = document.getElementById('topicInput').value || '';
+
+                // Construct URL with params
+                const params = new URLSearchParams({
+                    class: window.selectedClass || 'N/A',
+                    subject: window.selectedSubject || 'N/A',
+                    chapter: chapter,
+                    topic: topic,
+                    type: type,
+                    marks: marks
+                });
+
+                window.location.href = 'add_question.html?' + params.toString();
+            };
+
+            // Start
+            init();
+        </script>
+    </div>
+
+    <script type="module" src="../assets/js/firebase-auth.js"></script>
+</body>
+
+</html>
