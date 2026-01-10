@@ -165,6 +165,20 @@
             // Setup Global Delete Helper for the list items
             setupGlobalDelete();
 
+            // Strict Premium Check
+            const userJson = localStorage.getItem('qp_user');
+            if (userJson) {
+                const user = JSON.parse(userJson);
+                getUserProfileData(user.uid).then(profile => {
+                    // Check
+                    if (!profile || !profile.isPremium) {
+                        window.location.replace('activate.html');
+                    }
+                });
+            } else {
+                window.location.href = 'login.html';
+            }
+
             // GLOBALS
             window.selectedClass = null;
             window.selectedSubject = null;

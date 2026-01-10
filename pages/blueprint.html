@@ -197,6 +197,13 @@
             if (user) {
                 try {
                     userProfile = await getUserProfileData(user.uid);
+
+                    // PREMIUM CHECK
+                    if (!userProfile || !userProfile.isPremium) {
+                        window.location.replace('activate.html');
+                        return;
+                    }
+
                     if (userProfile) {
                         populateClassDropdown();
                         populateSubjectDropdown();
@@ -206,6 +213,8 @@
                 } catch (e) {
                     console.error("Error loading profile", e);
                 }
+            } else {
+                window.location.href = 'login.html';
             }
         };
 

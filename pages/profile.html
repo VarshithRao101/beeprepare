@@ -490,18 +490,33 @@
 
     const loadProfileData = async () => {
     if (user) {
-    // Set name/email from local storage initially
-    document.getElementById('profileNameDisplay').textContent = user.displayName || 'User';
-    document.getElementById('profileEmailDisplay').textContent = user.email || '';
-
-    try {
     currentUserProfile = await getUserProfileData(user.uid);
+
+    // PREMIUM CHECK
+    const isPremium = currentUserProfile?.isPremium === true;
+    if (!isPremium) {
+    window.location.replace('activate.html'); // Strict Lock
+    return;
+    }
+
+    // Render
+    document.getElementById('userName').textContent = user.displayName || 'User';
+    document.getElementById('userEmail').textContent = user.email || 'Email';
+    document.getElementById('userAvatar').src = user.photoURL || '../assets/images/avatar-placeholder.png'; // Fix
+    placeholder path
+    // ...
+
     if (currentUserProfile) {
-    renderProfileSubjects(currentUserProfile.subjects || []);
+    renderProfileSubjects(currentUserProfile.subjects);
+    // ...
     }
-    } catch (e) {
-    console.error("Profile load err", e);
-    }
+
+    // We can also fetch activity history here used for History Modal
+    const activity = await getUserActivity(user.uid, 20); // Fetch more for history
+    renderHistoryModal(activity);
+
+    } else {
+    window.location.href = 'login.html';
     }
     };
     loadProfileData();
