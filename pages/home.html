@@ -108,6 +108,7 @@
 
     <script type="module">
         import { getUserProfileData, getUserActivity } from '../assets/js/firestore.js';
+        import { getSubjectIcon } from '../assets/js/icons.js';
 
         const initHome = async () => {
             const userJson = localStorage.getItem('qp_user');
@@ -171,11 +172,6 @@
                 `;
                 container.appendChild(item);
             });
-
-            // Add a Login entry at the end if list is short, purely visual for "Premium" feel?
-            // User requested "with login".
-            // Since we don't track login history yet, we'll fake a "Logged in" at the bottom or just stick to real data.
-            // Let's stick to real question data for now as per "History" request.
         };
 
         const renderSubjects = (subjects) => {
@@ -187,54 +183,49 @@
                 return;
             }
 
-            // Simple Color Mapping
-            const colors = {
-                'Physics': '#3B82F6', // Blue
-                'Chemistry': '#EF4444', // Red
-                'Mathematics': '#8B5CF6', // Purple
-                'Maths': '#8B5CF6',
-                'Biology': '#10B981', // Green
-                'English': '#F59E0B', // Orange
-                'Computer': '#6366F1', // Indigo
-                'History': '#78350F', // Brown
-                'Geography': '#059669' // Teal
-            };
-
-            const getRandomColor = (str) => {
-                const defaults = ['#6B7280', '#EC4899', '#14B8A6', '#F97316'];
-                let hash = 0;
-                for (let i = 0; i < str.length; i++) {
-                    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-                }
-                return defaults[Math.abs(hash) % defaults.length];
-            };
-
             subjects.forEach(sub => {
-                const color = colors[sub] || getRandomColor(sub);
-                const initial = sub.charAt(0).toUpperCase();
+                const iconHtml = getSubjectIcon(sub);
 
-                const div = document.createElement('div');
-                div.className = 'subject-card';
-                div.innerHTML = `
-                    <div class="subject-icon" style="
-                        background-color: ${color}; 
-                        width: 48px; 
-                        height: 48px; 
-                        border-radius: 50%; 
-                        display: flex; 
-                        align-items: center; 
-                        justify-content: center;
-                        color: white;
-                        font-weight: 700;
-                        font-size: 1.25rem;
-                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                        margin-bottom: 8px;
-                    ">
-                         ${initial}
-                    </div>
-                    <span class="subject-name" style="font-weight: 600; font-size: 0.9rem;">${sub}</span>
-                `;
-                container.appendChild(div);
+                // Extract color from helper if needed, but getSubjectIcon returns SVG with color. 
+                // However, the card background logic in previous version used color for circle background.
+                // The new getSubjectIcon returns an SVG with inline styles.
+                // We want the circle background style still? 
+                // The user said "remove that alphabets logo... replace with eye catching logos".
+                // Let's modify the card to just show the large icon, or keep the circle container but with the icon inside.
+                // The getSubjectIcon function I wrote returns an <svg> with a specific color.
+                // I should extract the color to set the background of the circle to a faded version of that color, or keep solid color with white icon.
+
+                // Let's parse the color from our helper for the background
+                import('../assets/js/icons.js').then(module => {
+                    const color = module.getSubjectColor(sub);
+
+                    const div = document.createElement('div');
+                    div.className = 'subject-card';
+                    div.innerHTML = `
+                        <div class="subject-icon" style="
+                            background-color: ${color}20; /* 20 = 12% opacity hex approximately */
+                            width: 56px; 
+                            height: 56px; 
+                            border-radius: 50%; 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: center;
+                            color: ${color};
+                            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                            margin-bottom: 8px;
+                            border: 1px solid ${color}40;
+                        ">
+                             ${iconHtml}
+                        </div>
+                        <span class="subject-name" style="font-weight: 600; font-size: 0.9rem;">${sub}</span>
+                     `;
+                    // Fix: iconHtml already has style="color: ...". We might want to override or use it. 
+                    // My helper returns <svg ... style="color: COLOR ...">. 
+                    // If I put it in a container with color: COLOR, it inherits if I use currentColor, but the helper sets it explicitly.
+                    // The helper sets the color on the SVG. So inside the container it will look correct.
+
+                    container.appendChild(div);
+                });
             });
         };
 

@@ -343,6 +343,22 @@
                             Biology</label>
                         <label class="checkbox-label"><input type="checkbox" value="English" class="subject-chk">
                             English</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Telugu" class="subject-chk">
+                            Telugu</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Hindi" class="subject-chk">
+                            Hindi</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Social" class="subject-chk">
+                            Social</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Science" class="subject-chk">
+                            Science</label>
+                        <label class="checkbox-label"><input type="checkbox" value="EVS" class="subject-chk">
+                            EVS</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Computer" class="subject-chk">
+                            Computer</label>
+                        <label class="checkbox-label"><input type="checkbox" value="History" class="subject-chk">
+                            History</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Geography" class="subject-chk">
+                            Geography</label>
                     </div>
                 </div>
 
@@ -425,270 +441,272 @@
         </div>
     </div>
 
-    <script type="module">
-        import { logoutUser, updateProfileUI } from '../assets/js/firebase-auth.js';
-        import { getUserProfileData, saveUserSubjects, saveUserClasses, saveUserChapterPreferences, getUserActivity } from
-            '../assets/js/firestore.js';
+    import { logoutUser, updateProfileUI } from '../assets/js/firebase-auth.js';
+    import { getUserProfileData, saveUserSubjects, saveUserClasses, saveUserChapterPreferences, getUserActivity } from
+    '../assets/js/firestore.js';
+    import { getSubjectIcon } from '../assets/js/icons.js';
 
-        // Load UI
-        updateProfileUI();
+    // Load UI
+    updateProfileUI();
 
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', logoutUser);
 
-        // Get UID for operations
-        const userJson = localStorage.getItem('qp_user');
-        const user = userJson ? JSON.parse(userJson) : null;
-        let currentUserProfile = null; // Store fetched profile
+    // Get UID for operations
+    const userJson = localStorage.getItem('qp_user');
+    const user = userJson ? JSON.parse(userJson) : null;
+    let currentUserProfile = null; // Store fetched profile
 
-        const renderProfileSubjects = (subjects) => {
-            const container = document.getElementById('profileSubjectsContainer');
-            container.innerHTML = '';
-            if (!subjects || subjects.length === 0) return;
+    const renderProfileSubjects = (subjects) => {
+    const container = document.getElementById('profileSubjectsContainer');
+    container.innerHTML = '';
+    if (!subjects || subjects.length === 0) return;
 
-            // Color Mapping (Same as Home)
-            const colors = {
-                'Physics': '#3B82F6', 'Chemistry': '#EF4444', 'Mathematics': '#8B5CF6',
-                'Biology': '#10B981', 'English': '#F59E0B', 'Computer': '#6366F1',
-                'History': '#78350F', 'Geography': '#059669'
-            };
-            const getRandomColor = (str) => {
-                const defaults = ['#6B7280', '#EC4899', '#14B8A6', '#F97316'];
-                let hash = 0;
-                for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
-                return defaults[Math.abs(hash) % defaults.length];
-            };
+    subjects.forEach(sub => {
+    // Dynamically import to ensure we get color (or assume imported above which it is)
+    // Since getSubjectIcon is synchronous and imported, we use it directly.
+    // However, getting color needs the helper or extraction.
+    // Let's use the same async import trick or just import getSubjectColor too.
+    // Wait, I only imported getSubjectIcon. I should import getSubjectColor too.
+    // For now, I'll rely on the fact that I can import it here or update import line.
 
-            subjects.forEach(sub => {
-                const color = colors[sub] || getRandomColor(sub);
-                const initial = sub.charAt(0).toUpperCase();
-                const badge = document.createElement('div');
-                badge.className = 'mini-subject-badge';
-                badge.innerHTML = `
-                    <div style="width:24px; height:24px; border-radius:50%; background:${color}; color:white; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">${initial}</div>
-                    <span>${sub}</span>
-                 `;
-                container.appendChild(badge);
-            });
-        };
+    import('../assets/js/icons.js').then(module => {
+    const color = module.getSubjectColor(sub);
+    const iconHtml = module.getSubjectIcon(sub);
 
-        const loadProfileData = async () => {
-            if (user) {
-                // Set name/email from local storage initially
-                document.getElementById('profileNameDisplay').textContent = user.displayName || 'User';
-                document.getElementById('profileEmailDisplay').textContent = user.email || '';
+    const badge = document.createElement('div');
+    badge.className = 'mini-subject-badge';
+    badge.innerHTML = `
+    <div
+        style="width:24px; height:24px; border-radius:50%; background:${color}20; color:${color}; border:1px solid ${color}40; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">
+        <div style="transform: scale(0.6); display:flex;">${iconHtml}</div>
+    </div>
+    <span>${sub}</span>
+    `;
+    container.appendChild(badge);
+    });
+    });
+    };
 
-                try {
-                    currentUserProfile = await getUserProfileData(user.uid);
-                    if (currentUserProfile) {
-                        renderProfileSubjects(currentUserProfile.subjects || []);
-                    }
-                } catch (e) {
-                    console.error("Profile load err", e);
-                }
-            }
-        };
-        loadProfileData();
+    const loadProfileData = async () => {
+    if (user) {
+    // Set name/email from local storage initially
+    document.getElementById('profileNameDisplay').textContent = user.displayName || 'User';
+    document.getElementById('profileEmailDisplay').textContent = user.email || '';
 
-        // Tab Switching
-        window.switchTab = (tabName) => {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    try {
+    currentUserProfile = await getUserProfileData(user.uid);
+    if (currentUserProfile) {
+    renderProfileSubjects(currentUserProfile.subjects || []);
+    }
+    } catch (e) {
+    console.error("Profile load err", e);
+    }
+    }
+    };
+    loadProfileData();
 
-            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
+    // Tab Switching
+    window.switchTab = (tabName) => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-            if (tabName === 'chapters') {
-                populateChapterDropdowns();
-            }
-        };
+    document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+    document.getElementById(`tab-${tabName}`).classList.add('active');
 
-        // Modal Logic
-        window.openEditProfile = async () => {
-            const modal = document.getElementById('editProfileModal');
-            modal.classList.add('active');
+    if (tabName === 'chapters') {
+    populateChapterDropdowns();
+    }
+    };
 
-            if (user && user.uid) {
-                if (!currentUserProfile) currentUserProfile = await getUserProfileData(user.uid); // fetch if missing
+    // Modal Logic
+    window.openEditProfile = async () => {
+    const modal = document.getElementById('editProfileModal');
+    modal.classList.add('active');
 
-                if (currentUserProfile) {
-                    if (currentUserProfile.subjects) {
-                        document.querySelectorAll('.subject-chk').forEach(chk => {
-                            chk.checked = currentUserProfile.subjects.includes(chk.value);
-                        });
-                    }
-                    if (currentUserProfile.classes) {
-                        document.querySelectorAll('.class-chk').forEach(chk => {
-                            chk.checked = currentUserProfile.classes.includes(chk.value);
-                        });
-                    }
-                }
-            }
-        };
+    if (user && user.uid) {
+    if (!currentUserProfile) currentUserProfile = await getUserProfileData(user.uid); // fetch if missing
 
-        window.closeEditProfile = () => {
-            document.getElementById('editProfileModal').classList.remove('active');
-        };
+    if (currentUserProfile) {
+    if (currentUserProfile.subjects) {
+    document.querySelectorAll('.subject-chk').forEach(chk => {
+    chk.checked = currentUserProfile.subjects.includes(chk.value);
+    });
+    }
+    if (currentUserProfile.classes) {
+    document.querySelectorAll('.class-chk').forEach(chk => {
+    chk.checked = currentUserProfile.classes.includes(chk.value);
+    });
+    }
+    }
+    }
+    };
 
-        // SAVE GENERAL PREFERENCES
-        window.saveProfileChanges = async () => {
-            if (!user) return;
-            const btn = document.querySelector('#tab-general .btn-primary');
-            const originalText = btn.innerText;
-            btn.innerText = 'Saving...';
+    window.closeEditProfile = () => {
+    document.getElementById('editProfileModal').classList.remove('active');
+    };
 
-            const selectedSubjects = Array.from(document.querySelectorAll('.subject-chk:checked')).map(c => c.value);
-            const selectedClasses = Array.from(document.querySelectorAll('.class-chk:checked')).map(c => c.value);
+    // SAVE GENERAL PREFERENCES
+    window.saveProfileChanges = async () => {
+    if (!user) return;
+    const btn = document.querySelector('#tab-general .btn-primary');
+    const originalText = btn.innerText;
+    btn.innerText = 'Saving...';
 
-            try {
-                await Promise.all([
-                    saveUserSubjects(user.uid, selectedSubjects),
-                    saveUserClasses(user.uid, selectedClasses)
-                ]);
+    const selectedSubjects = Array.from(document.querySelectorAll('.subject-chk:checked')).map(c => c.value);
+    const selectedClasses = Array.from(document.querySelectorAll('.class-chk:checked')).map(c => c.value);
 
-                // Update local cache
-                if (!currentUserProfile) currentUserProfile = {};
-                currentUserProfile.subjects = selectedSubjects;
-                currentUserProfile.classes = selectedClasses;
+    try {
+    await Promise.all([
+    saveUserSubjects(user.uid, selectedSubjects),
+    saveUserClasses(user.uid, selectedClasses)
+    ]);
 
-                btn.innerText = 'Saved!';
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                }, 1000);
-            } catch (e) {
-                alert('Error saving profile');
-                btn.innerText = originalText;
-            }
-        };
+    // Update local cache
+    if (!currentUserProfile) currentUserProfile = {};
+    currentUserProfile.subjects = selectedSubjects;
+    currentUserProfile.classes = selectedClasses;
 
-        // CHAPTER MANAGEMENT LOGIC
-        window.populateChapterDropdowns = () => {
-            const classSel = document.getElementById('manageClassSelect');
-            const subSel = document.getElementById('manageSubjectSelect');
+    btn.innerText = 'Saved!';
+    setTimeout(() => {
+    btn.innerText = originalText;
+    }, 1000);
+    } catch (e) {
+    alert('Error saving profile');
+    btn.innerText = originalText;
+    }
+    };
 
-            // Clear current options
-            classSel.innerHTML = '<option value="">Select Class</option>';
-            subSel.innerHTML = '<option value="">Select Subject</option>';
+    // CHAPTER MANAGEMENT LOGIC
+    window.populateChapterDropdowns = () => {
+    const classSel = document.getElementById('manageClassSelect');
+    const subSel = document.getElementById('manageSubjectSelect');
 
-            // Use currently checked checkboxes as the source of truth for immediate feedback,
-            // or use fetched profile? Better to use checked boxes in case user just changed them but didn't close modal.
-            const currentClasses = Array.from(document.querySelectorAll('.class-chk:checked')).map(c => c.value);
-            const currentSubjects = Array.from(document.querySelectorAll('.subject-chk:checked')).map(c => c.value);
+    // Clear current options
+    classSel.innerHTML = '<option value="">Select Class</option>';
+    subSel.innerHTML = '<option value="">Select Subject</option>';
 
-            currentClasses.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c;
-                opt.innerText = c;
-                classSel.appendChild(opt);
-            });
+    // Use currently checked checkboxes as the source of truth for immediate feedback,
+    // or use fetched profile? Better to use checked boxes in case user just changed them but didn't close modal.
+    const currentClasses = Array.from(document.querySelectorAll('.class-chk:checked')).map(c => c.value);
+    const currentSubjects = Array.from(document.querySelectorAll('.subject-chk:checked')).map(c => c.value);
 
-            currentSubjects.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s;
-                opt.innerText = s;
-                subSel.appendChild(opt);
-            });
-        };
+    currentClasses.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.innerText = c;
+    classSel.appendChild(opt);
+    });
 
-        let currentChapterList = []; // Local state for the selected combo
+    currentSubjects.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s;
+    opt.innerText = s;
+    subSel.appendChild(opt);
+    });
+    };
 
-        window.loadChaptersForSelection = () => {
-            const cls = document.getElementById('manageClassSelect').value;
-            const sub = document.getElementById('manageSubjectSelect').value;
-            const area = document.getElementById('chapterManagerArea');
-            const listContainer = document.getElementById('chapterListContainer');
+    let currentChapterList = []; // Local state for the selected combo
 
-            if (!cls || !sub) {
-                area.style.opacity = '0.5';
-                area.style.pointerEvents = 'none';
-                listContainer.innerHTML = '<div style="text-align: center; color: #555; padding-top: 40px;">Select Class & Subject</div>';
-                return;
-            }
+    window.loadChaptersForSelection = () => {
+    const cls = document.getElementById('manageClassSelect').value;
+    const sub = document.getElementById('manageSubjectSelect').value;
+    const area = document.getElementById('chapterManagerArea');
+    const listContainer = document.getElementById('chapterListContainer');
 
-            area.style.opacity = '1';
-            area.style.pointerEvents = 'all';
-            listContainer.innerHTML = '<div style="color: #888; text-align: center;">Loading...</div>';
+    if (!cls || !sub) {
+    area.style.opacity = '0.5';
+    area.style.pointerEvents = 'none';
+    listContainer.innerHTML = '<div style="text-align: center; color: #555; padding-top: 40px;">Select Class & Subject
+    </div>';
+    return;
+    }
 
-            // Key logic
-            const key = `${cls}_${sub}`; // e.g., "Class 10_Physics"
+    area.style.opacity = '1';
+    area.style.pointerEvents = 'all';
+    listContainer.innerHTML = '<div style="color: #888; text-align: center;">Loading...</div>';
 
-            // Check if we have it in profile
-            currentChapterList = [];
-            if (currentUserProfile && currentUserProfile.chapterPreferences && currentUserProfile.chapterPreferences[key]) {
-                currentChapterList = [...currentUserProfile.chapterPreferences[key]];
-            }
+    // Key logic
+    const key = `${cls}_${sub}`; // e.g., "Class 10_Physics"
 
-            renderChapterList();
-        };
+    // Check if we have it in profile
+    currentChapterList = [];
+    if (currentUserProfile && currentUserProfile.chapterPreferences && currentUserProfile.chapterPreferences[key]) {
+    currentChapterList = [...currentUserProfile.chapterPreferences[key]];
+    }
 
-        window.renderChapterList = () => {
-            const listContainer = document.getElementById('chapterListContainer');
-            listContainer.innerHTML = '';
+    renderChapterList();
+    };
 
-            if (currentChapterList.length === 0) {
-                listContainer.innerHTML = '<div style="text-align: center; color: #555; padding-top: 20px;">No chapters added yet.</div>';
-                return;
-            }
+    window.renderChapterList = () => {
+    const listContainer = document.getElementById('chapterListContainer');
+    listContainer.innerHTML = '';
 
-            currentChapterList.forEach((chap, index) => {
-                const div = document.createElement('div');
-                div.className = 'chapter-item';
-                div.innerHTML = `
+    if (currentChapterList.length === 0) {
+    listContainer.innerHTML = '<div style="text-align: center; color: #555; padding-top: 20px;">No chapters added yet.
+    </div>';
+    return;
+    }
+
+    currentChapterList.forEach((chap, index) => {
+    const div = document.createElement('div');
+    div.className = 'chapter-item';
+    div.innerHTML = `
     <span>${chap}</span>
     <button class="btn btn-outline btn-sm" style="border-color: #ff4d4d; color: #ff4d4d;"
         onclick="removeChapter(${index})">
         &times;
     </button>
     `;
-                listContainer.appendChild(div);
-            });
-        };
+    listContainer.appendChild(div);
+    });
+    };
 
-        window.addNewChapter = async () => {
-            const input = document.getElementById('newChapterName');
-            const val = input.value.trim();
-            if (!val) return;
+    window.addNewChapter = async () => {
+    const input = document.getElementById('newChapterName');
+    const val = input.value.trim();
+    if (!val) return;
 
-            if (currentChapterList.includes(val)) {
-                alert('Chapter already exists!');
-                return;
-            }
+    if (currentChapterList.includes(val)) {
+    alert('Chapter already exists!');
+    return;
+    }
 
-            currentChapterList.push(val);
-            input.value = '';
-            renderChapterList(); // optimistic update
+    currentChapterList.push(val);
+    input.value = '';
+    renderChapterList(); // optimistic update
 
-            // Auto-save
-            await verifyAndSaveChapters();
-        };
+    // Auto-save
+    await verifyAndSaveChapters();
+    };
 
-        window.removeChapter = async (index) => {
-            if (confirm('Delete this chapter?')) {
-                currentChapterList.splice(index, 1);
-                renderChapterList();
-                await verifyAndSaveChapters();
-            }
-        };
+    window.removeChapter = async (index) => {
+    if (confirm('Delete this chapter?')) {
+    currentChapterList.splice(index, 1);
+    renderChapterList();
+    await verifyAndSaveChapters();
+    }
+    };
 
-        window.verifyAndSaveChapters = async () => {
-            const cls = document.getElementById('manageClassSelect').value;
-            const sub = document.getElementById('manageSubjectSelect').value;
-            const key = `${cls}_${sub}`;
+    window.verifyAndSaveChapters = async () => {
+    const cls = document.getElementById('manageClassSelect').value;
+    const sub = document.getElementById('manageSubjectSelect').value;
+    const key = `${cls}_${sub}`;
 
-            if (user && user.uid && cls && sub) {
-                await saveUserChapterPreferences(user.uid, key, currentChapterList);
-                // Update local profile object so we don't reload
-                if (!currentUserProfile.chapterPreferences) currentUserProfile.chapterPreferences = {};
-                currentUserProfile.chapterPreferences[key] = currentChapterList;
-            }
-        };
+    if (user && user.uid && cls && sub) {
+    await saveUserChapterPreferences(user.uid, key, currentChapterList);
+    // Update local profile object so we don't reload
+    if (!currentUserProfile.chapterPreferences) currentUserProfile.chapterPreferences = {};
+    currentUserProfile.chapterPreferences[key] = currentChapterList;
+    }
+    };
 
 
-        // Theme Toggle (Dummy visual for now as main.css handles defaults)
-        window.toggleTheme = () => {
-            const chk = document.getElementById('themeToggle');
-            chk.checked = !chk.checked;
-        };
+    // Theme Toggle (Dummy visual for now as main.css handles defaults)
+    window.toggleTheme = () => {
+    const chk = document.getElementById('themeToggle');
+    chk.checked = !chk.checked;
+    };
     </script>
 </body>
 

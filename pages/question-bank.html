@@ -160,6 +160,7 @@
         <script type="module">
             import { fetchAndRenderQuestions, setupGlobalDelete } from '../assets/js/questionBank.js';
             import { getUserProfileData } from '../assets/js/firestore.js';
+            import { getSubjectIcon } from '../assets/js/icons.js';
 
             // Setup Global Delete Helper for the list items
             setupGlobalDelete();
@@ -225,8 +226,16 @@
                 subjects.forEach(sub => {
                     const btn = document.createElement('button');
                     btn.className = 'selection-btn';
+
+                    // Simple Icon Logic or Async
+                    // Since getSubjectIcon is synchronous SVG provider now:
+                    const iconHtml = getSubjectIcon(sub);
+
                     btn.innerHTML = `
-                        <span>${sub}</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div style="width:24px; height:24px; color:var(--text-secondary);">${iconHtml}</div>
+                            <span>${sub}</span>
+                        </div>
                         <img src="../assets/images/icon-check.svg" class="selection-check" width="16" alt="Check">
                     `;
                     btn.onclick = () => selectSubject(btn, sub);
