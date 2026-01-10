@@ -377,3 +377,103 @@ export const getUserPapers = async (uid) => {
         return [];
     }
 };
+
+
+// ----------------------------------
+// 4. License Key System
+// ----------------------------------
+
+/**
+ * Activate User Account with Key
+ * Transactional: Checks key, marks used, updates user.
+ */
+import { runTransaction } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+export const activateUserAccount = async (uid, keyString) => {
+    if (!uid || !keyString) throw new Error("Invalid details");
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            // 1. Find the Key Doc
+            // We assume keys are stored in 'license_keys' collection. 
+            // Querying inside transaction can be tricky if not by ID. 
+            //Ideally, the doc ID should be the key itself to make this fast and transactional.
+            // Let's assume Doc ID = Key String.
+
+            const keyRef = doc(db, "license_keys", keyString);
+            const keySnap = await transaction.get(keyRef);
+
+            if (!keySnap.exists()) {
+                throw "Invalid License Key";
+            }
+
+            const keyData = keySnap.data();
+            if (keyData.status === "used") {
+                throw "License Key already used";
+            }
+
+            // 2. Get User Doc
+            const userRef = doc(db, USERS_COL, uid);
+            const userSnap = await transaction.get(userRef);
+            if (!userSnap.exists()) {
+                throw "User profile not found";
+            }
+
+            // 3. Updates
+            transaction.update(keyRef, {
+                status: "used",
+                usedBy: uid,
+                usedAt: serverTimestamp()
+            });
+
+            transaction.update(userRef, {
+                isPremium: true,
+                licenseKey: keyString,
+                premiumActivatedAt: serverTimestamp()
+            });
+        });
+
+        console.log("Account activated successfully!");
+        return { success: true };
+
+    } catch (e) {
+        console.error("Activation Failed:", e);
+        return { success: false, error: e.toString() };
+    }
+};
+
+/**
+ * Batch Upload Keys (Admin Tool)
+ * keysList = [{ id: "KEY-123", key: "KEY-123", status: "unused" }, ...]
+ */
+import { writeBatch } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+export const batchUploadKeys = async (keysList) => {
+    // Firestore batch limit is 500
+    const CHUNK_SIZE = 450;
+    const chunks = [];
+
+    for (let i = 0; i < keysList.length; i += CHUNK_SIZE) {
+        chunks.push(keysList.slice(i, i + CHUNK_SIZE));
+    }
+
+    let totalUploaded = 0;
+
+    for (const chunk of chunks) {
+        const batch = writeBatch(db);
+        chunk.forEach(k => {
+            const ref = doc(db, "license_keys", k.key); // Doc ID is the key
+            batch.set(ref, {
+                key: k.key,
+                sno: k.sno,
+                status: "unused",
+                createdAt: serverTimestamp()
+            });
+        });
+        await batch.commit();
+        totalUploaded += chunk.length;
+        console.log(`Uploaded batch of ${chunk.length}, Total: ${totalUploaded}`);
+    }
+
+    return totalUploaded;
+};

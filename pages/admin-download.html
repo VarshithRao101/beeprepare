@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Keys - Admin</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #222;
+            color: #fff;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #FFC000;
+            border: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Download All License Keys</h1>
+    <p>Fetches all keys from Firestore and downloads as CSV.</p>
+    <button onclick="fetchAllAndKeys()">Fetch & Download</button>
+    <div id="status" style="margin-top:20px; color: #aaa;"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+        // Config must match
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2tMnUB37paF5qoVD3ahp7Q3IKMIoHghw",
+            authDomain: "beeprepare-a4e5d.firebaseapp.com",
+            projectId: "beeprepare-a4e5d",
+            storageBucket: "beeprepare-a4e5d.firebasestorage.app",
+            messagingSenderId: "127936798358",
+            appId: "1:127936798358:web:4d7a1291f6a12c686fecb7",
+            measurementId: "G-XXPN9T2P74"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.fetchAllAndKeys = async () => {
+            const status = document.getElementById('status');
+            status.innerText = "Fetching... (This may take time for 3000 keys)";
+
+            try {
+                // Fetch all
+                // NOTE: Fetching 3000 docs is fine, but might hit quota if done repeatedly.
+                const q = query(collection(db, "license_keys"));
+                const snap = await getDocs(q);
+
+                let csvContent = "data:text/csv;charset=utf-8,SNo,Key,Status,UsedBy\n";
+
+                let count = 0;
+                snap.forEach(doc => {
+                    count++;
+                    const d = doc.data();
+                    csvContent += `${d.sno || count},${d.key},${d.status},${d.usedBy || ''}\n`;
+                });
+
+                status.innerText = `Fetched ${count} keys. Downloading...`;
+
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "ALL_LICENSE_KEYS.csv");
+                document.body.appendChild(link);
+                link.click();
+
+            } catch (e) {
+                status.innerText = "Error: " + e.message;
+                console.error(e);
+            }
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Key Generator</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #111;
+            color: #eee;
+            padding: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #FFC000;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .status {
+            margin-top: 20px;
+            color: #aaa;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            background: #222;
+            color: #fff;
+            border: 1px solid #444;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>License Key Generator (Admin)</h1>
+    <p>Generates 3000 random keys (BEE-XXXX-XXXX-XXXX) and uploads to Firestore.</p>
+
+    <button class="btn" onclick="startGeneration()">Generate & Upload 3000 Keys</button>
+    <button class="btn" onclick="downloadList()" id="dlBtn" disabled style="opacity:0.5">Download List</button>
+
+    <div id="status" class="status">Waiting...</div>
+    <textarea id="output" readonly placeholder="Keys list will appear here..."></textarea>
+
+    <script type="module">
+        import { batchUploadKeys } from '../assets/js/firestore.js';
+
+        // Helper to generate random string
+        const generateKey = () => {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            const part = (len) => {
+                let res = "";
+                for (let i = 0; i < len; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
+                return res;
+            };
+            return `BEE-${part(4)}-${part(4)}-${part(4)}`;
+        };
+
+        let generatedKeys = [];
+
+        window.startGeneration = async () => {
+            const status = document.getElementById('status');
+            const output = document.getElementById('output');
+            const dlBtn = document.getElementById('dlBtn');
+
+            status.innerText = "Generating 3000 unique keys...";
+
+            // Generate
+            const keysSet = new Set();
+            while (keysSet.size < 3000) {
+                keysSet.add(generateKey());
+            }
+
+            generatedKeys = Array.from(keysSet).map((k, i) => ({
+                key: k,
+                sno: i + 1,
+                status: "unused"
+            }));
+
+            // Display in textarea immediately
+            let textContent = "S.No, License Key\n";
+            generatedKeys.forEach(k => {
+                textContent += `${k.sno}, ${k.key}\n`;
+            });
+            output.value = textContent;
+
+            // Upload
+            status.innerText = "Uploading to Firestore... Do not close.";
+            try {
+                await batchUploadKeys(generatedKeys);
+                status.innerText = "Success! 3000 Keys Uploaded.";
+                status.style.color = "#4CAF50";
+                dlBtn.disabled = false;
+                dlBtn.style.opacity = "1";
+            } catch (e) {
+                status.innerText = "Error Uploading: " + e.message;
+                status.style.color = "red";
+                console.error(e);
+            }
+        };
+
+        window.downloadList = () => {
+            const text = document.getElementById('output').value;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "LICENSE_KEYS_3000.txt";
+            a.click();
+        };
+    </script>
+</body>
+
+</html>

@@ -122,6 +122,14 @@
                         getUserActivity(user.uid, 5) // Fetch last 5 items
                     ]);
 
+                    // ACTIVATION CHECK
+                    if (!profile || !profile.isPremium) {
+                        // Allow access ONLY if it's the admin/dev? No, user said "make key authentication system".
+                        // Redirect to activation
+                        window.location.href = 'activate.html';
+                        return;
+                    }
+
                     renderSubjects(profile ? profile.subjects : []);
                     renderClasses(profile ? profile.classes : []);
                     renderActivity(activity);
@@ -130,6 +138,7 @@
                     console.error("Home load error", e);
                 }
             } else {
+                // If no user, auth.js redirects usually, but just in case
                 renderSubjects([]);
                 renderClasses([]);
             }
