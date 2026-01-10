@@ -68,6 +68,7 @@ export const syncUserProfile = async (user) => {
                 photoURL: user.photoURL,
                 subjects: [], // Default empty
                 classes: [],  // Default empty
+                isPremium: false, // EXPLICIT DEFAULT: LOCKED
                 createdAt: serverTimestamp()
             });
         } else {

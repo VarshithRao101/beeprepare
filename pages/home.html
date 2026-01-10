@@ -116,17 +116,26 @@
 
             if (user) {
                 try {
+                    // FORCE FRESH FETCH
+                    // We must ensure we get the latest 'isPremium' status from Firestore, 
+                    // not just trust what might be in some local state if we were caching.
+                    // getUserProfileData does a direct getDoc.
+
                     // Parallel Fetch
                     const [profile, activity] = await Promise.all([
                         getUserProfileData(user.uid),
-                        getUserActivity(user.uid, 5) // Fetch last 5 items
+                        getUserActivity(user.uid, 5)
                     ]);
 
-                    // ACTIVATION CHECK
-                    if (!profile || !profile.isPremium) {
-                        // Allow access ONLY if it's the admin/dev? No, user said "make key authentication system".
-                        // Redirect to activation
-                        window.location.href = 'activate.html';
+                    // LOGIC:
+                    // If profile doesn't exist (new user who skipped setup?) -> Redirect to Activate (effectively blocking them)
+                    // If profile exists but isPremium is missing or false -> Redirect to Activate
+
+                    const isPremium = profile?.isPremium === true;
+
+                    if (!isPremium) {
+                        console.log("User is not premium. Redirecting to activation.");
+                        window.location.replace('activate.html'); // Use replace to prevent back-button loop
                         return;
                     }
 
@@ -136,6 +145,8 @@
 
                 } catch (e) {
                     console.error("Home load error", e);
+                    // If error (e.g. network), we might want to block access too?
+                    // For now, let's alert or retry.
                 }
             } else {
                 // If no user, auth.js redirects usually, but just in case
