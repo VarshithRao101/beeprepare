@@ -441,287 +441,286 @@
         </div>
     </div>
 
-    import { logoutUser, updateProfileUI } from '../assets/js/firebase-auth.js';
-    import { getUserProfileData, saveUserSubjects, saveUserClasses, saveUserChapterPreferences, getUserActivity } from
-    '../assets/js/firestore.js';
-    import { getSubjectIcon } from '../assets/js/icons.js';
+    <script type="module">
+        import { logoutUser, updateProfileUI } from '../assets/js/firebase-auth.js';
+        import { getUserProfileData, saveUserSubjects, saveUserClasses, saveUserChapterPreferences, getUserActivity } from
+            '../assets/js/firestore.js';
+        import { getSubjectIcon } from '../assets/js/icons.js';
 
-    // Load UI
-    updateProfileUI();
+        // Load UI
+        updateProfileUI();
 
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', logoutUser);
 
-    // Get UID for operations
-    const userJson = localStorage.getItem('qp_user');
-    const user = userJson ? JSON.parse(userJson) : null;
-    let currentUserProfile = null; // Store fetched profile
+        // Get UID for operations
+        const userJson = localStorage.getItem('qp_user');
+        const user = userJson ? JSON.parse(userJson) : null;
+        let currentUserProfile = null; // Store fetched profile
 
-    const renderProfileSubjects = (subjects) => {
-    const container = document.getElementById('profileSubjectsContainer');
-    container.innerHTML = '';
-    if (!subjects || subjects.length === 0) return;
+        const renderProfileSubjects = (subjects) => {
+            const container = document.getElementById('profileSubjectsContainer');
+            container.innerHTML = '';
+            if (!subjects || subjects.length === 0) return;
 
-    subjects.forEach(sub => {
-    // Dynamically import to ensure we get color (or assume imported above which it is)
-    // Since getSubjectIcon is synchronous and imported, we use it directly.
-    // However, getting color needs the helper or extraction.
-    // Let's use the same async import trick or just import getSubjectColor too.
-    // Wait, I only imported getSubjectIcon. I should import getSubjectColor too.
-    // For now, I'll rely on the fact that I can import it here or update import line.
+            subjects.forEach(sub => {
+                // Dynamically import to ensure we get color (or assume imported above which it is)
+                // Since getSubjectIcon is synchronous and imported, we use it directly.
+                // However, getting color needs the helper or extraction.
+                // Let's use the same async import trick or just import getSubjectColor too.
+                // Wait, I only imported getSubjectIcon. I should import getSubjectColor too.
+                // For now, I'll rely on the fact that I can import it here or update import line.
 
-    import('../assets/js/icons.js').then(module => {
-    const color = module.getSubjectColor(sub);
-    const iconHtml = module.getSubjectIcon(sub);
+                import('../assets/js/icons.js').then(module => {
+                    const color = module.getSubjectColor(sub);
+                    const iconHtml = module.getSubjectIcon(sub);
 
-    const badge = document.createElement('div');
-    badge.className = 'mini-subject-badge';
-    badge.innerHTML = `
+                    const badge = document.createElement('div');
+                    badge.className = 'mini-subject-badge';
+                    badge.innerHTML = `
     <div
         style="width:24px; height:24px; border-radius:50%; background:${color}20; color:${color}; border:1px solid ${color}40; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">
         <div style="transform: scale(0.6); display:flex;">${iconHtml}</div>
     </div>
     <span>${sub}</span>
     `;
-    container.appendChild(badge);
-    });
-    });
-    };
+                    container.appendChild(badge);
+                });
+            });
+        };
 
-    const loadProfileData = async () => {
-    if (user) {
-    currentUserProfile = await getUserProfileData(user.uid);
+        const loadProfileData = async () => {
+            if (user) {
+                currentUserProfile = await getUserProfileData(user.uid);
 
-    // PREMIUM CHECK
-    const isPremium = currentUserProfile?.isPremium === true;
-    if (!isPremium) {
-    window.location.replace('activate.html'); // Strict Lock
-    return;
-    }
+                // PREMIUM CHECK
+                const isPremium = currentUserProfile?.isPremium === true;
+                if (!isPremium) {
+                    window.location.replace('activate.html'); // Strict Lock
+                    return;
+                }
 
-    // Render
-    document.getElementById('userName').textContent = user.displayName || 'User';
-    document.getElementById('userEmail').textContent = user.email || 'Email';
-    document.getElementById('userAvatar').src = user.photoURL || '../assets/images/avatar-placeholder.png'; // Fix
-    placeholder path
-    // ...
+                // Render
+                document.getElementById('userName').textContent = user.displayName || 'User';
+                document.getElementById('userEmail').textContent = user.email || 'Email';
+                document.getElementById('userAvatar').src = user.photoURL || '../assets/images/avatar-placeholder.png'; // Fix placeholder path
+                // ...
 
-    if (currentUserProfile) {
-    renderProfileSubjects(currentUserProfile.subjects);
-    // ...
-    }
+                if (currentUserProfile) {
+                    renderProfileSubjects(currentUserProfile.subjects);
+                    // ...
+                }
 
-    // We can also fetch activity history here used for History Modal
-    const activity = await getUserActivity(user.uid, 20); // Fetch more for history
-    renderHistoryModal(activity);
+                // We can also fetch activity history here used for History Modal
+                const activity = await getUserActivity(user.uid, 20); // Fetch more for history
+                renderHistoryModal(activity);
 
-    } else {
-    window.location.href = 'login.html';
-    }
-    };
-    loadProfileData();
+            } else {
+                window.location.href = 'login.html';
+            }
+        };
+        loadProfileData();
 
-    // Tab Switching
-    window.switchTab = (tabName) => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        // Tab Switching
+        window.switchTab = (tabName) => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-    document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
-    document.getElementById(`tab-${tabName}`).classList.add('active');
+            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
 
-    if (tabName === 'chapters') {
-    populateChapterDropdowns();
-    }
-    };
+            if (tabName === 'chapters') {
+                populateChapterDropdowns();
+            }
+        };
 
-    // Modal Logic
-    window.openEditProfile = async () => {
-    const modal = document.getElementById('editProfileModal');
-    modal.classList.add('active');
+        // Modal Logic
+        window.openEditProfile = async () => {
+            const modal = document.getElementById('editProfileModal');
+            modal.classList.add('active');
 
-    if (user && user.uid) {
-    if (!currentUserProfile) currentUserProfile = await getUserProfileData(user.uid); // fetch if missing
+            if (user && user.uid) {
+                if (!currentUserProfile) currentUserProfile = await getUserProfileData(user.uid); // fetch if missing
 
-    if (currentUserProfile) {
-    if (currentUserProfile.subjects) {
-    document.querySelectorAll('.subject-chk').forEach(chk => {
-    chk.checked = currentUserProfile.subjects.includes(chk.value);
-    });
-    }
-    if (currentUserProfile.classes) {
-    document.querySelectorAll('.class-chk').forEach(chk => {
-    chk.checked = currentUserProfile.classes.includes(chk.value);
-    });
-    }
-    }
-    }
-    };
+                if (currentUserProfile) {
+                    if (currentUserProfile.subjects) {
+                        document.querySelectorAll('.subject-chk').forEach(chk => {
+                            chk.checked = currentUserProfile.subjects.includes(chk.value);
+                        });
+                    }
+                    if (currentUserProfile.classes) {
+                        document.querySelectorAll('.class-chk').forEach(chk => {
+                            chk.checked = currentUserProfile.classes.includes(chk.value);
+                        });
+                    }
+                }
+            }
+        };
 
-    window.closeEditProfile = () => {
-    document.getElementById('editProfileModal').classList.remove('active');
-    };
+        window.closeEditProfile = () => {
+            document.getElementById('editProfileModal').classList.remove('active');
+        };
 
-    // SAVE GENERAL PREFERENCES
-    window.saveProfileChanges = async () => {
-    if (!user) return;
-    const btn = document.querySelector('#tab-general .btn-primary');
-    const originalText = btn.innerText;
-    btn.innerText = 'Saving...';
+        // SAVE GENERAL PREFERENCES
+        window.saveProfileChanges = async () => {
+            if (!user) return;
+            const btn = document.querySelector('#tab-general .btn-primary');
+            const originalText = btn.innerText;
+            btn.innerText = 'Saving...';
 
-    const selectedSubjects = Array.from(document.querySelectorAll('.subject-chk:checked')).map(c => c.value);
-    const selectedClasses = Array.from(document.querySelectorAll('.class-chk:checked')).map(c => c.value);
+            const selectedSubjects = Array.from(document.querySelectorAll('.subject-chk:checked')).map(c => c.value);
+            const selectedClasses = Array.from(document.querySelectorAll('.class-chk:checked')).map(c => c.value);
 
-    try {
-    await Promise.all([
-    saveUserSubjects(user.uid, selectedSubjects),
-    saveUserClasses(user.uid, selectedClasses)
-    ]);
+            try {
+                await Promise.all([
+                    saveUserSubjects(user.uid, selectedSubjects),
+                    saveUserClasses(user.uid, selectedClasses)
+                ]);
 
-    // Update local cache
-    if (!currentUserProfile) currentUserProfile = {};
-    currentUserProfile.subjects = selectedSubjects;
-    currentUserProfile.classes = selectedClasses;
+                // Update local cache
+                if (!currentUserProfile) currentUserProfile = {};
+                currentUserProfile.subjects = selectedSubjects;
+                currentUserProfile.classes = selectedClasses;
 
-    btn.innerText = 'Saved!';
-    setTimeout(() => {
-    btn.innerText = originalText;
-    }, 1000);
-    } catch (e) {
-    alert('Error saving profile');
-    btn.innerText = originalText;
-    }
-    };
+                btn.innerText = 'Saved!';
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                }, 1000);
+            } catch (e) {
+                alert('Error saving profile');
+                btn.innerText = originalText;
+            }
+        };
 
-    // CHAPTER MANAGEMENT LOGIC
-    window.populateChapterDropdowns = () => {
-    const classSel = document.getElementById('manageClassSelect');
-    const subSel = document.getElementById('manageSubjectSelect');
+        // CHAPTER MANAGEMENT LOGIC
+        window.populateChapterDropdowns = () => {
+            const classSel = document.getElementById('manageClassSelect');
+            const subSel = document.getElementById('manageSubjectSelect');
 
-    // Clear current options
-    classSel.innerHTML = '<option value="">Select Class</option>';
-    subSel.innerHTML = '<option value="">Select Subject</option>';
+            // Clear current options
+            classSel.innerHTML = '<option value="">Select Class</option>';
+            subSel.innerHTML = '<option value="">Select Subject</option>';
 
-    // Use currently checked checkboxes as the source of truth for immediate feedback,
-    // or use fetched profile? Better to use checked boxes in case user just changed them but didn't close modal.
-    const currentClasses = Array.from(document.querySelectorAll('.class-chk:checked')).map(c => c.value);
-    const currentSubjects = Array.from(document.querySelectorAll('.subject-chk:checked')).map(c => c.value);
+            // Use currently checked checkboxes as the source of truth for immediate feedback,
+            // or use fetched profile? Better to use checked boxes in case user just changed them but didn't close modal.
+            const currentClasses = Array.from(document.querySelectorAll('.class-chk:checked')).map(c => c.value);
+            const currentSubjects = Array.from(document.querySelectorAll('.subject-chk:checked')).map(c => c.value);
 
-    currentClasses.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c;
-    opt.innerText = c;
-    classSel.appendChild(opt);
-    });
+            currentClasses.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.innerText = c;
+                classSel.appendChild(opt);
+            });
 
-    currentSubjects.forEach(s => {
-    const opt = document.createElement('option');
-    opt.value = s;
-    opt.innerText = s;
-    subSel.appendChild(opt);
-    });
-    };
+            currentSubjects.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.innerText = s;
+                subSel.appendChild(opt);
+            });
+        };
 
-    let currentChapterList = []; // Local state for the selected combo
+        let currentChapterList = []; // Local state for the selected combo
 
-    window.loadChaptersForSelection = () => {
-    const cls = document.getElementById('manageClassSelect').value;
-    const sub = document.getElementById('manageSubjectSelect').value;
-    const area = document.getElementById('chapterManagerArea');
-    const listContainer = document.getElementById('chapterListContainer');
+        window.loadChaptersForSelection = () => {
+            const cls = document.getElementById('manageClassSelect').value;
+            const sub = document.getElementById('manageSubjectSelect').value;
+            const area = document.getElementById('chapterManagerArea');
+            const listContainer = document.getElementById('chapterListContainer');
 
-    if (!cls || !sub) {
-    area.style.opacity = '0.5';
-    area.style.pointerEvents = 'none';
-    listContainer.innerHTML = '<div style="text-align: center; color: #555; padding-top: 40px;">Select Class & Subject
-    </div>';
-    return;
-    }
+            if (!cls || !sub) {
+                area.style.opacity = '0.5';
+                area.style.pointerEvents = 'none';
+                listContainer.innerHTML = '<div style="text-align: center; color: #555; padding-top: 40px;">Select Class & Subject</div>';
+                return;
+            }
 
-    area.style.opacity = '1';
-    area.style.pointerEvents = 'all';
-    listContainer.innerHTML = '<div style="color: #888; text-align: center;">Loading...</div>';
+            area.style.opacity = '1';
+            area.style.pointerEvents = 'all';
+            listContainer.innerHTML = '<div style="color: #888; text-align: center;">Loading...</div>';
 
-    // Key logic
-    const key = `${cls}_${sub}`; // e.g., "Class 10_Physics"
+            // Key logic
+            const key = `${cls}_${sub}`; // e.g., "Class 10_Physics"
 
-    // Check if we have it in profile
-    currentChapterList = [];
-    if (currentUserProfile && currentUserProfile.chapterPreferences && currentUserProfile.chapterPreferences[key]) {
-    currentChapterList = [...currentUserProfile.chapterPreferences[key]];
-    }
+            // Check if we have it in profile
+            currentChapterList = [];
+            if (currentUserProfile && currentUserProfile.chapterPreferences && currentUserProfile.chapterPreferences[key]) {
+                currentChapterList = [...currentUserProfile.chapterPreferences[key]];
+            }
 
-    renderChapterList();
-    };
+            renderChapterList();
+        };
 
-    window.renderChapterList = () => {
-    const listContainer = document.getElementById('chapterListContainer');
-    listContainer.innerHTML = '';
+        window.renderChapterList = () => {
+            const listContainer = document.getElementById('chapterListContainer');
+            listContainer.innerHTML = '';
 
-    if (currentChapterList.length === 0) {
-    listContainer.innerHTML = '<div style="text-align: center; color: #555; padding-top: 20px;">No chapters added yet.
-    </div>';
-    return;
-    }
+            if (currentChapterList.length === 0) {
+                listContainer.innerHTML = '<div style="text-align: center; color: #555; padding-top: 20px;">No chapters added yet.</div>';
+                return;
+            }
 
-    currentChapterList.forEach((chap, index) => {
-    const div = document.createElement('div');
-    div.className = 'chapter-item';
-    div.innerHTML = `
+            currentChapterList.forEach((chap, index) => {
+                const div = document.createElement('div');
+                div.className = 'chapter-item';
+                div.innerHTML = `
     <span>${chap}</span>
     <button class="btn btn-outline btn-sm" style="border-color: #ff4d4d; color: #ff4d4d;"
         onclick="removeChapter(${index})">
         &times;
     </button>
     `;
-    listContainer.appendChild(div);
-    });
-    };
+                listContainer.appendChild(div);
+            });
+        };
 
-    window.addNewChapter = async () => {
-    const input = document.getElementById('newChapterName');
-    const val = input.value.trim();
-    if (!val) return;
+        window.addNewChapter = async () => {
+            const input = document.getElementById('newChapterName');
+            const val = input.value.trim();
+            if (!val) return;
 
-    if (currentChapterList.includes(val)) {
-    alert('Chapter already exists!');
-    return;
-    }
+            if (currentChapterList.includes(val)) {
+                alert('Chapter already exists!');
+                return;
+            }
 
-    currentChapterList.push(val);
-    input.value = '';
-    renderChapterList(); // optimistic update
+            currentChapterList.push(val);
+            input.value = '';
+            renderChapterList(); // optimistic update
 
-    // Auto-save
-    await verifyAndSaveChapters();
-    };
+            // Auto-save
+            await verifyAndSaveChapters();
+        };
 
-    window.removeChapter = async (index) => {
-    if (confirm('Delete this chapter?')) {
-    currentChapterList.splice(index, 1);
-    renderChapterList();
-    await verifyAndSaveChapters();
-    }
-    };
+        window.removeChapter = async (index) => {
+            if (confirm('Delete this chapter?')) {
+                currentChapterList.splice(index, 1);
+                renderChapterList();
+                await verifyAndSaveChapters();
+            }
+        };
 
-    window.verifyAndSaveChapters = async () => {
-    const cls = document.getElementById('manageClassSelect').value;
-    const sub = document.getElementById('manageSubjectSelect').value;
-    const key = `${cls}_${sub}`;
+        window.verifyAndSaveChapters = async () => {
+            const cls = document.getElementById('manageClassSelect').value;
+            const sub = document.getElementById('manageSubjectSelect').value;
+            const key = `${cls}_${sub}`;
 
-    if (user && user.uid && cls && sub) {
-    await saveUserChapterPreferences(user.uid, key, currentChapterList);
-    // Update local profile object so we don't reload
-    if (!currentUserProfile.chapterPreferences) currentUserProfile.chapterPreferences = {};
-    currentUserProfile.chapterPreferences[key] = currentChapterList;
-    }
-    };
+            if (user && user.uid && cls && sub) {
+                await saveUserChapterPreferences(user.uid, key, currentChapterList);
+                // Update local profile object so we don't reload
+                if (!currentUserProfile.chapterPreferences) currentUserProfile.chapterPreferences = {};
+                currentUserProfile.chapterPreferences[key] = currentChapterList;
+            }
+        };
 
 
-    // Theme Toggle (Dummy visual for now as main.css handles defaults)
-    window.toggleTheme = () => {
-    const chk = document.getElementById('themeToggle');
-    chk.checked = !chk.checked;
-    };
+        // Theme Toggle (Dummy visual for now as main.css handles defaults)
+        window.toggleTheme = () => {
+            const chk = document.getElementById('themeToggle');
+            chk.checked = !chk.checked;
+        };
+    </script>
     </script>
 </body>
 
