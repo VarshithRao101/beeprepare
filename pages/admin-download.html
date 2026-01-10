@@ -47,6 +47,12 @@
         const db = getFirestore(app);
 
         window.fetchAllAndKeys = async () => {
+            const pwd = prompt("Enter Admin Password:");
+            if (pwd !== "admin123") { // Simple protection
+                alert("Unauthorized");
+                return;
+            }
+
             const status = document.getElementById('status');
             status.innerText = "Fetching... (This may take time for 3000 keys)";
 

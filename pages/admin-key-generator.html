@@ -66,6 +66,12 @@
         let generatedKeys = [];
 
         window.startGeneration = async () => {
+            const pwd = prompt("Enter Admin Password:");
+            if (pwd !== "admin123") { // Simple protection
+                alert("Unauthorized");
+                return;
+            }
+
             const status = document.getElementById('status');
             const output = document.getElementById('output');
             const dlBtn = document.getElementById('dlBtn');
