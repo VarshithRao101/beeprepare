@@ -75,14 +75,29 @@
         </p>
 
         <div class="form-group">
-            <input type="text" id="licenseKeyInput" class="form-input input-key" placeholder="BEE-XXXX-XXXX-XXXX"
-                maxlength="19">
+            <label
+                style="display:block; color:var(--text-secondary); margin-bottom:12px; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Secure
+                License Key</label>
+            <div class="key-input-container" style="display:flex; gap:8px; justify-content:center; margin-bottom:16px;">
+                <input type="text" class="form-input key-segment" maxlength="4" placeholder="BEE" value="BEE" disabled
+                    style="width: 60px; text-align:center; padding:10px 4px; opacity:0.7; cursor: not-allowed; border-color: var(--yellow); font-family:monospace; font-size:1.1rem;">
+                <span class="key-dash" style="align-self:center; color:#555;">-</span>
+                <input type="text" class="form-input key-segment" maxlength="4" placeholder="XXXX" id="seg1"
+                    style="width: 60px; text-align:center; padding:10px 4px; font-family:monospace; font-size:1.1rem; text-transform:uppercase;">
+                <span class="key-dash" style="align-self:center; color:#555;">-</span>
+                <input type="text" class="form-input key-segment" maxlength="4" placeholder="XXXX" id="seg2"
+                    style="width: 60px; text-align:center; padding:10px 4px; font-family:monospace; font-size:1.1rem; text-transform:uppercase;">
+                <span class="key-dash" style="align-self:center; color:#555;">-</span>
+                <input type="text" class="form-input key-segment" maxlength="4" placeholder="XXXX" id="seg3"
+                    style="width: 60px; text-align:center; padding:10px 4px; font-family:monospace; font-size:1.1rem; text-transform:uppercase;">
+            </div>
+            <p style="font-size: 0.75rem; color: #555; margin-top: 8px;">Keys are unique and one-time use only.</p>
         </div>
 
         <div id="errorMsg" class="error-msg"></div>
 
         <button id="activateBtn" class="btn btn-primary" style="width: 100%; margin-top: 16px;">
-            Activate Now
+            Activate Premium
         </button>
 
         <button onclick="logout()" class="btn btn-outline"
@@ -95,27 +110,68 @@
         import { activateUserAccount } from '../assets/js/firestore.js';
         import { logoutUser } from '../assets/js/firebase-auth.js';
 
-        // Formatting
-        const input = document.getElementById('licenseKeyInput');
-        input.addEventListener('input', (e) => {
-            let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-            // Mask: BEE-XXXX-XXXX-XXXX
-            // Actually user might just paste it.
-            // Let's just auto-hyphenate every 4 chars if strict
-            // Simple approach: just UPPERCASE
-            e.target.value = val;
+        // Auto-focus logic
+        const segs = [document.getElementById('seg1'), document.getElementById('seg2'), document.getElementById('seg3')];
+
+        // Focus first editable segment on load
+        setTimeout(() => segs[0].focus(), 500);
+
+        segs.forEach((seg, idx) => {
+            seg.addEventListener('input', (e) => {
+                let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                e.target.value = val;
+
+                if (val.length === 4) {
+                    if (idx < segs.length - 1) segs[idx + 1].focus();
+                }
+            });
+
+            seg.addEventListener('keydown', (e) => {
+                // Backspace moves back
+                if (e.key === 'Backspace' && e.target.value.length === 0) {
+                    if (idx > 0) segs[idx - 1].focus();
+                }
+            });
+
+            // Allow pasting full key
+            seg.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text').trim().toUpperCase();
+                // Expected format: BEE-AAAA-BBBB-CCCC or just AAAA...
+                // Remove non-alphanumeric
+                const clean = text.replace(/[^A-Z0-9]/g, '');
+
+                // If it starts with BEE, remove it
+                let remaining = clean;
+                if (remaining.startsWith('BEE')) remaining = remaining.substring(3);
+
+                // Distribute
+                if (remaining.length > 0) segs[0].value = remaining.substring(0, 4);
+                if (remaining.length > 4) segs[1].value = remaining.substring(4, 8);
+                if (remaining.length > 8) segs[2].value = remaining.substring(8, 12);
+
+                // Focus last populated
+                if (remaining.length > 8) segs[2].focus();
+                else if (remaining.length > 4) segs[1].focus();
+                else segs[0].focus();
+            });
         });
 
         // Activate
         const btn = document.getElementById('activateBtn');
         btn.addEventListener('click', async () => {
-            const key = input.value.trim();
-            const err = document.getElementById('errorMsg');
+            // Construct key
+            const p1 = segs[0].value;
+            const p2 = segs[1].value;
+            const p3 = segs[2].value;
 
-            if (key.length < 5) {
-                err.textContent = "Please enter a valid key";
+            if (p1.length < 4 || p2.length < 4 || p3.length < 4) {
+                document.getElementById('errorMsg').textContent = "Please complete the key.";
                 return;
             }
+
+            const fullKey = `BEE-${p1}-${p2}-${p3}`;
+            const err = document.getElementById('errorMsg');
 
             const userJson = localStorage.getItem('qp_user');
             if (!userJson) {
@@ -129,22 +185,27 @@
             err.textContent = "";
 
             try {
-                const result = await activateUserAccount(user.uid, key);
+                const result = await activateUserAccount(user.uid, fullKey);
                 if (result.success) {
-                    btn.textContent = "Success!";
+                    btn.textContent = "ACTIVATED!";
                     btn.style.backgroundColor = "var(--success)";
+                    btn.style.boxShadow = "0 0 20px var(--success)";
+
+                    // Confetti/Animation Effect manually?
+                    document.body.style.background = "radial-gradient(circle at center, #1a472a 0%, #000 100%)";
+
                     setTimeout(() => {
                         window.location.href = 'home.html';
-                    }, 1000);
+                    }, 1500);
                 } else {
-                    err.textContent = result.error || "Activation failed";
+                    err.textContent = result.error || "Invalid or Used Key";
                     btn.disabled = false;
-                    btn.textContent = "Activate Now";
+                    btn.textContent = "Activate Premium";
                 }
             } catch (e) {
                 err.textContent = "Error: " + e.message;
                 btn.disabled = false;
-                btn.textContent = "Activate Now";
+                btn.textContent = "Activate Premium";
             }
         });
 
