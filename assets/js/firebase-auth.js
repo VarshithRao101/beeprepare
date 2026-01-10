@@ -150,4 +150,11 @@ export const updateProfileUI = () => {
 };
 
 // Auto-run auth check
+// Ensure we don't loop on public pages
+const isPublicPage = window.location.pathname.endsWith("login.html") ||
+    window.location.pathname.endsWith("google-auth.html") ||
+    window.location.pathname.endsWith("privacy-policy.html");
+
+// On Vercel, root path might be just "/" or "/index.html"
+// Only run checkAuth if we are NOT on a public page OR if we want to redirect FROM public page if logged in.
 checkAuth();
