@@ -12,7 +12,7 @@
 
 <body>
 
-    <div class="app-container">
+    <div class="app-container" style="display:none;" id="mainApp">
 
         <!-- Header -->
         <header class="app-header">
@@ -138,6 +138,9 @@
                         window.location.replace('activate.html'); // Use replace to prevent back-button loop
                         return;
                     }
+
+                    // Reveal Content
+                    document.getElementById('mainApp').style.display = 'block';
 
                     renderSubjects(profile ? profile.subjects : []);
                     renderClasses(profile ? profile.classes : []);
