@@ -4,49 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Question Paper - BEEPREPARE</title>
+    <title>Create Paper - Question Paper Bee</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/animations.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
-    <div class="app-container">
-
+    <div class="app-container fade-in">
         <!-- Header -->
         <header class="app-header">
-            <div class="header-left">
-                <a href="home.html" class="menu-trigger">
-                    <img src="../assets/images/icon-arrow-left.svg" alt="Back" style="width: 24px;">
-                </a>
-            </div>
-            <div class="header-center">
-                <h1 class="app-logo-text">Create Question Paper</h1>
-            </div>
-            <div class="header-right">
-                <a href="profile.html">
-                    <img src="../assets/images/avatar-placeholder.png" alt="Profile" class="profile-avatar">
-                </a>
+            <h1 class="page-title">Create Paper</h1>
+            <div class="header-actions">
+                <!-- User Profile / Settings could go here -->
             </div>
         </header>
 
-        <main class="main-content fade-in">
+        <main class="main-content">
 
-            <div style="max-width: 600px; margin: 0 auto; padding-bottom: 80px;">
-
-                <!-- Progress Indicator -->
-                <div
-                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
-                    <div style="font-weight: 700; color: var(--yellow);">Step 1 of 3</div>
-                    <div style="display: flex; gap: 4px;">
-                        <div style="width: 24px; height: 4px; background: var(--yellow); border-radius: 2px;"></div>
-                        <div style="width: 24px; height: 4px; background: var(--border-grey); border-radius: 2px;">
-                        </div>
-                        <div style="width: 24px; height: 4px; background: var(--border-grey); border-radius: 2px;">
-                        </div>
-                    </div>
-                </div>
+            <div class="container">
 
                 <h2 class="card-title" style="margin-bottom: var(--spacing-md); font-size: 1.3rem;">Paper Configuration
                 </h2>
@@ -71,9 +50,14 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Chapters</label>
-                        <div id="chapterSelectContainer" class="multi-select-container">
-                            <div style="padding:10px; color:var(--text-secondary); font-size: 0.9rem;">Select Class &
-                                Subject first</div>
+                        <div class="multi-select-wrapper" id="chapterSelectWrapper">
+                            <div class="multi-select-trigger" id="chapterTrigger">
+                                <span id="chapterTriggerText" style="color: var(--text-secondary);">Select Class &
+                                    Subject first</span>
+                            </div>
+                            <div class="multi-select-dropdown" id="chapterDropdown">
+                                <!-- Checkboxes populated here -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -152,22 +136,22 @@
 
         </main>
 
-        <!-- New Bottom Nav (Active: Create) -->
+        <!-- Premium Bottom Nav -->
         <nav class="bottom-nav">
             <a href="home.html" class="nav-item">
-                <img src="../assets/images/icon-home.svg" class="nav-icon" alt="Home">
+                <span class="nav-icon-wrapper" data-icon="Home"></span>
                 <span>Home</span>
             </a>
             <a href="question-bank.html" class="nav-item">
-                <img src="../assets/images/icon-bank.svg" class="nav-icon" alt="Bank">
+                <span class="nav-icon-wrapper" data-icon="Bank"></span>
                 <span>Bank</span>
             </a>
             <a href="blueprint.html" class="nav-item active">
-                <img src="../assets/images/icon-plus.svg" class="nav-icon" alt="Generate">
+                <span class="nav-icon-wrapper" data-icon="Generate"></span>
                 <span>Generate</span>
             </a>
             <a href="profile.html" class="nav-item">
-                <img src="../assets/images/icon-profile.svg" class="nav-icon" alt="Profile">
+                <span class="nav-icon-wrapper" data-icon="Profile"></span>
                 <span>Profile</span>
             </a>
         </nav>
@@ -177,6 +161,18 @@
     <script type="module">
         import { generatePaperDraft } from '../assets/js/createPaper.js';
         import { getUserProfileData } from '../assets/js/firestore.js';
+        import { getNavIcon } from '../assets/js/icons.js';
+
+        // Render Nav Icons
+        document.querySelectorAll('.nav-icon-wrapper').forEach(el => {
+            const name = el.dataset.icon;
+            const parent = el.closest('.nav-item');
+            const isActive = parent.classList.contains('active');
+            el.innerHTML = getNavIcon(name, isActive);
+            // Add animation class if needed
+            const svg = el.querySelector('svg');
+            if (svg) svg.classList.add('nav-icon');
+        });
 
         // Initial State
         let userProfile = null;
@@ -184,7 +180,24 @@
         // DOM Elements
         const classSelect = document.querySelectorAll('.form-select')[0];
         const subjectSelect = document.querySelectorAll('.form-select')[1];
-        const chapterContainer = document.getElementById('chapterSelectContainer');
+
+        const chapterWrapper = document.getElementById('chapterSelectWrapper');
+        const chapterTrigger = document.getElementById('chapterTrigger');
+        const chapterTriggerText = document.getElementById('chapterTriggerText');
+        const chapterDropdown = document.getElementById('chapterDropdown');
+
+        // Toggle Dropdown
+        chapterTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            chapterWrapper.classList.toggle('open');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!chapterWrapper.contains(e.target)) {
+                chapterWrapper.classList.remove('open');
+            }
+        });
 
         // Initialization
         const init = async () => {
@@ -204,8 +217,6 @@
                     if (userProfile) {
                         populateClassDropdown();
                         populateSubjectDropdown();
-                        // Initial Text
-                        // chapterContainer is already set to helper text
                     }
                 } catch (e) {
                     console.error("Error loading profile", e);
@@ -243,10 +254,11 @@
             const cls = classSelect.value;
             const sub = subjectSelect.value;
 
-            chapterContainer.innerHTML = ''; // Clear
+            chapterDropdown.innerHTML = ''; // Clear
 
             if (!cls || !sub) {
-                chapterContainer.innerHTML = '<div style="padding:10px; color:var(--text-secondary); font-size: 0.9rem;">Select Class & Subject first</div>';
+                chapterTriggerText.textContent = 'Select Class & Subject first';
+                chapterTriggerText.style.color = 'var(--text-secondary)';
                 return;
             }
 
@@ -259,7 +271,8 @@
             }
 
             if (userProfile && (!chapters || chapters.length === 0)) {
-                chapterContainer.innerHTML = '<div style="padding:10px; color:var(--text-secondary);">No chapters found for this subject. Add them in Profile.</div>';
+                chapterTriggerText.textContent = 'No chapters found';
+                chapterDropdown.innerHTML = '<div style="padding:10px; color:var(--text-secondary);">No chapters found. Add in Profile.</div>';
                 return;
             }
 
@@ -272,12 +285,12 @@
                 <input type="checkbox" value="All Chapters" id="checkAll">
                 <span>All Chapters</span>
             `;
-            chapterContainer.appendChild(allDiv);
+            chapterDropdown.appendChild(allDiv);
 
             const checkAllBox = allDiv.querySelector('input');
+            const boxes = [];
 
             // 2. Individual Chapters
-            const boxes = [];
             chapters.forEach(ch => {
                 const row = document.createElement('label');
                 row.className = 'multi-select-item';
@@ -285,23 +298,44 @@
                     <input type="checkbox" value="${ch}" class="ch-box">
                     <span>${ch}</span>
                 `;
-                chapterContainer.appendChild(row);
+                chapterDropdown.appendChild(row);
                 boxes.push(row.querySelector('input'));
             });
+
+            // Update Trigger Text Logic
+            const updateTriggerText = () => {
+                const checkedCount = boxes.filter(b => b.checked).length;
+                if (checkedCount === 0) {
+                    chapterTriggerText.textContent = "Select Chapters";
+                    chapterTriggerText.style.color = "var(--text-secondary)";
+                } else if (checkedCount === boxes.length) {
+                    chapterTriggerText.textContent = "All Chapters Selected";
+                    chapterTriggerText.style.color = "var(--text-primary)";
+                    checkAllBox.checked = true;
+                } else {
+                    chapterTriggerText.textContent = `${checkedCount} Chapter(s) Selected`;
+                    chapterTriggerText.style.color = "var(--text-primary)";
+                    checkAllBox.checked = false;
+                }
+            };
 
             // Logic for "Select All"
             checkAllBox.addEventListener('change', (e) => {
                 const checked = e.target.checked;
                 boxes.forEach(b => b.checked = checked);
+                updateTriggerText();
             });
 
-            // Logic for individual uncheck unselecting "All"
+            // Logic for individual uncheck
             boxes.forEach(b => {
                 b.addEventListener('change', () => {
-                    if (!b.checked) checkAllBox.checked = false;
-                    // Note: If all checked manually, we could check "All" too, but optional.
+                    updateTriggerText();
                 });
             });
+
+            // Reset UI
+            chapterTriggerText.textContent = "Select Chapters";
+            chapterTriggerText.style.color = "var(--text-secondary)";
         };
 
         // Listeners for dynamic updates
@@ -366,7 +400,7 @@
             btn.disabled = true;
 
             // Gather Config
-            constcounters = document.querySelectorAll('.counter-input');
+            const counters = document.querySelectorAll('.counter-input');
 
             const config = {
                 class: classSelect.value,

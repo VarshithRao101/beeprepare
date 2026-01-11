@@ -815,36 +815,82 @@ Preview Page: A4 Paper
     opacity: 1;
 }
 
-/* Multi-Select Component */
-.multi-select-container {
-    background: var(--card-grey);
+/* Multi-Select Component (Dropdown Style) */
+.multi-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.multi-select-trigger {
+    width: 100%;
+    background-color: var(--card-grey);
     border: 1px solid var(--border-grey);
     border-radius: var(--radius-sm);
-    max-height: 200px;
+    padding: 10px 14px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+}
+
+.multi-select-trigger::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23BDBDBD' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: transform 0.2s;
+}
+
+.multi-select-wrapper.open .multi-select-trigger::after {
+    transform: rotate(180deg);
+}
+
+.multi-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--card-grey);
+    border: 1px solid var(--border-grey);
+    border-radius: var(--radius-sm);
+    margin-top: 4px;
+    max-height: 250px;
     overflow-y: auto;
+    z-index: 50;
+    display: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     padding: 8px;
+    animation: slideUpFadeIn 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.multi-select-wrapper.open .multi-select-dropdown {
+    display: block;
 }
 
 .multi-select-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px;
+    gap: 12px;
+    padding: 10px;
     border-radius: 4px;
     cursor: pointer;
-    user-select: none;
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    transition: background 0.2s;
+    transition: background 0.1s;
+    color: var(--text-secondary);
 }
 
 .multi-select-item:hover {
     background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
 }
 
 .multi-select-item input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     accent-color: var(--yellow);
     cursor: pointer;
 }
