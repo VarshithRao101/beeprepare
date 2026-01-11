@@ -41,7 +41,16 @@ export const generatePaperDraft = async (config) => {
         // Filter by Chapter (if specified and not "All")
         // If config.chapter is "All Chapters" or null, we take all.
         let candidates = allQuestions;
-        if (config.chapter && config.chapter !== "All Chapters" && config.chapter !== "All") {
+
+        // Check if config.chapter is an array (new multi-select behavior)
+        if (Array.isArray(config.chapter)) {
+            // If "All Chapters" is in the array, do not filter.
+            if (!config.chapter.includes("All Chapters") && !config.chapter.includes("All")) {
+                candidates = allQuestions.filter(q => config.chapter.includes(q.chapter));
+            }
+        }
+        // Fallback for logic if plain string passed (legacy)
+        else if (config.chapter && config.chapter !== "All Chapters" && config.chapter !== "All") {
             candidates = allQuestions.filter(q => q.chapter === config.chapter);
         }
 

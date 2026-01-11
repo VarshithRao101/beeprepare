@@ -385,6 +385,7 @@ Components: Forms & Inputs
     font-weight: 500;
 }
 
+
 .form-input,
 .form-select,
 .form-textarea {
@@ -396,20 +397,12 @@ Components: Forms & Inputs
     color: var(--text-primary);
     font-family: var(--font-main);
     font-size: 0.95rem;
-    transition: all 0.2s ease;
+    /* transition handled in animations.css */
 }
 
 .form-textarea {
     min-height: 100px;
     resize: vertical;
-}
-
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
-    outline: none;
-    border-color: var(--yellow);
-    box-shadow: 0 0 0 2px rgba(255, 192, 0, 0.1);
 }
 
 .form-select {
@@ -559,8 +552,8 @@ Section: Buttons
     border-radius: var(--radius-sm);
     font-weight: 600;
     font-size: 0.95rem;
-    transition: all 0.2s ease;
     width: 100%;
+    /* transition handled in animations.css */
 }
 
 .btn-primary {
@@ -568,21 +561,10 @@ Section: Buttons
     color: var(--dark-bg);
 }
 
-.btn-primary:hover {
-    background-color: var(--yellow-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 192, 0, 0.3);
-}
-
 .btn-outline {
     background-color: transparent;
     border: 1px solid var(--text-secondary);
     color: var(--text-secondary);
-}
-
-.btn-outline:hover {
-    border-color: var(--text-primary);
-    color: var(--text-primary);
 }
 
 .btn-group {
@@ -672,6 +654,7 @@ Blueprint Specific
 Preview Page: A4 Paper
 ====================================
 */
+/* Preview Page: A4 Paper */
 .preview-container-wrapper {
     display: flex;
     justify-content: center;
@@ -689,18 +672,20 @@ Preview Page: A4 Paper
     /* A4 Width */
     min-height: 29.7cm;
     /* A4 Height */
-    padding: 2cm;
+    padding: 1.5cm;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     position: relative;
     font-family: "Times New Roman", Times, serif;
     /* Academic feel */
+    font-size: 12pt;
+    line-height: 1.3;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 @media (max-width: 600px) {
     .a4-paper {
-        padding: 1.5cm;
-        font-size: 0.9rem;
+        padding: 1cm;
+        font-size: 10pt;
         min-height: auto;
         aspect-ratio: 210/297;
     }
@@ -714,48 +699,69 @@ Preview Page: A4 Paper
 /* Paper Header */
 .paper-header-section {
     text-align: center;
-    border-bottom: 2px solid var(--yellow);
-    padding-bottom: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
+    border-bottom: 2px solid #000;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
 }
 
 .paper-inst-name {
-    font-size: 1.4rem;
+    font-size: 16pt;
     font-weight: 700;
     text-transform: uppercase;
-    margin-bottom: var(--spacing-xs);
+    margin-bottom: 4px;
     letter-spacing: 0.5px;
 }
 
 .paper-exam-name {
-    font-size: 1.1rem;
+    font-size: 13pt;
     font-weight: 600;
-    margin-bottom: var(--spacing-md);
+    margin-bottom: 12px;
 }
+
+.student-details-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-weight: 600;
+    font-size: 11pt;
+}
+
+.detail-line {
+    display: flex;
+    gap: 8px;
+}
+
+.detail-line span {
+    border-bottom: 1px dotted #000;
+    min-width: 150px;
+    display: inline-block;
+}
+
 
 .paper-meta-grid {
     display: flex;
     justify-content: space-between;
-    font-size: 0.9rem;
+    font-size: 11pt;
     font-weight: 500;
-    border-top: 1px solid #eee;
-    padding-top: var(--spacing-sm);
+    border-top: 1px solid #000;
+    padding-top: 8px;
 }
 
 /* Paper Body */
 .paper-question-list {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 8px;
 }
 
 .paper-question-item {
     display: flex;
-    gap: var(--spacing-sm);
+    gap: 8px;
     position: relative;
-    padding: 4px;
+    padding: 2px 4px;
     border-radius: 4px;
     transition: background-color 0.2s;
+    align-items: baseline;
 }
 
 .paper-question-item:hover {
@@ -767,14 +773,32 @@ Preview Page: A4 Paper
     min-width: 24px;
 }
 
-.p-q-text {
+.p-q-content {
     flex: 1;
-    line-height: 1.4;
+}
+
+.p-q-text {
+    line-height: 1.3;
+    margin-bottom: 4px;
+}
+
+.mcq-options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 16px;
+    margin-top: 4px;
+    margin-left: 8px;
+    font-size: 11pt;
+}
+
+.mcq-option {
+    display: flex;
+    gap: 6px;
 }
 
 .p-q-marks {
     font-weight: 700;
-    margin-left: auto;
+    margin-left: 8px;
     /* Push to right */
     white-space: nowrap;
 }
@@ -791,14 +815,38 @@ Preview Page: A4 Paper
     opacity: 1;
 }
 
-/* Paper Footer */
-.paper-footer-section {
-    margin-top: var(--spacing-xl);
-    text-align: center;
-    font-style: italic;
-    color: #666;
-    border-top: 1px solid #eee;
-    padding-top: var(--spacing-md);
+/* Multi-Select Component */
+.multi-select-container {
+    background: var(--card-grey);
+    border: 1px solid var(--border-grey);
+    border-radius: var(--radius-sm);
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.multi-select-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: background 0.2s;
+}
+
+.multi-select-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.multi-select-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--yellow);
+    cursor: pointer;
 }
 
 /* 

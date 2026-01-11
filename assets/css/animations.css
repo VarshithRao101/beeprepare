@@ -1,238 +1,215 @@
 /* 
 ====================================
-Advanced Premium Animations & Interactions
+Advanced "Cool & Crazy" Premium Animations
+Theme: Dark High-Tech / Cyber-Professional
 ====================================
 */
 
-/* 1. Cinematic Page Entrance */
-@keyframes slideUpFadeIn {
+:root {
+    --anim-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --anim-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --anim-snap: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+}
+
+/* 1. Global Page Transitions (Epic Entrance) */
+@keyframes elasticSlideUp {
     0% {
         opacity: 0;
-        transform: translateY(30px) scale(0.98);
-        filter: blur(5px);
+        transform: translateY(40px) scale(0.9);
+        filter: blur(8px);
+    }
+
+    60% {
+        opacity: 1;
+        transform: translateY(-5px) scale(1.02);
+        filter: blur(0);
     }
 
     100% {
-        opacity: 1;
         transform: translateY(0) scale(1);
-        filter: blur(0);
     }
 }
 
-.fade-in {
-    opacity: 0;
-    animation: slideUpFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+.fade-in,
+.main-content {
+    animation: elasticSlideUp 0.8s var(--anim-spring) forwards;
 }
 
-/* Staggered Entrance for Lists items, grids */
-.g-col,
+/* 2. Staggered List Items */
 .card-hover,
-.step-card {
+.g-col,
+.paper-question-item,
+.multi-select-item {
     opacity: 0;
-    animation: slideUpFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation: elasticSlideUp 0.6s var(--anim-spring) forwards;
 }
 
-.g-col:nth-child(1),
-.card-hover:nth-child(1) {
+/* Stagger Delays Loop */
+.card-hover:nth-child(1),
+.paper-question-item:nth-child(1),
+.multi-select-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.card-hover:nth-child(2),
+.paper-question-item:nth-child(2),
+.multi-select-item:nth-child(2) {
     animation-delay: 0.1s;
 }
 
-.g-col:nth-child(2),
-.card-hover:nth-child(2) {
+.card-hover:nth-child(3),
+.paper-question-item:nth-child(3),
+.multi-select-item:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.card-hover:nth-child(4),
+.paper-question-item:nth-child(4),
+.multi-select-item:nth-child(4) {
     animation-delay: 0.2s;
 }
 
-.g-col:nth-child(3),
-.card-hover:nth-child(3) {
-    animation-delay: 0.3s;
+.card-hover:nth-child(5),
+.paper-question-item:nth-child(5),
+.multi-select-item:nth-child(5) {
+    animation-delay: 0.25s;
 }
 
-.g-col:nth-child(4),
-.card-hover:nth-child(4) {
-    animation-delay: 0.4s;
-}
+/* ...and so on, generic CSS doesn't do loops, but this covers top items */
 
-/* 2. Magnetic Hover & Glass Morphism Glow */
+/* 3. "Cool" Card Interactions (3D Lift + Glow) */
+.content-card,
+.question-card,
 .card-hover {
+    transition: transform 0.4s var(--anim-spring), box-shadow 0.4s var(--anim-smooth), border-color 0.3s ease;
+    will-change: transform;
+}
+
+.content-card:hover,
+.question-card:hover,
+.card-hover:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--yellow);
+    border-color: var(--yellow);
+    z-index: 10;
+}
+
+/* 4. Button Shine Effect */
+.btn {
     position: relative;
     overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all 0.3s var(--anim-spring);
     z-index: 1;
 }
 
-.card-hover::before {
+.btn::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 192, 0, 0.06), transparent 40%);
-    opacity: 0;
-    transition: opacity 0.4s ease;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent);
+    transform: skewX(-25deg);
+    transition: none;
     z-index: -1;
-    pointer-events: none;
 }
 
-.card-hover:hover {
-    transform: translateY(-8px) scale(1.01);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 192, 0, 0.3);
-    border-color: var(--yellow);
+.btn:hover::before {
+    animation: shineSweep 0.5s ease;
 }
 
-.card-hover:hover::before {
-    opacity: 1;
-}
+@keyframes shineSweep {
+    0% {
+        left: -100%;
+    }
 
-/* 3. Button Micro-Interactions */
-.btn,
-.selection-btn {
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 300%;
-    height: 300%;
-    background: rgba(255, 255, 255, 0.2);
-    transform: translate(-50%, -50%) scale(0);
-    border-radius: 50%;
-    transition: transform 0.6s ease;
-}
-
-.btn:active::after {
-    transform: translate(-50%, -50%) scale(1);
-    transition: 0s;
+    100% {
+        left: 200%;
+    }
 }
 
 .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 15px rgba(255, 192, 0, 0.25);
-    /* Yellow glow for primary */
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(255, 192, 0, 0.3);
 }
 
-.btn-outline:hover {
-    box-shadow: 0 8px 15px rgba(255, 255, 255, 0.1);
+.btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 10px rgba(255, 192, 0, 0.2);
 }
 
-/* 4. Selection Button Pulse */
-@keyframes checkPop {
+/* 5. Input Focus "Energy" */
+.form-input,
+.form-select,
+.form-textarea {
+    transition: all 0.3s var(--anim-smooth);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    transform: scale(1.02);
+    border-color: var(--yellow);
+    box-shadow: 0 0 15px rgba(255, 192, 0, 0.25);
+    background: rgba(30, 30, 30, 1);
+}
+
+/* 6. Checkbox "Splat" Pop */
+@keyframes checkSplat {
     0% {
-        transform: scale(0);
-        opacity: 0;
+        transform: scale(1);
     }
 
     50% {
-        transform: scale(1.4);
+        transform: scale(1.3);
     }
 
     100% {
         transform: scale(1);
-        opacity: 1;
     }
 }
 
-.selection-btn.selected .selection-check {
-    animation: checkPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+input[type="checkbox"]:checked {
+    animation: checkSplat 0.3s var(--anim-snap);
 }
 
-/* 5. Nav Icon Fluid Morph */
+/* 7. Hover Glow Text */
+a:hover {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.nav-item:hover {
+    transform: translateY(-3px);
+}
+
 .nav-item .nav-icon {
-    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transition: transform 0.4s var(--anim-spring);
 }
 
 .nav-item:hover .nav-icon {
-    transform: translateY(-4px) scale(1.1);
-    filter: drop-shadow(0 5px 5px rgba(255, 192, 0, 0.5));
+    transform: scale(1.2) rotate(5deg);
+    filter: drop-shadow(0 0 5px var(--yellow));
 }
 
-.nav-item.active::after {
-    content: '';
-    position: absolute;
-    bottom: 8px;
-    width: 4px;
-    height: 4px;
-    background: var(--yellow);
-    border-radius: 50%;
-    box-shadow: 0 0 10px var(--yellow);
-    animation: dotBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-@keyframes dotBounce {
+/* 8. Success Pulse */
+@keyframes successPulse {
     0% {
-        transform: scale(0);
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 20px rgba(76, 175, 80, 0);
     }
 
     100% {
-        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
     }
 }
 
-/* 6. Text Input Focus Glow */
-.form-input:focus,
-.question-input-large:focus {
-    box-shadow: 0 0 0 4px rgba(255, 192, 0, 0.15), 0 0 20px rgba(255, 192, 0, 0.1);
-    transform: scale(1.01);
-}
-
-/* 7. Drawer Slide & Blur */
-.side-drawer {
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.5);
-}
-
-.drawer-overlay {
-    backdrop-filter: blur(4px);
-    transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
-}
-
-/* 8. Success Overlay Explosion */
-@keyframes successBurst {
-    0% {
-        box-shadow: 0 0 0 0 rgba(255, 192, 0, 0.7);
-        opacity: 1;
-    }
-
-    100% {
-        box-shadow: 0 0 0 100px rgba(255, 192, 0, 0);
-        opacity: 0;
-    }
-}
-
-.success-overlay.active .check-circle {
-    animation: successBurst 1s ease-out;
-}
-
-/* 9. Progress Bar Filler */
-.progress-fill-anim {
-    width: 0;
-    animation: fillProgress 1s ease-out forwards 0.5s;
-}
-
-@keyframes fillProgress {
-    to {
-        width: 100%;
-    }
-}
-
-/* 10. Shimmer Loading Effect (Optional if we had placeholders) */
-@keyframes shimmer {
-    0% {
-        background-position: -1000px 0;
-    }
-
-    100% {
-        background-position: 1000px 0;
-    }
-}
-
-.loading-skeleton {
-    animation: shimmer 2s infinite linear;
-    background: linear-gradient(to right, #1e1e1e 4%, #2a2a2a 25%, #1e1e1e 36%);
-    background-size: 1000px 100%;
+.check-circle {
+    animation: successPulse 2s infinite;
 }

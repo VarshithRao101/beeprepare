@@ -70,12 +70,11 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Chapter</label>
-                        <select class="form-select">
-                            <option>All Chapters</option>
-                            <option>Ch 1: Chemical Reactions</option>
-                            <option>Ch 2: Acids, Bases and Salts</option>
-                        </select>
+                        <label class="form-label">Chapters</label>
+                        <div id="chapterSelectContainer" class="multi-select-container">
+                            <div style="padding:10px; color:var(--text-secondary); font-size: 0.9rem;">Select Class &
+                                Subject first</div>
+                        </div>
                     </div>
                 </div>
 
@@ -183,11 +182,9 @@
         let userProfile = null;
 
         // DOM Elements
-        // Using specific IDs would be better, but selecting by class works if we are careful
-        const selects = document.querySelectorAll('.form-select');
-        const classSelect = selects[0];
-        const subjectSelect = selects[1];
-        const chapterSelect = selects[2];
+        const classSelect = document.querySelectorAll('.form-select')[0];
+        const subjectSelect = document.querySelectorAll('.form-select')[1];
+        const chapterContainer = document.getElementById('chapterSelectContainer');
 
         // Initialization
         const init = async () => {
@@ -207,8 +204,8 @@
                     if (userProfile) {
                         populateClassDropdown();
                         populateSubjectDropdown();
-                        // Initialize Chapter with "All"
-                        chapterSelect.innerHTML = '<option value="All Chapters">All Chapters</option>';
+                        // Initial Text
+                        // chapterContainer is already set to helper text
                     }
                 } catch (e) {
                     console.error("Error loading profile", e);
@@ -242,30 +239,74 @@
             }
         };
 
-        const updateChapterDropdown = () => {
+        const populateChapterList = () => {
             const cls = classSelect.value;
             const sub = subjectSelect.value;
 
-            chapterSelect.innerHTML = '<option value="All Chapters">All Chapters</option>';
+            chapterContainer.innerHTML = ''; // Clear
 
-            if (cls && sub && userProfile && userProfile.chapterPreferences) {
-                const key = `${cls}_${sub}`;
-                const chapters = userProfile.chapterPreferences[key];
-
-                if (chapters && chapters.length > 0) {
-                    chapters.forEach(ch => {
-                        const opt = document.createElement('option');
-                        opt.value = ch;
-                        opt.textContent = ch;
-                        chapterSelect.appendChild(opt);
-                    });
-                }
+            if (!cls || !sub) {
+                chapterContainer.innerHTML = '<div style="padding:10px; color:var(--text-secondary); font-size: 0.9rem;">Select Class & Subject first</div>';
+                return;
             }
+
+            // Valid selection
+            const key = `${cls}_${sub}`;
+            let chapters = [];
+
+            if (userProfile && userProfile.chapterPreferences) {
+                chapters = userProfile.chapterPreferences[key] || [];
+            }
+
+            if (userProfile && (!chapters || chapters.length === 0)) {
+                chapterContainer.innerHTML = '<div style="padding:10px; color:var(--text-secondary);">No chapters found for this subject. Add them in Profile.</div>';
+                return;
+            }
+
+            // 1. "Select All" Option
+            const allDiv = document.createElement('label');
+            allDiv.className = 'multi-select-item';
+            allDiv.style.borderBottom = '1px solid var(--border-grey)';
+            allDiv.style.marginBottom = '4px';
+            allDiv.innerHTML = `
+                <input type="checkbox" value="All Chapters" id="checkAll">
+                <span>All Chapters</span>
+            `;
+            chapterContainer.appendChild(allDiv);
+
+            const checkAllBox = allDiv.querySelector('input');
+
+            // 2. Individual Chapters
+            const boxes = [];
+            chapters.forEach(ch => {
+                const row = document.createElement('label');
+                row.className = 'multi-select-item';
+                row.innerHTML = `
+                    <input type="checkbox" value="${ch}" class="ch-box">
+                    <span>${ch}</span>
+                `;
+                chapterContainer.appendChild(row);
+                boxes.push(row.querySelector('input'));
+            });
+
+            // Logic for "Select All"
+            checkAllBox.addEventListener('change', (e) => {
+                const checked = e.target.checked;
+                boxes.forEach(b => b.checked = checked);
+            });
+
+            // Logic for individual uncheck unselecting "All"
+            boxes.forEach(b => {
+                b.addEventListener('change', () => {
+                    if (!b.checked) checkAllBox.checked = false;
+                    // Note: If all checked manually, we could check "All" too, but optional.
+                });
+            });
         };
 
         // Listeners for dynamic updates
-        classSelect.addEventListener('change', updateChapterDropdown);
-        subjectSelect.addEventListener('change', updateChapterDropdown);
+        classSelect.addEventListener('change', populateChapterList);
+        subjectSelect.addEventListener('change', populateChapterList);
 
         // Connect UI Controls to Logic
         const inputs = document.querySelectorAll('.counter-input');
@@ -305,17 +346,32 @@
             if (!classSelect.value) return alert("Please select a Class");
             if (!subjectSelect.value) return alert("Please select a Subject");
 
+            // Gather Chapters
+            const checkedBoxes = Array.from(document.querySelectorAll('.ch-box:checked'));
+            const checkAll = document.getElementById('checkAll');
+
+            let selectedChapters = [];
+            if (checkAll && checkAll.checked) {
+                selectedChapters = ["All Chapters"];
+            } else {
+                selectedChapters = checkedBoxes.map(b => b.value);
+            }
+
+            if (selectedChapters.length === 0) {
+                return alert("Please select at least one chapter.");
+            }
+
             const originalText = btn.textContent;
             btn.textContent = "Generating...";
             btn.disabled = true;
 
             // Gather Config
-            const counters = document.querySelectorAll('.counter-input');
+            constcounters = document.querySelectorAll('.counter-input');
 
             const config = {
                 class: classSelect.value,
                 subject: subjectSelect.value,
-                chapter: chapterSelect.value, // "All Chapters" or specific string
+                chapter: selectedChapters, // Array of strings now
                 counts: {
                     twoMark: parseInt(counters[0].value),
                     fourMark: parseInt(counters[1].value),

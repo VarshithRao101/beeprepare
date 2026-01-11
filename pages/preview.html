@@ -184,10 +184,24 @@
 
         const renderPaper = (draft) => {
             // Header
-            const meta = document.querySelector('.paper-meta-grid');
-            if (meta) {
-                meta.innerHTML = `<span>Class: ${draft.class} | Subject: ${draft.subject}</span>
-                                   <span>Marks: ${draft.totalMarks} | Time: ${Math.ceil(draft.totalMarks * 1.5)} Mins</span>`;
+            const headerSection = document.querySelector('.paper-header-section');
+            if (headerSection) {
+                // Keep institution and exam name static or update if draft has them
+                // Re-inject the structure to ensure we have the student details
+                headerSection.innerHTML = `
+                    <div class="paper-inst-name">${draft.institution || "St. Xavier's High School"}</div>
+                    <div class="paper-exam-name">${draft.examName || "Mid-Term Examination 2026"}</div>
+                    
+                    <div class="student-details-header">
+                        <div class="detail-line">Name: <span></span></div>
+                        <div class="detail-line">Roll No: <span></span></div>
+                    </div>
+
+                    <div class="paper-meta-grid">
+                        <span>Class: ${draft.class} | Subject: ${draft.subject}</span>
+                        <span>Marks: ${draft.totalMarks} | Time: ${Math.ceil(draft.totalMarks * 1.5)} Mins</span>
+                    </div>
+                `;
             }
 
             // Questions
@@ -201,9 +215,9 @@
                 const subset = draft.questions.filter(q => q.marks == marksKey);
                 if (subset.length === 0) return;
 
-                // Create Header that is also potentially editable (via class .paper-header-section sibling logic if we want, but let's keep it static-ish or manually contenteditable)
+                // Section Header
                 const sectionHeader = document.createElement('div');
-                sectionHeader.style.cssText = "text-align: center; font-weight: 700; margin: 16px 0; text-decoration: underline;";
+                sectionHeader.style.cssText = "text-align: center; font-weight: 700; margin: 12px 0 8px 0; text-decoration: underline; font-size: 11pt;";
                 sectionHeader.textContent = `${label} (${marksDisplay} Marks Each)`;
                 container.appendChild(sectionHeader);
 
@@ -211,9 +225,25 @@
                     const el = document.createElement('div');
                     el.className = 'paper-question-item';
                     el.dataset.id = q.id || 'temp';
+
+                    let optionsHtml = '';
+                    if (q.options && typeof q.options === 'object') {
+                        optionsHtml = `
+                            <div class="mcq-options-grid">
+                                <div class="mcq-option"><span>(A)</span> ${q.options.A}</div>
+                                <div class="mcq-option"><span>(B)</span> ${q.options.B}</div>
+                                <div class="mcq-option"><span>(C)</span> ${q.options.C}</div>
+                                <div class="mcq-option"><span>(D)</span> ${q.options.D}</div>
+                            </div>
+                        `;
+                    }
+
                     el.innerHTML = `
                         <div class="p-q-num">${globalQCount++}.</div>
-                        <div class="p-q-text">${q.questionText}</div>
+                        <div class="p-q-content">
+                            <div class="p-q-text">${q.questionText}</div>
+                            ${optionsHtml}
+                        </div>
                         <div class="p-q-marks">[${q.marks === 'MCQ' ? 1 : q.marks}]</div>
                     `;
                     container.appendChild(el);
