@@ -10,6 +10,100 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/animations.css">
+    <style>
+        /* Compress width for mobile-like feel */
+        .page-container {
+            max-width: 480px;
+            /* Limits width to typical mobile size */
+            margin: 0 auto;
+            /* Centers it */
+            width: 100%;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        /* Removed multi-column grid for "compressed" look logic, 
+           or keep it but the container is narrow so it might stack anyway. 
+           Let's keep the option if space allows. */
+        @media (min-width: 600px) {
+            .config-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .chapter-box {
+            border: 1px solid var(--border-grey);
+            border-radius: 8px;
+            height: 260px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 8px;
+            position: relative;
+        }
+
+        /* Custom Scrollbar */
+        .chapter-box::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chapter-box::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chapter-box::-webkit-scrollbar-thumb {
+            background: var(--border-grey);
+            border-radius: 3px;
+        }
+
+        .chapter-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-grey);
+            cursor: pointer;
+            transition: background 0.2s;
+            border-radius: 4px;
+            margin-bottom: 2px;
+        }
+
+        .chapter-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .chapter-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .chapter-item input[type="checkbox"] {
+            margin-right: 12px;
+            accent-color: var(--primary);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .chapter-item span {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
 </head>
 
 <body>
@@ -18,43 +112,48 @@
         <!-- Header -->
         <header class="app-header">
             <h1 class="page-title">Create Paper</h1>
-            <div class="header-actions">
-                <!-- User Profile / Settings could go here -->
-            </div>
         </header>
 
         <main class="main-content">
 
-            <div class="container">
+            <div class="container page-container"> <!-- Added page-container class -->
 
                 <h2 class="card-title" style="margin-bottom: var(--spacing-md); font-size: 1.3rem;">Paper Configuration
                 </h2>
 
-                <!-- Basic Selection -->
-                <div class="content-card">
-                    <div class="form-group">
-                        <label class="form-label">Class</label>
-                        <select class="form-select">
-                            <option>Class 10</option>
-                            <option>Class 9</option>
-                            <option>Class 8</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Subject</label>
-                        <select class="form-select">
-                            <option>Science</option>
-                            <option>Mathematics</option>
-                            <option>Social Science</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Chapters</label>
-                        <div id="chapterSelectContainer" class="multi-select-container">
-                            <div style="padding:10px; color:var(--text-secondary); font-size: 0.9rem;">Select Class &
-                                Subject first</div>
+                <!-- Improved Configuration Section -->
+                <div class="content-card" style="padding: 24px;">
+
+                    <div class="config-grid">
+                        <div class="form-group">
+                            <label class="form-label">Class</label>
+                            <select class="form-select" id="classSelect">
+                                <option value="">Select Class</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Subject</label>
+                            <select class="form-select" id="subjectSelect">
+                                <option value="">Select Subject</option>
+                            </select>
                         </div>
                     </div>
+
+                    <div class="form-group" style="margin-top: 16px; margin-bottom: 0;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
+                            <label class="form-label" style="margin-bottom: 0;">Select Chapters</label>
+                            <span id="selectionSummary"
+                                style="font-size: 0.8rem; color: var(--yellow); font-weight: 500;">0 Selected</span>
+                        </div>
+
+                        <div class="chapter-box" id="chapterListContainer">
+                            <div class="empty-state">
+                                <p>Please select a Class and Subject above<br>to view available chapters.</p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Marks Distribution -->
@@ -95,7 +194,7 @@
                     <!-- 8 Marks -->
                     <div class="counter-row">
                         <div class="counter-label">
-                            <span style="display:block; font-weight: 600; color: var(--text-primary);">8 Marks</span>
+                            <span style="display:block; font-weight: 600; color: var(--text-primary);">6 Marks</span>
                             <span style="font-size: 0.8rem; color: var(--text-secondary);">Essay Type</span>
                         </div>
                         <div class="counter-control">
@@ -120,6 +219,51 @@
                     </div>
                 </div>
 
+                <!-- Section Ordering -->
+                <h3 class="card-title" style="margin-bottom: var(--spacing-sm); margin-top: var(--spacing-lg);">Section
+                    Order</h3>
+                <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md); font-size: 0.9rem;">Arrange
+                    which question type appears in each section</p>
+
+                <div class="content-card">
+                    <div class="form-group">
+                        <label class="form-label" style="font-size:0.9rem;">Section A</label>
+                        <select class="form-select section-order-select" data-section="A">
+                            <option value="MCQ" selected>MCQ (1 Mark)</option>
+                            <option value="2">Short Answer (2 Marks)</option>
+                            <option value="4">Long Answer (4 Marks)</option>
+                            <option value="6">Essay Type (6 Marks)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" style="font-size:0.9rem;">Section B</label>
+                        <select class="form-select section-order-select" data-section="B">
+                            <option value="MCQ">MCQ (1 Mark)</option>
+                            <option value="2" selected>Short Answer (2 Marks)</option>
+                            <option value="4">Long Answer (4 Marks)</option>
+                            <option value="6">Essay Type (6 Marks)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" style="font-size:0.9rem;">Section C</label>
+                        <select class="form-select section-order-select" data-section="C">
+                            <option value="MCQ">MCQ (1 Mark)</option>
+                            <option value="2">Short Answer (2 Marks)</option>
+                            <option value="4" selected>Long Answer (4 Marks)</option>
+                            <option value="6">Essay Type (6 Marks)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size:0.9rem;">Section D</label>
+                        <select class="form-select section-order-select" data-section="D">
+                            <option value="MCQ">MCQ (1 Mark)</option>
+                            <option value="2">Short Answer (2 Marks)</option>
+                            <option value="4">Long Answer (4 Marks)</option>
+                            <option value="6" selected>Essay Type (6 Marks)</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div style="margin-top: var(--spacing-xl); text-align: right;">
                     <div style="margin-bottom: var(--spacing-sm); color: var(--text-secondary); font-size: 0.9rem;">
                         Total Marks: <span id="totalMarks" style="color: var(--yellow); font-weight: 700;">35</span>
@@ -131,7 +275,7 @@
 
         </main>
 
-        <!-- Reverted Bottom Nav -->
+        <!-- Standard Bottom Nav -->
         <nav class="bottom-nav">
             <a href="home.html" class="nav-item">
                 <img src="../assets/images/icon-home.svg" class="nav-icon" alt="Home">
@@ -157,46 +301,47 @@
         import { generatePaperDraft } from '../assets/js/createPaper.js';
         import { getUserProfileData } from '../assets/js/firestore.js';
 
-        // Initial State
+        // Selectors
+        const classSelect = document.getElementById('classSelect');
+        const subjectSelect = document.getElementById('subjectSelect');
+        const chapterListContainer = document.getElementById('chapterListContainer');
+        const selectionSummary = document.getElementById('selectionSummary');
+        const totalMarksDisplay = document.getElementById('totalMarks');
+        const generateBtn = document.querySelector('.btn-large-action');
+
         let userProfile = null;
 
-        // DOM Elements
-        const classSelect = document.querySelectorAll('.form-select')[0];
-        const subjectSelect = document.querySelectorAll('.form-select')[1];
-        const chapterContainer = document.getElementById('chapterSelectContainer');
-
-        // Initialization
+        // --- Initialization ---
         const init = async () => {
             const userJson = localStorage.getItem('qp_user');
             const user = userJson ? JSON.parse(userJson) : null;
 
-            if (user) {
-                try {
-                    userProfile = await getUserProfileData(user.uid);
-
-                    // PREMIUM CHECK
-                    if (!userProfile || !userProfile.isPremium) {
-                        window.location.replace('activate.html');
-                        return;
-                    }
-
-                    if (userProfile) {
-                        populateClassDropdown();
-                        populateSubjectDropdown();
-                        // Reset Helper Text
-                        chapterContainer.innerHTML = '<div style="padding:10px; color:var(--text-secondary); font-size: 0.9rem;">Select Class & Subject first</div>';
-                    }
-                } catch (e) {
-                    console.error("Error loading profile", e);
-                }
-            } else {
+            if (!user) {
                 window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                userProfile = await getUserProfileData(user.uid);
+
+                // Premium Check
+                if (!userProfile || !userProfile.isPremium) {
+                    window.location.replace('activate.html');
+                    return;
+                }
+
+                populateClassDropdown();
+                populateSubjectDropdown();
+
+            } catch (e) {
+                console.error("Profile Error", e);
+                alert("Failed to load user profile.");
             }
         };
 
         const populateClassDropdown = () => {
             classSelect.innerHTML = '<option value="">Select Class</option>';
-            if (userProfile && userProfile.classes && userProfile.classes.length > 0) {
+            if (userProfile.classes && userProfile.classes.length > 0) {
                 userProfile.classes.forEach(c => {
                     const opt = document.createElement('option');
                     opt.value = c;
@@ -208,7 +353,7 @@
 
         const populateSubjectDropdown = () => {
             subjectSelect.innerHTML = '<option value="">Select Subject</option>';
-            if (userProfile && userProfile.subjects && userProfile.subjects.length > 0) {
+            if (userProfile.subjects && userProfile.subjects.length > 0) {
                 userProfile.subjects.forEach(s => {
                     const opt = document.createElement('option');
                     opt.value = s;
@@ -218,78 +363,85 @@
             }
         };
 
-        const populateChapterList = () => {
+        const renderChapterList = () => {
             const cls = classSelect.value;
             const sub = subjectSelect.value;
 
-            chapterContainer.innerHTML = ''; // Clear
-
+            // Empty State
             if (!cls || !sub) {
-                chapterContainer.innerHTML = '<div style="padding:10px; color:var(--text-secondary); font-size: 0.9rem;">Select Class & Subject first</div>';
+                chapterListContainer.innerHTML = `
+                    <div class="empty-state">
+                        <p>Please select a Class and Subject above<br>to view available chapters.</p>
+                    </div>`;
+                selectionSummary.textContent = "0 Selected";
                 return;
             }
 
-            // Valid selection
             const key = `${cls}_${sub}`;
-            let chapters = [];
+            let chapters = (userProfile.chapterPreferences && userProfile.chapterPreferences[key]) || [];
 
-            if (userProfile && userProfile.chapterPreferences) {
-                chapters = userProfile.chapterPreferences[key] || [];
-            }
-
-            if (userProfile && (!chapters || chapters.length === 0)) {
-                chapterContainer.innerHTML = '<div style="padding:10px; color:var(--text-secondary);">No chapters found for this subject. Add them in Profile.</div>';
+            // No Chapters Data
+            if (chapters.length === 0) {
+                chapterListContainer.innerHTML = `
+                    <div class="empty-state">
+                        <p>No chapters found for <strong>${sub} (${cls})</strong>.<br>Please add them in your Profile.</p>
+                        <a href="profile.html" style="color: var(--primary); text-decoration: underline; margin-top: 8px;">Go to Profile</a>
+                    </div>`;
+                selectionSummary.textContent = "0 Selected";
                 return;
             }
 
-            // 1. "Select All" Option
-            const allDiv = document.createElement('label');
-            allDiv.className = 'multi-select-item';
-            allDiv.style.borderBottom = '1px solid var(--border-grey)';
-            allDiv.style.marginBottom = '4px';
-            allDiv.innerHTML = `
-                <input type="checkbox" value="All Chapters" id="checkAll">
-                <span>All Chapters</span>
-            `;
-            chapterContainer.appendChild(allDiv);
+            // Render List
+            chapterListContainer.innerHTML = '';
 
-            const checkAllBox = allDiv.querySelector('input');
-            const boxes = [];
+            // 1. Select All
+            const allItem = document.createElement('label');
+            allItem.className = 'chapter-item';
+            allItem.style.fontWeight = '600';
+            allItem.style.background = 'rgba(255,255,255,0.05)';
+            allItem.innerHTML = `<input type="checkbox" id="checkAll"> <span>Select All Chapters</span>`;
+            chapterListContainer.appendChild(allItem);
 
-            // 2. Individual Chapters
+            const checkAllBox = allItem.querySelector('input');
+            const individualBoxes = [];
+
+            // 2. Individual Items
             chapters.forEach(ch => {
-                const row = document.createElement('label');
-                row.className = 'multi-select-item';
-                row.innerHTML = `
-                    <input type="checkbox" value="${ch}" class="ch-box">
-                    <span>${ch}</span>
-                `;
-                chapterContainer.appendChild(row);
-                boxes.push(row.querySelector('input'));
+                const item = document.createElement('label');
+                item.className = 'chapter-item';
+                item.innerHTML = `<input type="checkbox" value="${ch}" class="ch-box"> <span>${ch}</span>`;
+                chapterListContainer.appendChild(item);
+                individualBoxes.push(item.querySelector('.ch-box'));
             });
 
-            // Logic for "Select All"
+            // Logic
+            const updateSummary = () => {
+                const checked = individualBoxes.filter(b => b.checked).length;
+                if (checked === individualBoxes.length && checked > 0) {
+                    selectionSummary.textContent = "All Selected";
+                    checkAllBox.checked = true;
+                } else {
+                    selectionSummary.textContent = `${checked} Selected`;
+                    checkAllBox.checked = false;
+                }
+            };
+
             checkAllBox.addEventListener('change', (e) => {
-                const checked = e.target.checked;
-                boxes.forEach(b => b.checked = checked);
+                const isChecked = e.target.checked;
+                individualBoxes.forEach(b => b.checked = isChecked);
+                updateSummary();
             });
 
-            // Logic for individual uncheck
-            boxes.forEach(b => {
-                b.addEventListener('change', () => {
-                    if (!b.checked) checkAllBox.checked = false;
-                });
+            individualBoxes.forEach(b => {
+                b.addEventListener('change', updateSummary);
             });
         };
 
-        // Listeners for dynamic updates
-        classSelect.addEventListener('change', populateChapterList);
-        subjectSelect.addEventListener('change', populateChapterList);
+        // Listeners
+        classSelect.addEventListener('change', renderChapterList);
+        subjectSelect.addEventListener('change', renderChapterList);
 
-        // Connect UI Controls to Logic
-        const inputs = document.querySelectorAll('.counter-input');
-
-        // Expose to window for onclick
+        // --- Counter Logic ---
         window.updateCount = (btn, change) => {
             const input = btn.parentNode.querySelector('input');
             let val = parseInt(input.value);
@@ -302,54 +454,60 @@
         function recalcTotal() {
             let total = 0;
             const vals = Array.from(document.querySelectorAll('.counter-input')).map(i => parseInt(i.value));
-
             total += (vals[0] * 2); // 2 Marks
             total += (vals[1] * 4); // 4 Marks
-            total += (vals[2] * 8); // 8 Marks
+            total += (vals[2] * 6); // 6 Marks
             total += (vals[3] * 1); // MCQ (1 Mark)
-
-            document.getElementById('totalMarks').textContent = total;
+            totalMarksDisplay.textContent = total;
         }
 
-        // Initial Calc
-        recalcTotal();
-        init();
+        // --- Generate Action ---
+        generateBtn.addEventListener('click', async () => {
+            if (generateBtn.disabled) return;
 
-        // Handle Generation
-        document.querySelector('.btn-large-action').addEventListener('click', async () => {
-            const btn = document.querySelector('.btn-large-action');
-            if (btn.disabled) return;
-
-            // Simple validation
-            if (!classSelect.value) return alert("Please select a Class");
-            if (!subjectSelect.value) return alert("Please select a Subject");
-
-            // Gather Chapters
-            const checkedBoxes = Array.from(document.querySelectorAll('.ch-box:checked'));
-            const checkAll = document.getElementById('checkAll');
-
-            let selectedChapters = [];
-            if (checkAll && checkAll.checked) {
-                selectedChapters = ["All Chapters"];
-            } else {
-                selectedChapters = checkedBoxes.map(b => b.value);
+            // Validation
+            if (!classSelect.value || !subjectSelect.value) {
+                return alert("Please select a Class and Subject first.");
             }
 
-            if (selectedChapters.length === 0) {
+            // Get Selected Chapters
+            const checkAll = document.getElementById('checkAll');
+            const boxes = document.querySelectorAll('.ch-box:checked');
+
+            let resultChapters = [];
+            if (checkAll && checkAll.checked) {
+                resultChapters = ["All Chapters"];
+            } else {
+                resultChapters = Array.from(boxes).map(b => b.value);
+            }
+
+            if (resultChapters.length === 0) {
                 return alert("Please select at least one chapter.");
             }
 
-            const originalText = btn.textContent;
-            btn.textContent = "Generating...";
-            btn.disabled = true;
+            // Prepare Config
+            const btnText = generateBtn.textContent;
+            generateBtn.textContent = "Generating...";
+            generateBtn.disabled = true;
 
-            // Gather Config
+            // 1. Gather Config
             const counters = document.querySelectorAll('.counter-input');
+
+            // 2. Gather Section Order
+            const orderSelects = document.querySelectorAll('.section-order-select');
+            const sectionOrder = Array.from(orderSelects).map(s => s.value);
+
+            // Validate Duplicates in Order
+            const uniqueSections = new Set(sectionOrder);
+            if (uniqueSections.size !== sectionOrder.length) {
+                return alert("Please ensure each Section (A, B, C, D) has a unique Question Type selected.");
+            }
 
             const config = {
                 class: classSelect.value,
                 subject: subjectSelect.value,
-                chapter: selectedChapters, // Array of strings now
+                chapter: resultChapters,
+                sectionOrder: sectionOrder, // Pass the custom order
                 counts: {
                     twoMark: parseInt(counters[0].value),
                     fourMark: parseInt(counters[1].value),
@@ -358,16 +516,26 @@
                 }
             };
 
-            // Generate
-            const success = await generatePaperDraft(config);
-
-            if (success) {
-                window.location.href = "preview.html";
-            } else {
-                btn.textContent = originalText;
-                btn.disabled = false;
+            try {
+                const success = await generatePaperDraft(config);
+                if (success) {
+                    window.location.href = "preview.html";
+                } else {
+                    alert("Generation failed. Please try again.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("An error occurred.");
+            } finally {
+                generateBtn.textContent = btnText;
+                generateBtn.disabled = false;
             }
         });
+
+        // Start
+        init();
+        recalcTotal();
+
     </script>
     <script type="module" src="../assets/js/firebase-auth.js"></script>
 </body>

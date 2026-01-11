@@ -36,9 +36,9 @@ Theme: Dark High-Tech / Cyber-Professional
 }
 
 /* 2. Staggered List Items */
+/* 2. Staggered List Items */
 .card-hover,
 .g-col,
-.paper-question-item,
 .multi-select-item {
     opacity: 0;
     animation: elasticSlideUp 0.6s var(--anim-spring) forwards;
@@ -46,31 +46,26 @@ Theme: Dark High-Tech / Cyber-Professional
 
 /* Stagger Delays Loop */
 .card-hover:nth-child(1),
-.paper-question-item:nth-child(1),
 .multi-select-item:nth-child(1) {
     animation-delay: 0.05s;
 }
 
 .card-hover:nth-child(2),
-.paper-question-item:nth-child(2),
 .multi-select-item:nth-child(2) {
     animation-delay: 0.1s;
 }
 
 .card-hover:nth-child(3),
-.paper-question-item:nth-child(3),
 .multi-select-item:nth-child(3) {
     animation-delay: 0.15s;
 }
 
 .card-hover:nth-child(4),
-.paper-question-item:nth-child(4),
 .multi-select-item:nth-child(4) {
     animation-delay: 0.2s;
 }
 
 .card-hover:nth-child(5),
-.paper-question-item:nth-child(5),
 .multi-select-item:nth-child(5) {
     animation-delay: 0.25s;
 }

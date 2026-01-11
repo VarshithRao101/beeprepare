@@ -26,19 +26,94 @@
             text-align: center;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
             animation: fadeIn 0.5s ease;
+            position: relative;
+            z-index: 2;
         }
 
-        .lock-icon {
-            width: 64px;
-            height: 64px;
-            background: rgba(255, 192, 0, 0.1);
-            color: var(--yellow);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* Bee Container */
+        .bee-container {
+            width: 80px;
+            height: 80px;
             margin: 0 auto 24px;
-            border: 1px solid var(--yellow);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        #beeCharacter {
+            width: 100%;
+            height: 100%;
+            animation: floatBee 3s ease-in-out infinite;
+            filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.3));
+            transition: all 0.3s ease;
+        }
+
+        /* States */
+        /* 1. Angry State */
+        .angry-bee {
+            animation: angryShake 0.5s cubic-bezier(.36, .07, .19, .97) both !important;
+            filter: hue-rotate(-50deg) saturate(3) brightness(0.9) drop-shadow(0 0 15px red) !important;
+        }
+
+        /* 2. Happy State */
+        .happy-bee {
+            animation: happyDance 0.6s ease forwards !important;
+            filter: brightness(1.2) drop-shadow(0 0 20px var(--yellow)) !important;
+        }
+
+        /* Animations */
+        @keyframes floatBee {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(5deg);
+            }
+        }
+
+        @keyframes angryShake {
+
+            10%,
+            90% {
+                transform: translate3d(-4px, 0, 0) scale(1.1);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(5px, 0, 0) scale(1.1);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-8px, 0, 0) scale(1.2) rotate(-5deg);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(8px, 0, 0) scale(1.2) rotate(5deg);
+            }
+        }
+
+        @keyframes happyDance {
+            0% {
+                transform: scale(1) rotate(0deg);
+            }
+
+            40% {
+                transform: scale(1.3) rotate(-15deg);
+            }
+
+            70% {
+                transform: scale(1.3) rotate(15deg);
+            }
+
+            100% {
+                transform: scale(0) translateY(-200px) rotate(360deg);
+                opacity: 0;
+            }
         }
 
         .input-key {
@@ -55,6 +130,7 @@
             font-size: 0.9rem;
             margin-top: 10px;
             min-height: 20px;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -62,11 +138,37 @@
 <body>
 
     <div class="activate-card">
-        <div class="lock-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        <div class="bee-container">
+            <svg id="beeCharacter" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Flat Vector Style Bee -->
+
+                <!-- Wings -->
+                <path d="M25 45 C5 20 40 5 50 40 C60 5 95 20 75 45" fill="#B3E5FC" stroke="#333" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round" />
+
+                <!-- Body -->
+                <path d="M35 55 C35 45 65 45 65 55 C65 75 50 85 50 85 C50 85 35 75 35 55 Z" fill="#FFC107" stroke="#333"
+                    stroke-width="2.5" stroke-linejoin="round" />
+
+                <!-- Stripes -->
+                <path d="M35 58 H65" stroke="#333" stroke-width="4" />
+                <path d="M38 68 H62" stroke="#333" stroke-width="4" />
+
+                <!-- Head -->
+                <circle cx="50" cy="40" r="16" fill="#FFC107" stroke="#333" stroke-width="2.5" />
+
+                <!-- Eyes -->
+                <circle cx="45" cy="38" r="2.5" fill="#333" />
+                <circle cx="55" cy="38" r="2.5" fill="#333" />
+
+                <!-- Smile (Subtle) -->
+                <path d="M47 45 Q50 47 53 45" stroke="#333" stroke-width="1.5" stroke-linecap="round" />
+
+                <!-- Antennae -->
+                <path d="M42 28 Q35 15 30 18" stroke="#333" stroke-width="2.5" stroke-linecap="round" />
+                <path d="M58 28 Q65 15 70 18" stroke="#333" stroke-width="2.5" stroke-linecap="round" />
+                <circle cx="30" cy="18" r="2" fill="#333" />
+                <circle cx="70" cy="18" r="2" fill="#333" />
             </svg>
         </div>
         <h2 style="margin-bottom: 8px;">Activation Required</h2>
@@ -160,6 +262,10 @@
         // Activate
         const btn = document.getElementById('activateBtn');
         btn.addEventListener('click', async () => {
+            const bee = document.getElementById('beeCharacter');
+            bee.classList.remove('angry-bee', 'happy-bee');
+            void bee.offsetWidth; // Trigger reflow to restart anims if needed
+
             // Construct key
             const p1 = segs[0].value;
             const p2 = segs[1].value;
@@ -167,6 +273,8 @@
 
             if (p1.length < 4 || p2.length < 4 || p3.length < 4) {
                 document.getElementById('errorMsg').textContent = "Please complete the key.";
+                bee.classList.add('angry-bee');
+                setTimeout(() => bee.classList.remove('angry-bee'), 600);
                 return;
             }
 
@@ -187,22 +295,33 @@
             try {
                 const result = await activateUserAccount(user.uid, fullKey);
                 if (result.success) {
+                    // Success: Happy Bee
+                    bee.classList.add('happy-bee');
+
                     btn.textContent = "ACTIVATED!";
                     btn.style.backgroundColor = "var(--success)";
                     btn.style.boxShadow = "0 0 20px var(--success)";
 
-                    // Confetti/Animation Effect manually?
+                    // Unlock Effect
+                    document.body.style.transition = "background 1s ease";
                     document.body.style.background = "radial-gradient(circle at center, #1a472a 0%, #000 100%)";
 
                     setTimeout(() => {
                         window.location.href = 'home.html';
                     }, 1500);
                 } else {
+                    // Fail: Angry Bee
+                    bee.classList.add('angry-bee');
+                    setTimeout(() => bee.classList.remove('angry-bee'), 600);
+
                     err.textContent = result.error || "Invalid or Used Key";
                     btn.disabled = false;
                     btn.textContent = "Activate Premium";
                 }
             } catch (e) {
+                bee.classList.add('angry-bee');
+                setTimeout(() => bee.classList.remove('angry-bee'), 600);
+
                 err.textContent = "Error: " + e.message;
                 btn.disabled = false;
                 btn.textContent = "Activate Premium";

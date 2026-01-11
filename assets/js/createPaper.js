@@ -25,33 +25,37 @@ export const generatePaperDraft = async (config) => {
 
     try {
         // 1. Fetch ALL candidate questions
-        // Note: Firestore 'in' query for marks or multiple queries.
-        // For simplicity and client-side filtering flexibility:
-        // We fetch questions for the class/subject/chapter context first.
-        // Then we filter by marks client-side.
-
         const filters = {
             class: config.class,
             subject: config.subject,
-            // chapter: config.chapter // firestore.js getUserQuestions doesn't support chapter filter in query strictly yet, so we filter after.
         };
 
         const allQuestions = await getUserQuestions(user.uid, filters);
 
+        if (!allQuestions || allQuestions.length === 0) {
+            alert(`No questions found in Question Bank for Class: ${config.class}, Subject: ${config.subject}. Please add questions first.`);
+            return false;
+        }
+
         // Filter by Chapter (if specified and not "All")
-        // If config.chapter is "All Chapters" or null, we take all.
         let candidates = allQuestions;
 
-        // Check if config.chapter is an array (new multi-select behavior)
+        // Check if config.chapter is an array
         if (Array.isArray(config.chapter)) {
-            // If "All Chapters" is in the array, do not filter.
             if (!config.chapter.includes("All Chapters") && !config.chapter.includes("All")) {
-                candidates = allQuestions.filter(q => config.chapter.includes(q.chapter));
+                // Normalize for comparison
+                const targetChapters = config.chapter.map(c => c.trim());
+                candidates = allQuestions.filter(q => q.chapter && targetChapters.includes(q.chapter.trim()));
             }
         }
-        // Fallback for logic if plain string passed (legacy)
+        // Fallback for string
         else if (config.chapter && config.chapter !== "All Chapters" && config.chapter !== "All") {
-            candidates = allQuestions.filter(q => q.chapter === config.chapter);
+            candidates = allQuestions.filter(q => q.chapter && q.chapter.trim() === config.chapter.trim());
+        }
+
+        if (candidates.length === 0) {
+            alert(`Found ${allQuestions.length} questions for this subject, but NONE matched the selected chapters.`);
+            return false;
         }
 
         // 2. Select Questions per type
@@ -64,34 +68,33 @@ export const generatePaperDraft = async (config) => {
                 missing.push(`${typeLabel} (Need ${count}, Found ${pool.length})`);
                 return pool; // Take all available
             }
-
             // Shuffle
             const shuffled = [...pool].sort(() => 0.5 - Math.random());
             return shuffled.slice(0, count);
         };
 
         // Filter pools
-        // Fix: Use 'questionType' for MCQ check, as marks might be '1' or '2' even for MCQ.
-        const poolMCQ = candidates.filter(q => q.questionType === "MCQ");
+        // Improved MCQ check: checks type OR marks (for legacy data)
+        const poolMCQ = candidates.filter(q => q.questionType === "MCQ" || q.marks === "MCQ");
 
-        // For other marks, exclude MCQs to avoid double counting if they happen to have matching marks
-        const pool2M = candidates.filter(q => q.marks == "2" && q.questionType !== "MCQ");
-        const pool4M = candidates.filter(q => q.marks == "4" && q.questionType !== "MCQ");
-        const pool8M = candidates.filter(q => q.marks == "8" && q.questionType !== "MCQ");
+        // For other marks, exclude MCQs
+        const pool2M = candidates.filter(q => q.marks == "2" && q.questionType !== "MCQ" && q.marks !== "MCQ");
+        const pool4M = candidates.filter(q => q.marks == "4" && q.questionType !== "MCQ" && q.marks !== "MCQ");
+        const pool8M = candidates.filter(q => q.marks == "6" && q.questionType !== "MCQ" && q.marks !== "MCQ");
 
         if (config.counts.mcq > 0) selected.push(...pickRandom(poolMCQ, config.counts.mcq, "MCQ"));
         if (config.counts.twoMark > 0) selected.push(...pickRandom(pool2M, config.counts.twoMark, "2 Marks"));
         if (config.counts.fourMark > 0) selected.push(...pickRandom(pool4M, config.counts.fourMark, "4 Marks"));
-        if (config.counts.eightMark > 0) selected.push(...pickRandom(pool8M, config.counts.eightMark, "8 Marks"));
+        if (config.counts.eightMark > 0) selected.push(...pickRandom(pool8M, config.counts.eightMark, "6 Marks"));
 
         // 3. Validation
         if (missing.length > 0) {
-            const proceed = confirm(`Insufficient questions found for:\n${missing.join('\n')}\n\nGenerate with available questions only?`);
+            const proceed = confirm(`Shortage of questions:\n\n${missing.join('\n')}\n\nGenerate partial paper with what we have?`);
             if (!proceed) return false;
         }
 
         if (selected.length === 0) {
-            alert("No questions selected based on your criteria.");
+            alert("No questions selected. Please check if you have questions with the requested marks (2, 4, 8, MCQ) in the selected chapters.");
             return false;
         }
 
@@ -100,7 +103,8 @@ export const generatePaperDraft = async (config) => {
             uid: user.uid,
             class: config.class,
             subject: config.subject,
-            chapter: config.chapter, // Single chapter or "All"
+            chapter: config.chapter,
+            sectionOrder: config.sectionOrder, // Persist section order
             structure: config.counts,
             questions: selected,
             createdAt: new Date().toISOString(),
@@ -126,7 +130,7 @@ export const generatePaperDraft = async (config) => {
 export const calculateTotalMarks = (questions) => {
     let total = 0;
     questions.forEach(q => {
-        if (q.marks === "MCQ") total += 1;
+        if (q.marks === "MCQ" || q.questionType === "MCQ") total += 1;
         else total += parseInt(q.marks) || 0;
     });
     return total;
