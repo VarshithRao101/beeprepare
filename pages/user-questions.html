@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="../assets/images/logo-icon.png">
     <title>My Questions - BEEPREPARE</title>
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/animations.css">
@@ -206,7 +207,7 @@
 
     <!-- Scripts -->
     <script type="module">
-        import { getUserQuestions, getUserProfileData } from '../assets/js/firestore.js';
+        import { getUserQuestions, getUserProfileData, deleteQuestionFromBank } from '../assets/js/firestore.js';
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
         // DOM Inputs
@@ -441,16 +442,50 @@
             }
 
             return `
-                <div class="question-item">
+                <div class="question-item" id="q-${q.id}">
                     <div class="q-meta">
                         <span>Marks: ${q.marks}</span>
                         <span>Type: ${q.questionType || 'Short'}</span>
                     </div>
                     <div class="q-body">${q.questionText}</div>
                     ${mcqHtml}
+                    <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-grey); padding-top:8px; margin-top:8px;">
+                         <button onclick="window.removeQuestion('${q.id}')" 
+                            style="background:none; border:none; color:#ff4d4d; cursor:pointer; font-size:0.9rem; display:flex; align-items:center; gap:4px;">
+                            <img src="../assets/images/icon-delete.svg" alt="Del" style="width:16px; height:16px; filter: invert(35%) sepia(50%) saturate(5458%) hue-rotate(343deg) brightness(96%) contrast(99%);">
+                            Remove
+                         </button>
+                    </div>
                 </div>
             `;
         }
+
+        window.removeQuestion = async (qId) => {
+            if (!confirm("Are you sure you want to delete this question? This cannot be undone.")) return;
+
+            // Optimistic UI update
+            const el = document.getElementById(`q-${qId}`);
+            if (el) el.style.opacity = '0.5';
+
+            try {
+                await deleteQuestionFromBank(currentUid, qId);
+                if (el) {
+                    el.remove();
+                    // Update counts or empty state checks if needed
+                    // Simple re-check empty groups
+                    document.querySelectorAll('.section-group').forEach(group => {
+                        const content = group.querySelector('.section-content');
+                        if (content && content.children.length === 0) {
+                            group.remove();
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Deletion failed", error);
+                alert("Failed to delete question. Please check constraints.");
+                if (el) el.style.opacity = '1';
+            }
+        };
 
     </script>
 </body>

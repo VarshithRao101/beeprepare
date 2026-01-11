@@ -9,12 +9,46 @@
     <link rel="stylesheet" href="../assets/css/animations.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- PDF Library -->
+    <link rel="icon" type="image/png" href="../assets/images/logo-icon.png">
     <style>
         /* Compress width for mobile-like feel, similar to blueprint page */
         .page-container {
             max-width: 480px;
             margin: 0 auto;
             width: 100%;
+        }
+
+        /* User Requested Style Overrides for Smaller Questions */
+        .p-q-text {
+            font-size: 10pt !important;
+            margin-bottom: 2px !important;
+        }
+
+        .p-q-num {
+            font-size: 10pt !important;
+        }
+
+        .mcq-options-grid {
+            font-size: 10pt !important;
+        }
+
+        .paper-question-item {
+            gap: 4px !important;
+            margin-bottom: 4px !important;
+        }
+
+        /* BS Footer Promotion */
+        .paper-promo-footer {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 8pt;
+            color: rgba(0, 0, 0, 0.3);
+            font-weight: 600;
+            pointer-events: none;
+            /* Non-editable */
+            user-select: none;
         }
     </style>
 </head>
@@ -64,7 +98,7 @@
                     </div>
 
                     <!-- ... Footer ... -->
-
+                    <div class="paper-promo-footer">BS</div>
                 </div>
             </div>
 
@@ -73,7 +107,13 @@
 
         </main>
 
-        <!-- ... Action Bar ... -->
+
+        <!-- Action Bar -->
+        <div class="action-bar"
+            style="position: fixed; bottom: 0; left: 0; width: 100%; padding: 16px; background: var(--card-grey); border-top: 1px solid var(--border-grey); display: flex; gap: 12px; align-items: center; justify-content: center; z-index: 100;">
+            <button class="btn btn-primary" style="flex: 1;">Finalize Paper</button>
+            <button class="btn btn-disabled" style="flex: 1;" disabled>Download PDF</button>
+        </div>
 
     </div>
 

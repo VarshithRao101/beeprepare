@@ -798,6 +798,7 @@ Preview Page: A4 Paper
 
 .p-q-marks {
     font-weight: 700;
+    font-size: 10pt;
     margin-left: 8px;
     /* Push to right */
     white-space: nowrap;
