@@ -131,7 +131,7 @@ export const fetchAndRenderQuestions = async (containerId, filters) => {
                         transition: opacity 0.2s;
                     " onmouseover="this.style.opacity=1; this.style.color='var(--danger)';" onmouseout="this.style.opacity=0.6; this.style.color='inherit';">
                         <img src="../assets/images/icon-close.svg" width="16" style="filter: invert(1);"> 
-                        <!-- Assuming icon-close or use text X -->
+                        
                     </button>
                 </div>
             `;

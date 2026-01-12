@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="../assets/css/animations.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Local Styles for Add Question Form */
+        
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -55,7 +55,7 @@
         .mcq-section {
             display: none;
             background: var(--dark-bg);
-            /* Use theme bg for contrast against white card, or light grey */
+            
             padding: 16px;
             border-radius: 8px;
             margin-top: 16px;
@@ -156,7 +156,7 @@
 
     <div class="app-container" style="background-color: var(--dark-bg); min-height: 100vh;">
 
-        <!-- Header -->
+        
         <header class="app-header" style="border-bottom: none; background: transparent;">
             <div class="header-left">
                 <a href="question-bank.html" class="menu-trigger">
@@ -173,7 +173,7 @@
 
             <div style="max-width: 700px; margin: 0 auto;">
 
-                <!-- HIDDEN INPUTS FOR LOGIC -->
+                
                 <input type="hidden" id="classInput">
                 <input type="hidden" id="subjectInput">
                 <input type="hidden" id="chapterInput">
@@ -181,7 +181,7 @@
                 <input type="hidden" id="typeInput">
                 <input type="hidden" id="topicInput">
 
-                <!-- 1. CONTEXT HEADER -->
+                
                 <div
                     style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid var(--yellow);">
                     <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;">Adding Question
@@ -191,14 +191,14 @@
                     </div>
                 </div>
 
-                <!-- 2. QUESTION TEXT -->
+                
                 <div class="form-group">
                     <label class="form-label">Question Content</label>
                     <textarea id="qInput" class="question-input-large" placeholder="Type the question content here..."
                         style="min-height: 120px;" autofocus></textarea>
                 </div>
 
-                <!-- 3. MCQ SECTION (Conditional) -->
+                
                 <div id="mcqSection" class="mcq-section">
                     <h4 style="margin-top:0; margin-bottom:12px; color:var(--text-primary);">MCQ Options</h4>
 
@@ -235,14 +235,14 @@
 
         </main>
 
-        <!-- Fixed Action Footer -->
+        
         <footer class="action-footer">
             <a href="question-bank.html" class="btn btn-outline" style="min-width: 100px;">Cancel</a>
             <button class="btn btn-primary" onclick="window.validateAndSave()" style="min-width: 140px;">Save
                 Question</button>
         </footer>
 
-        <!-- Success Overlay -->
+        
         <div id="successOverlay" class="success-overlay">
             <div class="check-circle">
                 <img src="../assets/images/icon-check.svg" width="40" height="40" alt="Success"
@@ -256,6 +256,27 @@
 
     <script type="module">
         import { handleSaveNewQuestion } from '../assets/js/questionBank.js';
+        import { getUserProfileData } from '../assets/js/firestore.js';
+
+        // STRICT GATEKEEPER
+        const checkAccess = async () => {
+            const userJson = localStorage.getItem('qp_user');
+            if (!userJson) {
+                window.location.replace('login.html');
+                return;
+            }
+            const user = JSON.parse(userJson);
+            try {
+                const profile = await getUserProfileData(user.uid);
+                if (!profile || !profile.isPremium) {
+                    window.location.replace('activate.html');
+                }
+            } catch (e) {
+                console.error("Access Check Failed", e);
+                window.location.replace('login.html');
+            }
+        };
+        checkAccess();
 
         // DOM Elements
         const qInput = document.getElementById('qInput');
@@ -365,6 +386,6 @@
 
         init();
     </script>
-</body>
+<script src="../assets/js/app_security.js"></script></body>
 
 </html>

@@ -15,10 +15,10 @@
 
     <div class="app-container">
 
-        <!-- Header -->
+        
         <header class="app-header">
             <div class="header-left">
-                <!-- Back Arrow instead of Menu -->
+                
                 <a href="home.html" class="menu-trigger">
                     <img src="../assets/images/icon-arrow-left.svg" alt="Back" style="width: 24px;">
                 </a>
@@ -37,7 +37,7 @@
 
             <div style="max-width: 600px; margin: 0 auto;">
 
-                <!-- STEP 1: SELECT CLASS -->
+                
                 <div class="step-card active" id="step1">
                     <div class="step-header">
                         <div class="step-indicator">1</div>
@@ -45,13 +45,13 @@
                     </div>
                     <div class="step-content">
                         <div id="classSelectionGrid" class="selection-grid">
-                            <!-- Dynamic Content -->
+                            
                             <div style="color: #888; grid-column: 1/-1; text-align: center;">Loading Classes...</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- STEP 2: SELECT SUBJECT -->
+                
                 <div class="step-card" id="step2">
                     <div class="step-header">
                         <div class="step-indicator">2</div>
@@ -59,13 +59,13 @@
                     </div>
                     <div class="step-content">
                         <div id="subjectSelectionGrid" class="selection-grid">
-                            <!-- Dynamic Content -->
+                            
                             <div style="color: #888; grid-column: 1/-1; text-align: center;">Select a Class first</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- STEP 3: DETAILS -->
+                
                 <div class="step-card" id="step3">
                     <div class="step-header">
                         <div class="step-indicator">3</div>
@@ -112,7 +112,7 @@
                             <input type="text" class="form-input" id="topicInput" placeholder="e.g. Electrons">
                         </div>
 
-                        <!-- Next Button for Form -->
+                        
                         <div style="text-align: right; margin-top: 16px;">
                             <button id="detailsNextBtn" class="btn btn-primary" onclick="validateStep3()" disabled
                                 style="opacity:0.5;">Confirm Details</button>
@@ -120,7 +120,7 @@
                     </div>
                 </div>
 
-                <!-- STEP 4: ACTION -->
+                
                 <div class="step-card" id="step4"
                     style="border: none; background: transparent; padding: 0; opacity: 0; text-align: center;">
                     <button class="btn btn-primary btn-large-action" onclick="goToAddQuestion()"
@@ -132,9 +132,9 @@
                     </p>
                 </div>
 
-                <!-- Questions List Container -->
+                
                 <div id="questionsContainer" style="margin-bottom: 80px;">
-                    <!-- Populated by JS -->
+                    
                 </div>
 
             </div>
@@ -160,7 +160,7 @@
             </a>
         </nav>
 
-        <!-- Inline Script for Guided Steps -->
+        
         <script type="module">
             import { fetchAndRenderQuestions, setupGlobalDelete } from '../assets/js/questionBank.js';
             import { getUserProfileData } from '../assets/js/firestore.js';
@@ -417,6 +417,6 @@
     </div>
 
     <script type="module" src="../assets/js/firebase-auth.js"></script>
-</body>
+<script src="../assets/js/app_security.js"></script></body>
 
 </html>

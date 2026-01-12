@@ -12,12 +12,12 @@
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/animations.css">
     <style>
-        /* Compress width for mobile-like feel */
+        
         .page-container {
             max-width: 480px;
-            /* Limits width to typical mobile size */
+            
             margin: 0 auto;
-            /* Centers it */
+            
             width: 100%;
         }
 
@@ -46,7 +46,7 @@
             position: relative;
         }
 
-        /* Custom Scrollbar */
+        
         .chapter-box::-webkit-scrollbar {
             width: 6px;
         }
@@ -110,19 +110,19 @@
 <body>
 
     <div class="app-container fade-in">
-        <!-- Header -->
+        
         <header class="app-header">
             <h1 class="page-title">Create Paper</h1>
         </header>
 
         <main class="main-content">
 
-            <div class="container page-container"> <!-- Added page-container class -->
+            <div class="container page-container"> 
 
                 <h2 class="card-title" style="margin-bottom: var(--spacing-md); font-size: 1.3rem;">Paper Configuration
                 </h2>
 
-                <!-- Improved Configuration Section -->
+                
                 <div class="content-card" style="padding: 24px;">
 
                     <div class="config-grid">
@@ -157,14 +157,14 @@
 
                 </div>
 
-                <!-- Marks Distribution -->
+                
                 <h3 class="card-title" style="margin-bottom: var(--spacing-sm); margin-top: var(--spacing-lg);">Question
                     Selection</h3>
                 <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md); font-size: 0.9rem;">Select
                     quantity for each question type</p>
 
                 <div class="content-card">
-                    <!-- 2 Marks -->
+                    
                     <div class="counter-row">
                         <div class="counter-label">
                             <span style="display:block; font-weight: 600; color: var(--text-primary);">2 Marks</span>
@@ -178,7 +178,7 @@
                     </div>
                     <div class="separator"></div>
 
-                    <!-- 4 Marks -->
+                    
                     <div class="counter-row">
                         <div class="counter-label">
                             <span style="display:block; font-weight: 600; color: var(--text-primary);">4 Marks</span>
@@ -192,7 +192,7 @@
                     </div>
                     <div class="separator"></div>
 
-                    <!-- 8 Marks -->
+                    
                     <div class="counter-row">
                         <div class="counter-label">
                             <span style="display:block; font-weight: 600; color: var(--text-primary);">6 Marks</span>
@@ -206,7 +206,7 @@
                     </div>
                     <div class="separator"></div>
 
-                    <!-- MCQ -->
+                    
                     <div class="counter-row">
                         <div class="counter-label">
                             <span style="display:block; font-weight: 600; color: var(--text-primary);">MCQ</span>
@@ -220,7 +220,7 @@
                     </div>
                 </div>
 
-                <!-- Section Ordering -->
+                
                 <h3 class="card-title" style="margin-bottom: var(--spacing-sm); margin-top: var(--spacing-lg);">Section
                     Order</h3>
                 <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md); font-size: 0.9rem;">Arrange
@@ -276,7 +276,7 @@
 
         </main>
 
-        <!-- Standard Bottom Nav -->
+        
         <nav class="bottom-nav">
             <a href="home.html" class="nav-item">
                 <img src="../assets/images/icon-home.svg" class="nav-icon" alt="Home">
@@ -539,6 +539,6 @@
 
     </script>
     <script type="module" src="../assets/js/firebase-auth.js"></script>
-</body>
+<script src="../assets/js/app_security.js"></script></body>
 
 </html>

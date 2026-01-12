@@ -16,7 +16,7 @@
             justify-content: space-between;
             padding: 16px;
             background: var(--card-grey);
-            /* Fixed var name */
+            
             border: 1px solid var(--border-grey);
             border-radius: 12px;
             margin-bottom: 12px;
@@ -27,14 +27,14 @@
         .profile-menu-item:hover {
             transform: translateY(-2px);
             background: var(--light-grey);
-            /* Light hover */
+            
         }
 
         .menu-icon {
             width: 24px;
             height: 24px;
             margin-right: 16px;
-            /* Remove grayscale to show brand colors if any, or keep neutral */
+            
             opacity: 0.8;
         }
 
@@ -49,10 +49,10 @@
             width: 16px;
             opacity: 0.5;
             filter: invert(0);
-            /* Default is usually black/grey svg */
+            
         }
 
-        /* Modal specific */
+        
         .modal {
             display: none;
             position: fixed;
@@ -61,7 +61,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            /* Lighter overly */
+            
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -96,7 +96,7 @@
             display: flex;
             align-items: center;
             background: var(--dark-bg);
-            /* Use theme bg (light grey) */
+            
             padding: 10px;
             border-radius: 8px;
             cursor: pointer;
@@ -111,7 +111,7 @@
             height: 18px;
         }
 
-        /* Tabs */
+        
         .modal-tabs {
             display: flex;
             border-bottom: 1px solid var(--border-grey);
@@ -141,7 +141,7 @@
             animation: fadeIn 0.3s;
         }
 
-        /* Chapter Management */
+        
         .chapter-list {
             background: var(--dark-bg);
             border: 1px solid var(--border-grey);
@@ -176,7 +176,7 @@
             gap: 8px;
         }
 
-        /* New Subjects Row Styles */
+        
         .profile-subjects-row {
             display: flex;
             gap: 12px;
@@ -205,7 +205,7 @@
 
     <div class="app-container">
 
-        <!-- Header -->
+        
         <header class="app-header">
             <div class="header-left">
                 <a href="home.html">
@@ -216,13 +216,13 @@
                 <h1 class="app-logo-text">Profile</h1>
             </div>
             <div class="header-right">
-                <!-- Placeholder for balance -->
+                
             </div>
         </header>
 
         <main class="main-content fade-in" style="padding-bottom: 40px;">
 
-            <!-- Profile Overview -->
+            
             <div class="profile-header-section" style="margin-bottom: 32px; text-align: center;">
                 <img src="../assets/images/avatar-placeholder.png" alt="User" class="profile-avatar-lg"
                     style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--card-grey); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
@@ -231,16 +231,16 @@
                     Loading...</div>
                 <div class="profile-email" id="profileEmailDisplay" style="color: var(--text-secondary);">...</div>
 
-                <!-- NEW: Subjects Display -->
+                
                 <div id="profileSubjectsContainer" class="profile-subjects-row">
-                    <!-- Injected via JS -->
+                    
                 </div>
             </div>
 
-            <!-- Menu List -->
+            
             <div style="max-width: 600px; margin: 0 auto;">
 
-                <!-- Edit Profile -->
+                
                 <div class="profile-menu-item" onclick="openEditProfile()">
                     <img src="../assets/images/icon-edit.svg" class="menu-icon" alt="Edit">
                     <span class="menu-text">Edit Profile (Subjects & Classes)</span>
@@ -248,7 +248,7 @@
                         style="transform: rotate(180deg);">
                 </div>
 
-                <!-- View Questions -->
+                
                 <a href="user-questions.html" class="profile-menu-item" style="text-decoration: none; color: inherit;">
                     <img src="../assets/images/icon-bank.svg" class="menu-icon" alt="Questions">
                     <span class="menu-text">View My Questions</span>
@@ -256,7 +256,7 @@
                         style="transform: rotate(180deg);">
                 </a>
 
-                <!-- Records/History -->
+                
                 <div class="profile-menu-item" onclick="openHistory()">
                     <img src="../assets/images/icon-file.svg" class="menu-icon" alt="Records"
                         onerror="this.src='../assets/images/icon-menu.svg'">
@@ -265,7 +265,7 @@
                         style="transform: rotate(180deg);">
                 </div>
 
-                <!-- Theme -->
+                
                 <div class="profile-menu-item" onclick="toggleTheme()">
                     <img src="../assets/images/icon-eye.svg" class="menu-icon" alt="Theme"
                         onerror="this.src='../assets/images/icon-menu.svg'">
@@ -276,7 +276,7 @@
                     </label>
                 </div>
 
-                <!-- Notifications -->
+                
                 <div class="profile-menu-item">
                     <img src="../assets/images/icon-check.svg" class="menu-icon" alt="Notify"
                         onerror="this.src='../assets/images/icon-menu.svg'">
@@ -287,7 +287,7 @@
                     </label>
                 </div>
 
-                <!-- Logout -->
+                
                 <button class="btn btn-outline"
                     style="width: 100%; margin-top: 24px; border-color: #ff4d4d; color: #ff4d4d;" id="logoutBtn">
                     Log Out
@@ -296,9 +296,9 @@
             </div>
         </main>
 
-        <!-- Bottom Nav -->
+        
         <nav class="bottom-nav">
-            <!-- ... existing nav ... -->
+            
             <a href="home.html" class="nav-item">
                 <img src="../assets/images/icon-home.svg" class="nav-icon" alt="Home">
                 <span>Home</span>
@@ -319,7 +319,7 @@
 
     </div>
 
-    <!-- Edit Profile Modal -->
+    
     <div id="editProfileModal" class="modal">
         <div class="modal-card">
             <h2 style="margin-top: 0; color: var(--text-primary);">Edit Preferences</h2>
@@ -329,7 +329,7 @@
                 <div class="tab" onclick="switchTab('chapters')">Chapters</div>
             </div>
 
-            <!-- TAB 1: GENERAL -->
+            
             <div id="tab-general" class="tab-content active">
                 <div class="form-group">
                     <label class="form-label" style="font-weight: 600; color: var(--text-primary);">Subjects</label>
@@ -376,6 +376,10 @@
                             9</label>
                         <label class="checkbox-label"><input type="checkbox" value="Class 10" class="class-chk"> Class
                             10</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Class 11" class="class-chk"> Class
+                            11</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Class 12" class="class-chk"> Class
+                            12</label>
                     </div>
                 </div>
 
@@ -386,7 +390,7 @@
                 </div>
             </div>
 
-            <!-- TAB 2: CHAPTERS -->
+            
             <div id="tab-chapters" class="tab-content">
                 <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">
                     Select a Class and Subject to manage its chapters. These chapters will appear when you add
@@ -406,7 +410,7 @@
                     style="opacity: 0.5; pointer-events: none; transition: opacity 0.3s; margin-top: 16px;">
                     <label class="form-label" style="font-size: 0.9rem;">Chapters List</label>
                     <div id="chapterListContainer" class="chapter-list">
-                        <!-- Items injected here -->
+                        
                         <div style="text-align: center; color: var(--text-secondary); padding-top: 40px;">Select Class &
                             Subject</div>
                     </div>
@@ -424,7 +428,7 @@
         </div>
     </div>
 
-    <!-- History Modal -->
+    
     <div id="historyModal" class="modal">
         <div class="modal-card">
             <h2 style="margin-top: 0; color: var(--text-primary);">Activity History</h2>
@@ -444,7 +448,7 @@
 
     <script type="module">
         import { logoutUser, updateProfileUI } from '../assets/js/firebase-auth.js';
-        import { getUserProfileData, saveUserSubjects, saveUserClasses, saveUserChapterPreferences, getUserActivity } from
+        import { getUserProfileData, saveUserSubjects, saveUserClasses, saveUserChapterPreferences, getUserActivity, deleteSubjectData } from
             '../assets/js/firestore.js';
         import { getSubjectIcon } from '../assets/js/icons.js';
 
@@ -567,12 +571,41 @@
             if (!user) return;
             const btn = document.querySelector('#tab-general .btn-primary');
             const originalText = btn.innerText;
-            btn.innerText = 'Saving...';
 
             const selectedSubjects = Array.from(document.querySelectorAll('.subject-chk:checked')).map(c => c.value);
             const selectedClasses = Array.from(document.querySelectorAll('.class-chk:checked')).map(c => c.value);
 
+            // 1. Strict Limit Check
+            if (selectedSubjects.length > 2) {
+                alert("STRICT LIMT: You can only select up to 2 subjects.");
+                return;
+            }
+
+            // 2. Check for Removed Subjects (Destructive Action)
+            const oldSubjects = currentUserProfile.subjects || [];
+            const removedSubjects = oldSubjects.filter(sub => !selectedSubjects.includes(sub));
+
+            if (removedSubjects.length > 0) {
+                const confirmMsg = `WARNING: You are removing: ${removedSubjects.join(", ")}.\n\n` +
+                    `All questions and chapters for these subjects will be PERMANENTLY LOST.\n\n` +
+                    `Are you sure you want to proceed?`;
+
+                if (!confirm(confirmMsg)) {
+                    return; // Cancel save
+                }
+            }
+
+            btn.innerText = 'Saving...';
+
             try {
+                // 3. Perform Deletions First
+                if (removedSubjects.length > 0) {
+                    for (const sub of removedSubjects) {
+                        await deleteSubjectData(user.uid, sub);
+                    }
+                }
+
+                // 4. Save New Selections
                 await Promise.all([
                     saveUserSubjects(user.uid, selectedSubjects),
                     saveUserClasses(user.uid, selectedClasses)
@@ -580,15 +613,28 @@
 
                 // Update local cache
                 if (!currentUserProfile) currentUserProfile = {};
+
+                // Clear cache/local maps for removed subjects to reflect immediate UI state if needed
+                if (currentUserProfile.chapterPreferences) {
+                    removedSubjects.forEach(sub => {
+                        Object.keys(currentUserProfile.chapterPreferences).forEach(key => {
+                            if (key.endsWith(`_${sub}`)) delete currentUserProfile.chapterPreferences[key];
+                        });
+                    });
+                }
+
                 currentUserProfile.subjects = selectedSubjects;
                 currentUserProfile.classes = selectedClasses;
 
                 btn.innerText = 'Saved!';
                 setTimeout(() => {
                     btn.innerText = originalText;
+                    closeEditProfile();
+                    loadProfileData(); // Reload UI to show changes
                 }, 1000);
             } catch (e) {
-                alert('Error saving profile');
+                console.error(e);
+                alert('Error saving profile: ' + e.message);
                 btn.innerText = originalText;
             }
         };
@@ -716,13 +762,59 @@
         };
 
 
+        // HISTORY / RECORDS
+        window.openHistory = async () => {
+            const modal = document.getElementById('historyModal');
+            modal.classList.add('active');
+
+            // Fetch fresh data (Fixes the stuck loading if not pre-fetched)
+            if (user && user.uid) {
+                document.getElementById('historyListContainer').innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>';
+                const activity = await getUserActivity(user.uid, 20);
+                renderHistoryModal(activity);
+            }
+        };
+
+        const renderHistoryModal = (activityData) => {
+            const container = document.getElementById('historyListContainer');
+            if (!activityData || activityData.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary);">No recent activity.</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            activityData.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'chapter-item'; // reuse style
+                el.style.display = 'block'; // override flex slightly if needed or keep flex
+
+                // Format Date
+                let dateStr = "Just now";
+                if (item.timestamp) {
+                    // Firestore Timestamp to JS Date
+                    const date = item.timestamp.toDate ? item.timestamp.toDate() : new Date(item.timestamp);
+                    dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+
+                el.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                        <span style="font-weight:600; color:var(--text-primary);">${item.title}</span>
+                        <span style="font-size:0.75rem; color:var(--text-secondary);">${dateStr}</span>
+                    </div>
+                    <div style="font-size:0.85rem; color:var(--text-secondary);">
+                        ${item.detail}
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+        };
+
         // Theme Toggle (Dummy visual for now as main.css handles defaults)
         window.toggleTheme = () => {
             const chk = document.getElementById('themeToggle');
             chk.checked = !chk.checked;
         };
     </script>
-    </script>
-</body>
+<script src="../assets/js/app_security.js"></script></body>
 
 </html>

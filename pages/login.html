@@ -17,7 +17,7 @@
             min-height: 100vh;
             padding: var(--spacing-md);
             background-color: var(--dark-bg);
-            /* Use theme var */
+            
         }
 
         .login-card {
@@ -29,7 +29,7 @@
             max-width: 400px;
             text-align: center;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-            /* Softer shadow for light mode */
+            
             animation: slideUpFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
@@ -59,8 +59,8 @@
             padding: 14px;
             border-radius: var(--radius-md);
             border: 1px solid #e0e0e0;
-            /* Border for visibility on white card if needed, though card is white... wait. Card is white. Button is white? */
-            /* If card is white, button needs to be different OR have border/shadow. */
+            
+            
             width: 100%;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -101,7 +101,7 @@
         </div>
     </div>
 
-    <!-- Auth Logic -->
+    
     <script type="module">
         import { signInWithGoogle } from '../assets/js/firebase-auth.js';
 
@@ -127,6 +127,6 @@
             }
         });
     </script>
-</body>
+<script src="../assets/js/app_security.js"></script></body>
 
 </html>

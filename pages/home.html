@@ -15,10 +15,10 @@
 
     <div class="app-container" style="display:none;" id="mainApp">
 
-        <!-- Header -->
+        
         <header class="app-header">
             <div class="header-left">
-                <!-- Empty left side or Logo could go here if centered text wasn't there -->
+                
             </div>
             <div class="header-center">
                 <h1 class="app-logo-text">BEEPREPARE</h1>
@@ -30,15 +30,15 @@
             </div>
         </header>
 
-        <!-- Main Content -->
+        
         <main class="main-content fade-in">
             <div style="padding-bottom: 20px;">
 
-                <!-- 1. SUBJECTS SECTION -->
+                
                 <section class="section-home">
                     <div class="section-header">
                         <h2 class="section-title">Your Subjects</h2>
-                        <!-- Link to Profile -->
+                        
                         <a href="profile.html" style="opacity:0.5; color: inherit;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -52,13 +52,13 @@
                     </div>
                 </section>
 
-                <!-- 2. CLASSES SECTION -->
+                
                 <section class="section-home" style="margin-top: 32px;">
                     <div class="section-header">
                         <h2 class="section-title">Classes You Teach</h2>
                         <a href="profile.html" class="icon-btn edit">
                             <img src="../assets/images/icon-edit.svg" width="18" alt="Edit">
-                            <!-- Removed Invert for Light Mode -->
+                            
                         </a>
                     </div>
                     <div id="homeClassesContainer" class="classes-scroll-container">
@@ -66,13 +66,13 @@
                     </div>
                 </section>
 
-                <!-- 3. ACTIVITY SECTION -->
+                
                 <section class="section-home" style="margin-top: 32px;">
                     <div class="section-header">
                         <h2 class="section-title">Your Activity</h2>
                     </div>
                     <div class="activity-list">
-                        <!-- Placeholders - Real activity log would require a separate collection -->
+                        
                         <div class="activity-item highlight">
                             <div class="activity-dot"></div>
                             <div class="activity-content">
@@ -85,7 +85,7 @@
             </div>
         </main>
 
-        <!-- Bottom Navigation -->
+        
         <nav class="bottom-nav">
             <a href="home.html" class="nav-item active">
                 <img src="../assets/images/icon-home.svg" class="nav-icon" alt="Home">
@@ -227,7 +227,7 @@
                     div.className = 'subject-card';
                     div.innerHTML = `
                         <div class="subject-icon" style="
-                            background-color: ${color}20; /* 20 = 12% opacity hex approximately */
+                            background-color: ${color}20; 
                             width: 56px; 
                             height: 56px; 
                             border-radius: 50%; 
@@ -278,6 +278,6 @@
         initHome();
     </script>
     <script type="module" src="../assets/js/firebase-auth.js"></script>
-</body>
+<script src="../assets/js/app_security.js"></script></body>
 
 </html>

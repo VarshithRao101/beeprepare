@@ -20,7 +20,8 @@ import {
     orderBy,
     serverTimestamp,
     updateDoc,
-    deleteDoc
+    deleteDoc,
+    getCountFromServer
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 // Re-use config (ensure this matches firebase-auth.js)
@@ -197,8 +198,32 @@ export const addQuestionToBank = async (uid, questionData) => {
         // users -> {uid} -> questions -> {docId}
         const userQuestionsRef = collection(db, USERS_COL, uid, "questions");
 
+        // --- LIMIT CHECK Start ---
+        // 1. Check Total Account Limit (Max 3000)
+        // Note: getCountFromServer is cost-effective (1 read per 1000 items)
+        const totalSnap = await getCountFromServer(userQuestionsRef);
+        const totalCount = totalSnap.data().count;
+
+        if (totalCount >= 3000) {
+            throw new Error("LIMIT REACHED: You have reached the maximum limit of 3000 questions per account.");
+        }
+
+        // 2. Check Subject Limit (Max 1500)
+        const subjectQ = query(userQuestionsRef, where("subject", "==", qPayload.subject));
+        const subSnap = await getCountFromServer(subjectQ);
+        const subCount = subSnap.data().count;
+
+        if (subCount >= 1500) {
+            throw new Error(`LIMIT REACHED: You have reached the maximum limit of 1500 questions for ${qPayload.subject}.`);
+        }
+        // --- LIMIT CHECK End ---
+
         const docRef = await addDoc(userQuestionsRef, qPayload);
         console.log("Question added with ID: ", docRef.id);
+
+        // LOG ACTIVITY
+        await logUserActivity(uid, 'question_added', 'Added Question', `${questionData.class} • ${questionData.subject}`);
+
         return docRef.id;
 
     } catch (error) {
@@ -218,6 +243,11 @@ export const deleteQuestionFromBank = async (uid, qId) => {
     try {
         await deleteDoc(doc(db, USERS_COL, uid, "questions", qId));
         console.log("Question deleted:", qId);
+
+        // LOG ACTIVITY
+        // Ideally we pass context like subject/class, but simplistic log for now if we don't fetch first.
+        await logUserActivity(uid, 'question_deleted', 'Deleted Question', 'Question removed from bank');
+
     } catch (error) {
         console.error("Error deleting question:", error);
         throw error;
@@ -288,21 +318,43 @@ export const getUserQuestions = async (uid, filters = {}) => {
 };
 
 /**
- * Get Recent Activity (derived from Questions)
+ * Log a User Activity
  */
-export const getUserActivity = async (uid, limitCount = 5) => {
+export const logUserActivity = async (uid, type, title, detail) => {
+    if (!uid) return;
     try {
-        // Just fetch recent questions as "Activity"
-        const questions = await getUserQuestions(uid);
-        // Logic: Map questions to activity items
-        // Since we sort client-side in getUserQuestions, just take top N
-        return questions.slice(0, limitCount).map(q => ({
-            type: 'question_added',
-            title: 'Added Question',
-            detail: `${q.class} • ${q.subject}`,
-            timestamp: q.createdAt,
-            id: q.id
-        }));
+        const activityRef = collection(db, USERS_COL, uid, "activity");
+        await addDoc(activityRef, {
+            type,
+            title,
+            detail,
+            createdAt: serverTimestamp()
+        });
+    } catch (e) {
+        console.error("Error logging activity:", e);
+    }
+};
+
+/**
+ * Get Recent Activity
+ * Fetches from the dedicated 'activity' subcollection.
+ */
+export const getUserActivity = async (uid, limitCount = 20) => {
+    try {
+        const activityRef = collection(db, USERS_COL, uid, "activity");
+        const q = query(activityRef, orderBy("createdAt", "desc")); // We'll limit client side or add limit(limitCount) if index exists
+
+        // Note: orderBy might require an index if mixed with other filters, but here it's simple.
+        const snapshot = await getDocs(q);
+
+        const activities = [];
+        snapshot.forEach(doc => {
+            if (activities.length < limitCount) {
+                activities.push({ id: doc.id, ...doc.data() });
+            }
+        });
+        return activities;
+
     } catch (e) {
         console.error("Activity fetch error", e);
         return [];
@@ -477,4 +529,70 @@ export const batchUploadKeys = async (keysList) => {
     }
 
     return totalUploaded;
+};
+
+/**
+ * Delete All Data for a Subject (Questions & Preferences)
+ * Used when a user unchecks a subject in profile.
+ */
+export const deleteSubjectData = async (uid, subjectName) => {
+    if (!uid || !subjectName) return;
+
+    try {
+        console.log(`Deleting data for subject: ${subjectName}...`);
+
+        // 1. Delete all questions for this subject
+        const userQuestionsRef = collection(db, USERS_COL, uid, "questions");
+        const q = query(userQuestionsRef, where("subject", "==", subjectName));
+        const limitBatch = 400; // Safe batch size
+
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+            const batch = writeBatch(db);
+            let count = 0;
+
+            snapshot.forEach(doc => {
+                batch.delete(doc.ref);
+                count++;
+            });
+
+            await batch.commit();
+            console.log(`Deleted ${count} questions for ${subjectName}`);
+        }
+
+        // 2. Remove Chapter Preferences (Clean up map keys)
+        // We need to fetch the user doc, modify the map locally, and update it back
+        // because we can't easily valid wildcard field deletes in Firestore
+        const userRef = doc(db, USERS_COL, uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+            const data = userSnap.data();
+            const prefs = data.chapterPreferences || {};
+            let changed = false;
+
+            // Loop through keys like "Class 10_Physics"
+            Object.keys(prefs).forEach(key => {
+                if (key.endsWith(`_${subjectName}`)) {
+                    delete prefs[key];
+                    changed = true;
+                }
+            });
+
+            if (changed) {
+                await updateDoc(userRef, {
+                    chapterPreferences: prefs
+                });
+                console.log(`Cleared chapter preferences for ${subjectName}`);
+            }
+        }
+
+        // LOG ACTIVITY
+        await logUserActivity(uid, 'subject_removed', 'Removed Subject', `${subjectName} and its data were deleted.`);
+
+    } catch (e) {
+        console.error("Error wiping subject data:", e);
+        throw e;
+    }
 };

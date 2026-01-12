@@ -12,7 +12,7 @@
     <style>
         .filter-header {
             background: var(--card-grey);
-            /* Fixed var */
+            
             padding: 16px;
             border-bottom: 1px solid var(--border-grey);
             position: sticky;
@@ -38,7 +38,7 @@
             padding: 8px 12px;
             border-radius: 8px;
             background: var(--card-grey);
-            /* White */
+            
             border: 1px solid var(--border-grey);
             color: var(--text-primary);
             width: 100%;
@@ -47,7 +47,7 @@
         .filter-select:disabled {
             opacity: 0.5;
             background: var(--light-grey);
-            /* Visible disabled state */
+            
         }
 
         .section-group {
@@ -70,7 +70,7 @@
             margin: 0;
             font-size: 1rem;
             color: var(--yellow-hover);
-            /* Darker yellow for text on light bg */
+            
         }
 
         .section-header .count-badge {
@@ -141,7 +141,7 @@
 
     <div class="app-container" style="padding-bottom: 20px;">
 
-        <!-- App Header -->
+        
         <header class="app-header">
             <div class="header-left">
                 <a href="profile.html">
@@ -154,7 +154,7 @@
             <div class="header-right"></div>
         </header>
 
-        <!-- Fixed Filter Bar -->
+        
         <div class="filter-header">
             <div class="filter-grid">
                 <select id="filterClass" class="filter-select">
@@ -180,32 +180,32 @@
 
         <main class="main-content fade-in" style="padding: 20px; max-width: 900px; margin: 0 auto;">
 
-            <!-- State: Initial -->
+            
             <div id="initialState" style="text-align: center; margin-top: 60px; color: #888;">
                 <p>Please select Class, Subject, and Chapter to view questions.</p>
             </div>
 
-            <!-- State: Loading -->
+            
             <div id="loadingState" style="display: none; text-align: center; margin-top: 60px; color: var(--yellow);">
                 Loading...
             </div>
 
-            <!-- State: Empty -->
+            
             <div id="emptyState" style="display: none; text-align: center; margin-top: 60px; color: #888;">
                 <p>No questions added yet for this chapter.</p>
                 <a href="add_question.html" class="btn btn-outline" style="margin-top: 16px;">Add New Question</a>
             </div>
 
-            <!-- Content Area -->
+            
             <div id="contentArea" style="display: none;">
-                <!-- Groups will be injected here -->
+                
             </div>
 
         </main>
 
     </div>
 
-    <!-- Scripts -->
+    
     <script type="module">
         import { getUserQuestions, getUserProfileData, deleteQuestionFromBank } from '../assets/js/firestore.js';
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
@@ -488,6 +488,6 @@
         };
 
     </script>
-</body>
+<script src="../assets/js/app_security.js"></script></body>
 
 </html>

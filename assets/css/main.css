@@ -5,18 +5,18 @@ color palette
 */
 :root {
     --yellow: #FFC000;
-    /* Warm premium yellow - Brand Color */
+    
     --yellow-hover: #FFD700;
 
-    /* Premium Dark Theme Palette */
+    
     --dark-bg: #1E1E1E;
-    /* Rich Charcoal Grey */
+    
     --card-grey: #2C2C2C;
-    /* Lighter Grey for depth */
+    
     --light-grey: #3A3A3A;
-    /* Interactables/Hover */
+    
     --border-grey: #444444;
-    /* Soft dark borders */
+    
 
     --text-primary: #FFFFFF;
     --text-secondary: #AAAAAA;
@@ -33,14 +33,14 @@ color palette
 
     --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
-    /* Styling Upgrades */
+    
     --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
-    /* Deeper shadow for dark mode */
+    
     --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.4);
 
     --radius-sm: 8px;
     --radius-md: 14px;
-    /* More modern curve */
+    
     --radius-lg: 24px;
     --radius-full: 9999px;
 }
@@ -65,7 +65,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    /* Prevent body scroll, handle in #main-content */
+    
 }
 
 a {
@@ -99,10 +99,10 @@ Layout Structure
     width: 100%;
     position: relative;
     background-color: var(--dark-bg);
-    /* Ensure sides match on huge screens */
+    
 }
 
-/* Header */
+
 .app-header {
     height: var(--header-height);
     background-color: rgba(30, 30, 30, 0.95);
@@ -122,7 +122,7 @@ Layout Structure
     display: flex;
     align-items: center;
     width: 40px;
-    /* Balance center alignment */
+    
     justify-content: center;
 }
 
@@ -163,19 +163,19 @@ Layout Structure
     border-color: var(--yellow);
 }
 
-/* Main Content Area */
+
 .main-content {
     flex: 1;
     overflow-y: auto;
     padding: var(--spacing-md);
     padding-bottom: calc(var(--nav-height) + var(--spacing-lg));
-    /* Clear nav */
+    
     position: relative;
-    /* Add subtle gradient background */
+    
     background: radial-gradient(circle at top right, #1a1a1a 0%, var(--dark-bg) 100%);
 }
 
-/* Bottom Navigation */
+
 .bottom-nav {
     height: var(--nav-height);
     background-color: var(--card-grey);
@@ -191,7 +191,7 @@ Layout Structure
     padding-bottom: env(safe-area-inset-bottom);
     max-width: 1200px;
     margin: 0 auto;
-    /* Center on desktop container */
+    
 }
 
 .nav-item {
@@ -294,7 +294,7 @@ Side Drawer (CSS Only)
     padding: var(--spacing-lg);
 }
 
-/* Target mechanics for open/close */
+
 #drawer:target {
     pointer-events: auto;
 }
@@ -350,10 +350,10 @@ Responsiveness
 */
 @media (min-width: 768px) {
 
-    /* Tablet & Desktop adjustments */
+    
     body {
         background-color: #000;
-        /* Darker margins for desktop */
+        
     }
 
     .app-container {
@@ -397,7 +397,7 @@ Components: Forms & Inputs
     color: var(--text-primary);
     font-family: var(--font-main);
     font-size: 0.95rem;
-    /* transition handled in animations.css */
+    
 }
 
 .form-textarea {
@@ -469,7 +469,7 @@ Components: Cards & Lists
     margin-bottom: var(--spacing-md);
 }
 
-/* Question List Card specific */
+
 .question-card {
     position: relative;
     padding-left: var(--spacing-lg);
@@ -553,7 +553,7 @@ Section: Buttons
     font-weight: 600;
     font-size: 0.95rem;
     width: 100%;
-    /* transition handled in animations.css */
+    
 }
 
 .btn-primary {
@@ -654,13 +654,13 @@ Blueprint Specific
 Preview Page: A4 Paper
 ====================================
 */
-/* Preview Page: A4 Paper */
+
 .preview-container-wrapper {
     display: flex;
     justify-content: center;
     padding: var(--spacing-md);
     padding-bottom: 80px;
-    /* Space for action bar */
+    
     overflow-x: hidden;
 }
 
@@ -669,14 +669,14 @@ Preview Page: A4 Paper
     color: #000000;
     width: 100%;
     max-width: 21cm;
-    /* A4 Width */
+    
     min-height: 29.7cm;
-    /* A4 Height */
+    
     padding: 1.5cm;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     position: relative;
     font-family: "Times New Roman", Times, serif;
-    /* Academic feel */
+    
     font-size: 12pt;
     line-height: 1.3;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -696,7 +696,7 @@ Preview Page: A4 Paper
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
 }
 
-/* Paper Header */
+
 .paper-header-section {
     text-align: center;
     border-bottom: 2px solid #000;
@@ -747,7 +747,7 @@ Preview Page: A4 Paper
     padding-top: 8px;
 }
 
-/* Paper Body */
+
 .paper-question-list {
     display: flex;
     flex-direction: column;
@@ -800,7 +800,7 @@ Preview Page: A4 Paper
     font-weight: 700;
     font-size: 10pt;
     margin-left: 8px;
-    /* Push to right */
+    
     white-space: nowrap;
 }
 
@@ -816,7 +816,7 @@ Preview Page: A4 Paper
     opacity: 1;
 }
 
-/* Multi-Select Component (Dropdown Style) */
+
 .multi-select-wrapper {
     position: relative;
     width: 100%;
@@ -954,7 +954,7 @@ Page: Templates Library
 .template-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    /* Mobile: 2 cols */
+    
     gap: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
 }
@@ -962,7 +962,7 @@ Page: Templates Library
 @media (min-width: 768px) {
     .template-grid {
         grid-template-columns: repeat(4, 1fr);
-        /* Desktop: 4 cols */
+        
     }
 }
 
@@ -1090,7 +1090,7 @@ Page: Profile
     font-size: 0.9rem;
 }
 
-/* Info Row */
+
 .info-row {
     display: flex;
     justify-content: space-between;
@@ -1108,7 +1108,7 @@ Page: Profile
     font-weight: 600;
 }
 
-/* Toggle Switch */
+
 .toggle-wrapper {
     display: flex;
     justify-content: space-between;
@@ -1162,7 +1162,7 @@ input:checked+.slider:before {
     transform: translateX(20px);
 }
 
-/* Danger Button */
+
 .btn-danger-outline {
     border: 1px solid var(--danger);
     color: var(--danger);
@@ -1177,7 +1177,7 @@ Page: Home Redesign
 ====================================
 */
 
-/* Section Headers */
+
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -1205,7 +1205,7 @@ Page: Home Redesign
     border-radius: 2px;
 }
 
-/* 1. Subjects Grid */
+
 .subjects-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -1233,7 +1233,7 @@ Page: Home Redesign
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: default;
-    /* Not editable */
+    
     opacity: 0.9;
 }
 
@@ -1266,27 +1266,27 @@ Page: Home Redesign
     opacity: 0.5;
 }
 
-/* 2. Classes Horizontal Scroll */
+
 .classes-scroll-container {
     display: flex;
     gap: var(--spacing-md);
     overflow-x: auto;
     padding-bottom: var(--spacing-sm);
-    /* Space for scrollbar if any */
+    
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
-    /* Firefox */
+    
     -ms-overflow-style: none;
-    /* IE */
+    
     margin-right: calc(-1 * var(--spacing-md));
-    /* Bleed right */
+    
     padding-right: var(--spacing-md);
-    /* Add padding end */
+    
 }
 
 .classes-scroll-container::-webkit-scrollbar {
     display: none;
-    /* Chrome/Safari */
+    
 }
 
 .class-card {
@@ -1337,17 +1337,17 @@ Page: Home Redesign
     color: var(--yellow);
 }
 
-/* 3. Activity Timeline */
+
 .activity-list {
     display: flex;
     flex-direction: column;
     gap: 0;
     position: relative;
     padding-left: 10px;
-    /* Space for line */
+    
 }
 
-/* Vertical line */
+
 .activity-list::before {
     content: '';
     position: absolute;
@@ -1375,7 +1375,7 @@ Page: Home Redesign
     flex-shrink: 0;
     margin-top: 4px;
     z-index: 2;
-    /* On top of line */
+    
 }
 
 .activity-item.highlight .activity-dot {
@@ -1484,10 +1484,10 @@ Page: Question Bank (Guided Steps)
 
 .step-content {
     padding-left: 48px;
-    /* Align with title */
+    
 }
 
-/* Custom Grid for selection info */
+
 .selection-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -1529,7 +1529,7 @@ Page: Question Bank (Guided Steps)
     transform: scale(1);
 }
 
-/* Add Question Button Large */
+
 .btn-large-action {
     width: 100%;
     padding: 16px;
@@ -1539,10 +1539,10 @@ Page: Question Bank (Guided Steps)
     margin-top: var(--spacing-md);
 }
 
-/* Animations */
 
 
-/* Marks Selector pill style */
+
+
 .marks-selector {
     display: flex;
     gap: var(--spacing-sm);
@@ -1644,7 +1644,7 @@ Page: Add Question (Minimal)
     z-index: 100;
 }
 
-/* Success Overlay */
+
 .success-overlay {
     position: fixed;
     top: 0;
@@ -1750,8 +1750,8 @@ Page: Create Question Paper
     margin: var(--spacing-sm) 0;
 }
 
-/* Highlight Glow for Create Button */
-/* Highlight Glow for Generate Button */
+
+
 .highlight-glow {
     box-shadow: 0 0 15px rgba(255, 192, 0, 0.3);
     border: 2px solid rgba(255, 192, 0, 0.4);
