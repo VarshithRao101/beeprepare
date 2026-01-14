@@ -1,10 +1,4 @@
-/* 
-====================================
-Firebase Authentication Module
-====================================
-*/
 
-// Import Firebase SDKs (using ES modules via CDN)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import {
     getAuth,
@@ -14,8 +8,6 @@ import {
     signOut
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-// Firebase Configuration (Placeholders as requested, though user provided keys in prompt)
-// Using user provided keys for functionality since they explicitly pasted them
 const firebaseConfig = {
     apiKey: "AIzaSyD2tMnUB37paF5qoVD3ahp7Q3IKMIoHghw",
     authDomain: "beeprepare-a4e5d.firebaseapp.com",
@@ -26,30 +18,21 @@ const firebaseConfig = {
     measurementId: "G-XXPN9T2P74"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+export const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Import Firestore Sync
+export { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
 import { syncUserProfile } from './firestore.js';
 
-// ----------------------------------
-// Auth Functions
-// ----------------------------------
-
-/**
- * Sign In with Google Popup
- */
 export const signInWithGoogle = async () => {
     try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
 
-        // Store temp session data
         storeUserSession(user);
 
-        // Sync with Firestore (Create doc if new)
         await syncUserProfile(user);
 
         console.log("User signed in & synced:", user.displayName);
@@ -58,7 +41,6 @@ export const signInWithGoogle = async () => {
     } catch (error) {
         if (error.code === 'auth/cancelled-popup-request') {
             console.warn("Login popup cancelled by user/browser.");
-            // Don't alert for cancellation
         } else {
             console.error("Login Failed:", error.message);
             alert("Login failed: " + error.message);
@@ -67,9 +49,6 @@ export const signInWithGoogle = async () => {
     }
 };
 
-/**
- * Sign Out User
- */
 export const logoutUser = async () => {
     try {
         await signOut(auth);
@@ -80,38 +59,26 @@ export const logoutUser = async () => {
     }
 };
 
-/**
- * Check Auth State & Protect Routes
- * Should be called on every protected page load
- */
 export const checkAuth = () => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            // User is signed in
             storeUserSession(user);
             console.log("Auth Check: Logged In");
 
-            // If on login page, go to home
             if (window.location.pathname.includes("login.html")) {
                 window.location.href = "home.html";
             }
         } else {
-            // User is signed out
             console.log("Auth Check: Signed Out");
             localStorage.removeItem('qp_user');
 
-            // Redirect to login if not already there, and not on public pages if any
-            if (!window.location.pathname.includes("login.html") && !window.location.pathname.includes("google-auth.html")) {
-                // Save current URL to return after login? For now just go to login.
+            if (!window.location.pathname.includes("login.html")) {
                 window.location.href = "login.html";
             }
         }
     });
 };
 
-/**
- * Helper: Store basic user info in LocalStorage
- */
 const storeUserSession = (user) => {
     const userData = {
         uid: user.uid,
@@ -123,38 +90,24 @@ const storeUserSession = (user) => {
     updateProfileUI();
 };
 
-/**
- * Helper: Update Profile UI elements if they exist on the page
- */
 export const updateProfileUI = () => {
     const data = localStorage.getItem('qp_user');
     if (!data) return;
 
     const user = JSON.parse(data);
 
-    // Update Avatar
     const avatars = document.querySelectorAll('.profile-avatar, .profile-avatar-lg');
     avatars.forEach(img => {
-        if (user.photoURL && !img.src.includes('googleusercontent')) { // Avoid flicker
+        if (user.photoURL && !img.src.includes('googleusercontent')) {
             img.src = user.photoURL;
         }
     });
 
-    // Update Name
     const nameEl = document.querySelector('.profile-name, .profile-name-display');
     if (nameEl) nameEl.textContent = user.displayName;
 
-    // Update Email
     const emailEl = document.querySelector('.profile-email, .profile-email-display');
     if (emailEl) emailEl.textContent = user.email;
 };
 
-// Auto-run auth check
-// Ensure we don't loop on public pages
-const isPublicPage = window.location.pathname.endsWith("login.html") ||
-    window.location.pathname.endsWith("google-auth.html") ||
-    window.location.pathname.endsWith("privacy-policy.html");
-
-// On Vercel, root path might be just "/" or "/index.html"
-// Only run checkAuth if we are NOT on a public page OR if we want to redirect FROM public page if logged in.
 checkAuth();

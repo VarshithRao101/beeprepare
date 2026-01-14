@@ -12,12 +12,11 @@
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/animations.css">
     <style>
-        
         .page-container {
             max-width: 480px;
-            
+
             margin: 0 auto;
-            
+
             width: 100%;
         }
 
@@ -27,9 +26,6 @@
             gap: 16px;
         }
 
-        /* Removed multi-column grid for "compressed" look logic, 
-           or keep it but the container is narrow so it might stack anyway. 
-           Let's keep the option if space allows. */
         @media (min-width: 600px) {
             .config-grid {
                 grid-template-columns: 1fr 1fr;
@@ -46,7 +42,7 @@
             position: relative;
         }
 
-        
+
         .chapter-box::-webkit-scrollbar {
             width: 6px;
         }
@@ -110,19 +106,19 @@
 <body>
 
     <div class="app-container fade-in">
-        
+
         <header class="app-header">
             <h1 class="page-title">Create Paper</h1>
         </header>
 
         <main class="main-content">
 
-            <div class="container page-container"> 
+            <div class="container page-container">
 
                 <h2 class="card-title" style="margin-bottom: var(--spacing-md); font-size: 1.3rem;">Paper Configuration
                 </h2>
 
-                
+
                 <div class="content-card" style="padding: 24px;">
 
                     <div class="config-grid">
@@ -157,14 +153,14 @@
 
                 </div>
 
-                
+
                 <h3 class="card-title" style="margin-bottom: var(--spacing-sm); margin-top: var(--spacing-lg);">Question
                     Selection</h3>
                 <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md); font-size: 0.9rem;">Select
                     quantity for each question type</p>
 
                 <div class="content-card">
-                    
+
                     <div class="counter-row">
                         <div class="counter-label">
                             <span style="display:block; font-weight: 600; color: var(--text-primary);">2 Marks</span>
@@ -178,7 +174,7 @@
                     </div>
                     <div class="separator"></div>
 
-                    
+
                     <div class="counter-row">
                         <div class="counter-label">
                             <span style="display:block; font-weight: 600; color: var(--text-primary);">4 Marks</span>
@@ -192,7 +188,7 @@
                     </div>
                     <div class="separator"></div>
 
-                    
+
                     <div class="counter-row">
                         <div class="counter-label">
                             <span style="display:block; font-weight: 600; color: var(--text-primary);">6 Marks</span>
@@ -206,7 +202,7 @@
                     </div>
                     <div class="separator"></div>
 
-                    
+
                     <div class="counter-row">
                         <div class="counter-label">
                             <span style="display:block; font-weight: 600; color: var(--text-primary);">MCQ</span>
@@ -220,7 +216,7 @@
                     </div>
                 </div>
 
-                
+
                 <h3 class="card-title" style="margin-bottom: var(--spacing-sm); margin-top: var(--spacing-lg);">Section
                     Order</h3>
                 <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md); font-size: 0.9rem;">Arrange
@@ -276,7 +272,7 @@
 
         </main>
 
-        
+
         <nav class="bottom-nav">
             <a href="home.html" class="nav-item">
                 <img src="../assets/images/icon-home.svg" class="nav-icon" alt="Home">
@@ -302,7 +298,6 @@
         import { generatePaperDraft } from '../assets/js/createPaper.js';
         import { getUserProfileData } from '../assets/js/firestore.js';
 
-        // Selectors
         const classSelect = document.getElementById('classSelect');
         const subjectSelect = document.getElementById('subjectSelect');
         const chapterListContainer = document.getElementById('chapterListContainer');
@@ -312,7 +307,6 @@
 
         let userProfile = null;
 
-        // --- Initialization ---
         const init = async () => {
             const userJson = localStorage.getItem('qp_user');
             const user = userJson ? JSON.parse(userJson) : null;
@@ -325,7 +319,6 @@
             try {
                 userProfile = await getUserProfileData(user.uid);
 
-                // Premium Check
                 if (!userProfile || !userProfile.isPremium) {
                     window.location.replace('activate.html');
                     return;
@@ -368,7 +361,6 @@
             const cls = classSelect.value;
             const sub = subjectSelect.value;
 
-            // Empty State
             if (!cls || !sub) {
                 chapterListContainer.innerHTML = `
                     <div class="empty-state">
@@ -381,7 +373,6 @@
             const key = `${cls}_${sub}`;
             let chapters = (userProfile.chapterPreferences && userProfile.chapterPreferences[key]) || [];
 
-            // No Chapters Data
             if (chapters.length === 0) {
                 chapterListContainer.innerHTML = `
                     <div class="empty-state">
@@ -392,10 +383,8 @@
                 return;
             }
 
-            // Render List
             chapterListContainer.innerHTML = '';
 
-            // 1. Select All
             const allItem = document.createElement('label');
             allItem.className = 'chapter-item';
             allItem.style.fontWeight = '600';
@@ -406,7 +395,6 @@
             const checkAllBox = allItem.querySelector('input');
             const individualBoxes = [];
 
-            // 2. Individual Items
             chapters.forEach(ch => {
                 const item = document.createElement('label');
                 item.className = 'chapter-item';
@@ -415,7 +403,6 @@
                 individualBoxes.push(item.querySelector('.ch-box'));
             });
 
-            // Logic
             const updateSummary = () => {
                 const checked = individualBoxes.filter(b => b.checked).length;
                 if (checked === individualBoxes.length && checked > 0) {
@@ -438,11 +425,9 @@
             });
         };
 
-        // Listeners
         classSelect.addEventListener('change', renderChapterList);
         subjectSelect.addEventListener('change', renderChapterList);
 
-        // --- Counter Logic ---
         window.updateCount = (btn, change) => {
             const input = btn.parentNode.querySelector('input');
             let val = parseInt(input.value);
@@ -455,23 +440,20 @@
         function recalcTotal() {
             let total = 0;
             const vals = Array.from(document.querySelectorAll('.counter-input')).map(i => parseInt(i.value));
-            total += (vals[0] * 2); // 2 Marks
-            total += (vals[1] * 4); // 4 Marks
-            total += (vals[2] * 6); // 6 Marks
-            total += (vals[3] * 1); // MCQ (1 Mark)
+            total += (vals[0] * 2);
+            total += (vals[1] * 4);
+            total += (vals[2] * 6);
+            total += (vals[3] * 1);
             totalMarksDisplay.textContent = total;
         }
 
-        // --- Generate Action ---
         generateBtn.addEventListener('click', async () => {
             if (generateBtn.disabled) return;
 
-            // Validation
             if (!classSelect.value || !subjectSelect.value) {
                 return alert("Please select a Class and Subject first.");
             }
 
-            // Get Selected Chapters
             const checkAll = document.getElementById('checkAll');
             const boxes = document.querySelectorAll('.ch-box:checked');
 
@@ -486,19 +468,15 @@
                 return alert("Please select at least one chapter.");
             }
 
-            // Prepare Config
             const btnText = generateBtn.textContent;
             generateBtn.textContent = "Generating...";
             generateBtn.disabled = true;
 
-            // 1. Gather Config
             const counters = document.querySelectorAll('.counter-input');
 
-            // 2. Gather Section Order
             const orderSelects = document.querySelectorAll('.section-order-select');
             const sectionOrder = Array.from(orderSelects).map(s => s.value);
 
-            // Validate Duplicates in Order
             const uniqueSections = new Set(sectionOrder);
             if (uniqueSections.size !== sectionOrder.length) {
                 return alert("Please ensure each Section (A, B, C, D) has a unique Question Type selected.");
@@ -508,7 +486,7 @@
                 class: classSelect.value,
                 subject: subjectSelect.value,
                 chapter: resultChapters,
-                sectionOrder: sectionOrder, // Pass the custom order
+                sectionOrder: sectionOrder,
                 counts: {
                     twoMark: parseInt(counters[0].value),
                     fourMark: parseInt(counters[1].value),
@@ -533,12 +511,12 @@
             }
         });
 
-        // Start
         init();
         recalcTotal();
 
     </script>
     <script type="module" src="../assets/js/firebase-auth.js"></script>
-<script src="../assets/js/app_security.js"></script></body>
+    <script src="../assets/js/app_security.js"></script>
+</body>
 
 </html>

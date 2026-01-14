@@ -1,11 +1,4 @@
-/* 
-====================================
-Firestore Database Module
-Handles all data operations for Users, Questions, and Papers
-====================================
-*/
 
-// Import Firebase SDKs (using ES modules via CDN consistent with auth)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import {
     getFirestore,
@@ -24,7 +17,6 @@ import {
     getCountFromServer
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// Re-use config (ensure this matches firebase-auth.js)
 const firebaseConfig = {
     apiKey: "AIzaSyD2tMnUB37paF5qoVD3ahp7Q3IKMIoHghw",
     authDomain: "beeprepare-a4e5d.firebaseapp.com",
@@ -38,19 +30,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Collection References
 const USERS_COL = "users";
 const QUESTIONS_COL = "questions";
 const PAPERS_COL = "papers";
 
-// ----------------------------------
-// 1. User Management
-// ----------------------------------
-
-/**
- * Sync User Profile on Login
- * Creates user doc if it doesn't exist.
- */
 export const syncUserProfile = async (user) => {
     if (!user) return;
 
@@ -61,15 +44,14 @@ export const syncUserProfile = async (user) => {
 
         if (!userSnap.exists()) {
             console.log("Creating new user profile...");
-            // Initial User Doc
             await setDoc(userRef, {
                 uid: user.uid,
                 name: user.displayName,
                 email: user.email,
                 photoURL: user.photoURL,
-                subjects: [], // Default empty
-                classes: [],  // Default empty
-                isPremium: false, // EXPLICIT DEFAULT: LOCKED
+                subjects: [],
+                classes: [],
+                isPremium: false,
                 createdAt: serverTimestamp()
             });
         } else {
@@ -81,9 +63,6 @@ export const syncUserProfile = async (user) => {
     }
 };
 
-/**
- * Get Full User Profile Data
- */
 export const getUserProfileData = async (uid) => {
     if (!uid) return null;
     try {
@@ -99,9 +78,6 @@ export const getUserProfileData = async (uid) => {
     }
 };
 
-/**
- * Save/Update User Subjects
- */
 export const saveUserSubjects = async (uid, subjectsArray) => {
     try {
         const userRef = doc(db, USERS_COL, uid);
@@ -114,9 +90,6 @@ export const saveUserSubjects = async (uid, subjectsArray) => {
     }
 };
 
-/**
- * Save/Update User Classes
- */
 export const saveUserClasses = async (uid, classesArray) => {
     try {
         const userRef = doc(db, USERS_COL, uid);
@@ -129,26 +102,15 @@ export const saveUserClasses = async (uid, classesArray) => {
     }
 };
 
-/**
- * Save/Update User Chapter Preferences
- * structure: { "Class_Subject": ["Chapter1", "Chapter2"] }
- */
 export const saveUserChapterPreferences = async (uid, classSubjectKey, chaptersArray) => {
     try {
         const userRef = doc(db, USERS_COL, uid);
-        // We use dot notation to update a specific key in the map
-        // Note: Field paths with special characters need handling, but "Class 10_Physics" is fine?
-        // Actually, to be safe with dynamic keys in updateDoc, we should use Computed Property Names if possible
-        // or just read, merge, and set. 
-        // Firestore updateDoc supports "map.key": value.
         await updateDoc(userRef, {
             [`chapterPreferences.${classSubjectKey}`]: chaptersArray
         });
         console.log(`Chapters updated for ${classSubjectKey}`);
     } catch (error) {
         console.error("Error saving chapters:", error);
-        // If the map doesn't exist, updateDoc might fail if we try to set a nested field.
-        // Fallback to setDoc with merge if needed, but let's try shallow merge first.
         try {
             const userRef = doc(db, USERS_COL, uid);
             await setDoc(userRef, {
@@ -162,45 +124,26 @@ export const saveUserChapterPreferences = async (uid, classSubjectKey, chaptersA
     }
 };
 
-
-// ----------------------------------
-// 2. Question Bank Operations
-// ----------------------------------
-
-/**
- * Add a New Question to Bank
- */
-/**
- * Add a New Question to Bank (User Sub-collection)
- * Path: users/{uid}/questions/{docId}
- */
 export const addQuestionToBank = async (uid, questionData) => {
     if (!uid) throw new Error("User ID required");
 
     try {
-        // Validate / Format Data
         const qPayload = {
             class: questionData.class || "Unspecified",
             subject: questionData.subject || "Unspecified",
             chapter: questionData.chapter || "Unspecified",
             marks: questionData.marks || "1",
-            questionType: questionData.type || "Short Answer", // Standardized key
+            questionType: questionData.type || "Short Answer",
             questionText: questionData.questionText,
 
-            // MCQ specific
             options: questionData.options || null,
             correctOption: questionData.correctAnswer || null,
 
             createdAt: serverTimestamp()
         };
 
-        // Reference to User's Questions Subcollection
-        // users -> {uid} -> questions -> {docId}
         const userQuestionsRef = collection(db, USERS_COL, uid, "questions");
 
-        // --- LIMIT CHECK Start ---
-        // 1. Check Total Account Limit (Max 3000)
-        // Note: getCountFromServer is cost-effective (1 read per 1000 items)
         const totalSnap = await getCountFromServer(userQuestionsRef);
         const totalCount = totalSnap.data().count;
 
@@ -208,7 +151,6 @@ export const addQuestionToBank = async (uid, questionData) => {
             throw new Error("LIMIT REACHED: You have reached the maximum limit of 3000 questions per account.");
         }
 
-        // 2. Check Subject Limit (Max 1500)
         const subjectQ = query(userQuestionsRef, where("subject", "==", qPayload.subject));
         const subSnap = await getCountFromServer(subjectQ);
         const subCount = subSnap.data().count;
@@ -216,12 +158,10 @@ export const addQuestionToBank = async (uid, questionData) => {
         if (subCount >= 1500) {
             throw new Error(`LIMIT REACHED: You have reached the maximum limit of 1500 questions for ${qPayload.subject}.`);
         }
-        // --- LIMIT CHECK End ---
 
         const docRef = await addDoc(userQuestionsRef, qPayload);
         console.log("Question added with ID: ", docRef.id);
 
-        // LOG ACTIVITY
         await logUserActivity(uid, 'question_added', 'Added Question', `${questionData.class} • ${questionData.subject}`);
 
         return docRef.id;
@@ -232,20 +172,12 @@ export const addQuestionToBank = async (uid, questionData) => {
     }
 };
 
-/**
- * Delete Question from Bank
- */
-/**
- * Delete Question from Bank
- */
 export const deleteQuestionFromBank = async (uid, qId) => {
     if (!uid || !qId) return;
     try {
         await deleteDoc(doc(db, USERS_COL, uid, "questions", qId));
         console.log("Question deleted:", qId);
 
-        // LOG ACTIVITY
-        // Ideally we pass context like subject/class, but simplistic log for now if we don't fetch first.
         await logUserActivity(uid, 'question_deleted', 'Deleted Question', 'Question removed from bank');
 
     } catch (error) {
@@ -254,9 +186,6 @@ export const deleteQuestionFromBank = async (uid, qId) => {
     }
 };
 
-/**
- * Update Existing Question
- */
 export const updateQuestion = async (uid, qId, data) => {
     if (!uid || !qId || !data) return;
     try {
@@ -272,21 +201,10 @@ export const updateQuestion = async (uid, qId, data) => {
     }
 };
 
-/**
- * Get User's Questions (Filtered by uid)
- * Optional filters: subject, class
- */
-/**
- * Get User's Questions (Filtered by uid)
- * Path: users/{uid}/questions
- */
-// Correct path: users/{uid}/questions
 export const getUserQuestions = async (uid, filters = {}) => {
     try {
         const userQuestionsRef = collection(db, USERS_COL, uid, "questions");
 
-        // REMOVED orderBy("createdAt", "desc") to avoid composite index requirements on dynamic filters
-        // We will sort client-side.
         let q = query(userQuestionsRef);
 
         if (filters.subject) {
@@ -302,7 +220,6 @@ export const getUserQuestions = async (uid, filters = {}) => {
             questions.push({ id: doc.id, ...doc.data() });
         });
 
-        // Client-side Sort (Newest First)
         questions.sort((a, b) => {
             const tA = a.createdAt ? a.createdAt.toMillis() : 0;
             const tB = b.createdAt ? b.createdAt.toMillis() : 0;
@@ -317,9 +234,6 @@ export const getUserQuestions = async (uid, filters = {}) => {
     }
 };
 
-/**
- * Log a User Activity
- */
 export const logUserActivity = async (uid, type, title, detail) => {
     if (!uid) return;
     try {
@@ -335,16 +249,11 @@ export const logUserActivity = async (uid, type, title, detail) => {
     }
 };
 
-/**
- * Get Recent Activity
- * Fetches from the dedicated 'activity' subcollection.
- */
 export const getUserActivity = async (uid, limitCount = 20) => {
     try {
         const activityRef = collection(db, USERS_COL, uid, "activity");
-        const q = query(activityRef, orderBy("createdAt", "desc")); // We'll limit client side or add limit(limitCount) if index exists
+        const q = query(activityRef, orderBy("createdAt", "desc"));
 
-        // Note: orderBy might require an index if mixed with other filters, but here it's simple.
         const snapshot = await getDocs(q);
 
         const activities = [];
@@ -361,14 +270,6 @@ export const getUserActivity = async (uid, limitCount = 20) => {
     }
 };
 
-
-// ----------------------------------
-// 3. Paper/Exam Operations
-// ----------------------------------
-
-/**
- * Save a Generated Paper Structure
- */
 export const savePaperStructure = async (uid, paperData) => {
     try {
         const payload = {
@@ -376,14 +277,12 @@ export const savePaperStructure = async (uid, paperData) => {
             class: paperData.class,
             subject: paperData.subject,
             chapters: paperData.chapters || [],
-            // Structure: counts of each marks type
             structure: paperData.structure || {
                 mcq: 0,
                 twoMark: 0,
                 fourMark: 0,
                 eightMark: 0
             },
-            // Metadata
             examDetails: paperData.examDetails || {
                 institution: "",
                 examName: "",
@@ -391,8 +290,6 @@ export const savePaperStructure = async (uid, paperData) => {
                 duration: "",
                 maxMarks: 0
             },
-            // If we generated questions immediately, we could store IDs. 
-            // For now just storing structure.
             questions: paperData.questions || [],
             createdAt: serverTimestamp()
         };
@@ -407,9 +304,6 @@ export const savePaperStructure = async (uid, paperData) => {
     }
 };
 
-/**
- * Get User's Past Papers
- */
 export const getUserPapers = async (uid) => {
     try {
         const q = query(
@@ -431,15 +325,6 @@ export const getUserPapers = async (uid) => {
     }
 };
 
-
-// ----------------------------------
-// 4. License Key System
-// ----------------------------------
-
-/**
- * Activate User Account with Key
- * Transactional: Checks key, marks used, updates user.
- */
 import { runTransaction } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 export const activateUserAccount = async (uid, keyString) => {
@@ -447,12 +332,6 @@ export const activateUserAccount = async (uid, keyString) => {
 
     try {
         await runTransaction(db, async (transaction) => {
-            // 1. Find the Key Doc
-            // We assume keys are stored in 'license_keys' collection. 
-            // Querying inside transaction can be tricky if not by ID. 
-            //Ideally, the doc ID should be the key itself to make this fast and transactional.
-            // Let's assume Doc ID = Key String.
-
             const keyRef = doc(db, "license_keys", keyString);
             const keySnap = await transaction.get(keyRef);
 
@@ -465,14 +344,12 @@ export const activateUserAccount = async (uid, keyString) => {
                 throw "License Key already used";
             }
 
-            // 2. Get User Doc
             const userRef = doc(db, USERS_COL, uid);
             const userSnap = await transaction.get(userRef);
             if (!userSnap.exists()) {
                 throw "User profile not found";
             }
 
-            // 3. Updates
             transaction.update(keyRef, {
                 status: "used",
                 usedBy: uid,
@@ -495,14 +372,9 @@ export const activateUserAccount = async (uid, keyString) => {
     }
 };
 
-/**
- * Batch Upload Keys (Admin Tool)
- * keysList = [{ id: "KEY-123", key: "KEY-123", status: "unused" }, ...]
- */
 import { writeBatch } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 export const batchUploadKeys = async (keysList) => {
-    // Firestore batch limit is 500
     const CHUNK_SIZE = 450;
     const chunks = [];
 
@@ -515,7 +387,7 @@ export const batchUploadKeys = async (keysList) => {
     for (const chunk of chunks) {
         const batch = writeBatch(db);
         chunk.forEach(k => {
-            const ref = doc(db, "license_keys", k.key); // Doc ID is the key
+            const ref = doc(db, "license_keys", k.key);
             batch.set(ref, {
                 key: k.key,
                 sno: k.sno,
@@ -531,20 +403,15 @@ export const batchUploadKeys = async (keysList) => {
     return totalUploaded;
 };
 
-/**
- * Delete All Data for a Subject (Questions & Preferences)
- * Used when a user unchecks a subject in profile.
- */
 export const deleteSubjectData = async (uid, subjectName) => {
     if (!uid || !subjectName) return;
 
     try {
         console.log(`Deleting data for subject: ${subjectName}...`);
 
-        // 1. Delete all questions for this subject
         const userQuestionsRef = collection(db, USERS_COL, uid, "questions");
         const q = query(userQuestionsRef, where("subject", "==", subjectName));
-        const limitBatch = 400; // Safe batch size
+        const limitBatch = 400;
 
         const snapshot = await getDocs(q);
 
@@ -561,9 +428,6 @@ export const deleteSubjectData = async (uid, subjectName) => {
             console.log(`Deleted ${count} questions for ${subjectName}`);
         }
 
-        // 2. Remove Chapter Preferences (Clean up map keys)
-        // We need to fetch the user doc, modify the map locally, and update it back
-        // because we can't easily valid wildcard field deletes in Firestore
         const userRef = doc(db, USERS_COL, uid);
         const userSnap = await getDoc(userRef);
 
@@ -572,7 +436,6 @@ export const deleteSubjectData = async (uid, subjectName) => {
             const prefs = data.chapterPreferences || {};
             let changed = false;
 
-            // Loop through keys like "Class 10_Physics"
             Object.keys(prefs).forEach(key => {
                 if (key.endsWith(`_${subjectName}`)) {
                     delete prefs[key];
@@ -588,7 +451,6 @@ export const deleteSubjectData = async (uid, subjectName) => {
             }
         }
 
-        // LOG ACTIVITY
         await logUserActivity(uid, 'subject_removed', 'Removed Subject', `${subjectName} and its data were deleted.`);
 
     } catch (e) {

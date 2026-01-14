@@ -31,7 +31,7 @@
             z-index: 2;
         }
 
-        
+
         .bee-container {
             width: 80px;
             height: 80px;
@@ -48,20 +48,20 @@
             transition: all 0.3s ease;
         }
 
-        
-        
+
+
         .angry-bee {
             animation: angryShake 0.5s cubic-bezier(.36, .07, .19, .97) both !important;
             filter: hue-rotate(-50deg) saturate(3) brightness(0.9) drop-shadow(0 0 15px red) !important;
         }
 
-        
+
         .happy-bee {
             animation: happyDance 0.6s ease forwards !important;
             filter: brightness(1.2) drop-shadow(0 0 20px var(--yellow)) !important;
         }
 
-        
+
         @keyframes floatBee {
 
             0%,
@@ -87,6 +87,7 @@
             }
 
             30%,
+            90%,
             50%,
             70% {
                 transform: translate3d(-8px, 0, 0) scale(1.2) rotate(-5deg);
@@ -141,31 +142,31 @@
     <div class="activate-card">
         <div class="bee-container">
             <svg id="beeCharacter" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                
 
-                
+
+
                 <path d="M25 45 C5 20 40 5 50 40 C60 5 95 20 75 45" fill="#B3E5FC" stroke="#333" stroke-width="2.5"
                     stroke-linecap="round" stroke-linejoin="round" />
 
-                
+
                 <path d="M35 55 C35 45 65 45 65 55 C65 75 50 85 50 85 C50 85 35 75 35 55 Z" fill="#FFC107" stroke="#333"
                     stroke-width="2.5" stroke-linejoin="round" />
 
-                
+
                 <path d="M35 58 H65" stroke="#333" stroke-width="4" />
                 <path d="M38 68 H62" stroke="#333" stroke-width="4" />
 
-                
+
                 <circle cx="50" cy="40" r="16" fill="#FFC107" stroke="#333" stroke-width="2.5" />
 
-                
+
                 <circle cx="45" cy="38" r="2.5" fill="#333" />
                 <circle cx="55" cy="38" r="2.5" fill="#333" />
 
-                
+
                 <path d="M47 45 Q50 47 53 45" stroke="#333" stroke-width="1.5" stroke-linecap="round" />
 
-                
+
                 <path d="M42 28 Q35 15 30 18" stroke="#333" stroke-width="2.5" stroke-linecap="round" />
                 <path d="M58 28 Q65 15 70 18" stroke="#333" stroke-width="2.5" stroke-linecap="round" />
                 <circle cx="30" cy="18" r="2" fill="#333" />
@@ -213,10 +214,8 @@
         import { activateUserAccount } from '../assets/js/firestore.js';
         import { logoutUser } from '../assets/js/firebase-auth.js';
 
-        // Auto-focus logic
         const segs = [document.getElementById('seg1'), document.getElementById('seg2'), document.getElementById('seg3')];
 
-        // Focus first editable segment on load
         setTimeout(() => segs[0].focus(), 500);
 
         segs.forEach((seg, idx) => {
@@ -230,44 +229,35 @@
             });
 
             seg.addEventListener('keydown', (e) => {
-                // Backspace moves back
                 if (e.key === 'Backspace' && e.target.value.length === 0) {
                     if (idx > 0) segs[idx - 1].focus();
                 }
             });
 
-            // Allow pasting full key
             seg.addEventListener('paste', (e) => {
                 e.preventDefault();
                 const text = (e.clipboardData || window.clipboardData).getData('text').trim().toUpperCase();
-                // Expected format: BEE-AAAA-BBBB-CCCC or just AAAA...
-                // Remove non-alphanumeric
                 const clean = text.replace(/[^A-Z0-9]/g, '');
 
-                // If it starts with BEE, remove it
                 let remaining = clean;
                 if (remaining.startsWith('BEE')) remaining = remaining.substring(3);
 
-                // Distribute
                 if (remaining.length > 0) segs[0].value = remaining.substring(0, 4);
                 if (remaining.length > 4) segs[1].value = remaining.substring(4, 8);
                 if (remaining.length > 8) segs[2].value = remaining.substring(8, 12);
 
-                // Focus last populated
                 if (remaining.length > 8) segs[2].focus();
                 else if (remaining.length > 4) segs[1].focus();
                 else segs[0].focus();
             });
         });
 
-        // Activate
         const btn = document.getElementById('activateBtn');
         btn.addEventListener('click', async () => {
             const bee = document.getElementById('beeCharacter');
             bee.classList.remove('angry-bee', 'happy-bee');
-            void bee.offsetWidth; // Trigger reflow to restart anims if needed
+            void bee.offsetWidth;
 
-            // Construct key
             const p1 = segs[0].value;
             const p2 = segs[1].value;
             const p3 = segs[2].value;
@@ -296,14 +286,12 @@
             try {
                 const result = await activateUserAccount(user.uid, fullKey);
                 if (result.success) {
-                    // Success: Happy Bee
                     bee.classList.add('happy-bee');
 
                     btn.textContent = "ACTIVATED!";
                     btn.style.backgroundColor = "var(--success)";
                     btn.style.boxShadow = "0 0 20px var(--success)";
 
-                    // Unlock Effect
                     document.body.style.transition = "background 1s ease";
                     document.body.style.background = "radial-gradient(circle at center, #1a472a 0%, #000 100%)";
 
@@ -311,7 +299,6 @@
                         window.location.href = 'home.html';
                     }, 1500);
                 } else {
-                    // Fail: Angry Bee
                     bee.classList.add('angry-bee');
                     setTimeout(() => bee.classList.remove('angry-bee'), 600);
 
@@ -331,6 +318,7 @@
 
         window.logout = logoutUser;
     </script>
-<script src="../assets/js/app_security.js"></script></body>
+    <script src="../assets/js/app_security.js"></script>
+</body>
 
 </html>

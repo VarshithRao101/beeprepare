@@ -17,7 +17,7 @@
             min-height: 100vh;
             padding: var(--spacing-md);
             background-color: var(--dark-bg);
-            
+
         }
 
         .login-card {
@@ -29,7 +29,7 @@
             max-width: 400px;
             text-align: center;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-            
+
             animation: slideUpFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
@@ -59,8 +59,8 @@
             padding: 14px;
             border-radius: var(--radius-md);
             border: 1px solid #e0e0e0;
-            
-            
+
+
             width: 100%;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -101,7 +101,7 @@
         </div>
     </div>
 
-    
+
     <script type="module">
         import { signInWithGoogle } from '../assets/js/firebase-auth.js';
 
@@ -109,16 +109,14 @@
         const originalBtnContent = btn.innerHTML;
 
         btn.addEventListener('click', async () => {
-            // Disable button and show loading state
             btn.disabled = true;
             btn.style.opacity = '0.7';
             btn.style.cursor = 'not-allowed';
-            btn.innerHTML = `<span style="margin-right:8px">Connecting...</span>`; // Simple loading text
+            btn.innerHTML = `<span style="margin-right:8px">Connecting...</span>`;
 
             try {
                 await signInWithGoogle();
             } catch (error) {
-                // If login fails or is cancelled, reset button
                 console.log("Resetting login button");
                 btn.disabled = false;
                 btn.style.opacity = '1';
@@ -127,6 +125,7 @@
             }
         });
     </script>
-<script src="../assets/js/app_security.js"></script></body>
+    <script src="../assets/js/app_security.js"></script>
+</body>
 
 </html>

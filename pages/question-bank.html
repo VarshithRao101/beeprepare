@@ -15,10 +15,10 @@
 
     <div class="app-container">
 
-        
+
         <header class="app-header">
             <div class="header-left">
-                
+
                 <a href="home.html" class="menu-trigger">
                     <img src="../assets/images/icon-arrow-left.svg" alt="Back" style="width: 24px;">
                 </a>
@@ -37,7 +37,7 @@
 
             <div style="max-width: 600px; margin: 0 auto;">
 
-                
+
                 <div class="step-card active" id="step1">
                     <div class="step-header">
                         <div class="step-indicator">1</div>
@@ -45,13 +45,13 @@
                     </div>
                     <div class="step-content">
                         <div id="classSelectionGrid" class="selection-grid">
-                            
+
                             <div style="color: #888; grid-column: 1/-1; text-align: center;">Loading Classes...</div>
                         </div>
                     </div>
                 </div>
 
-                
+
                 <div class="step-card" id="step2">
                     <div class="step-header">
                         <div class="step-indicator">2</div>
@@ -59,13 +59,13 @@
                     </div>
                     <div class="step-content">
                         <div id="subjectSelectionGrid" class="selection-grid">
-                            
+
                             <div style="color: #888; grid-column: 1/-1; text-align: center;">Select a Class first</div>
                         </div>
                     </div>
                 </div>
 
-                
+
                 <div class="step-card" id="step3">
                     <div class="step-header">
                         <div class="step-indicator">3</div>
@@ -112,7 +112,7 @@
                             <input type="text" class="form-input" id="topicInput" placeholder="e.g. Electrons">
                         </div>
 
-                        
+
                         <div style="text-align: right; margin-top: 16px;">
                             <button id="detailsNextBtn" class="btn btn-primary" onclick="validateStep3()" disabled
                                 style="opacity:0.5;">Confirm Details</button>
@@ -120,7 +120,7 @@
                     </div>
                 </div>
 
-                
+
                 <div class="step-card" id="step4"
                     style="border: none; background: transparent; padding: 0; opacity: 0; text-align: center;">
                     <button class="btn btn-primary btn-large-action" onclick="goToAddQuestion()"
@@ -132,9 +132,9 @@
                     </p>
                 </div>
 
-                
+
                 <div id="questionsContainer" style="margin-bottom: 80px;">
-                    
+
                 </div>
 
             </div>
@@ -160,21 +160,18 @@
             </a>
         </nav>
 
-        
+
         <script type="module">
             import { fetchAndRenderQuestions, setupGlobalDelete } from '../assets/js/questionBank.js';
             import { getUserProfileData } from '../assets/js/firestore.js';
             import { getSubjectIcon } from '../assets/js/icons.js';
 
-            // Setup Global Delete Helper for the list items
             setupGlobalDelete();
 
-            // Strict Premium Check
             const userJson = localStorage.getItem('qp_user');
             if (userJson) {
                 const user = JSON.parse(userJson);
                 getUserProfileData(user.uid).then(profile => {
-                    // Check
                     if (!profile || !profile.isPremium) {
                         window.location.replace('activate.html');
                     }
@@ -183,13 +180,11 @@
                 window.location.href = 'login.html';
             }
 
-            // GLOBALS
             window.selectedClass = null;
             window.selectedSubject = null;
             window.selectedMarks = null;
             let userProfile = null;
 
-            // INITIALIZATION
             const init = async () => {
                 const userJson = localStorage.getItem('qp_user');
                 const user = userJson ? JSON.parse(userJson) : null;
@@ -210,7 +205,6 @@
                 }
             };
 
-            // RENDERERS
             function renderClassGrid(classes) {
                 const grid = document.getElementById('classSelectionGrid');
                 grid.innerHTML = '';
@@ -245,8 +239,6 @@
                     const btn = document.createElement('button');
                     btn.className = 'selection-btn';
 
-                    // Simple Icon Logic or Async
-                    // Since getSubjectIcon is synchronous SVG provider now:
                     const iconHtml = getSubjectIcon(sub);
 
                     btn.innerHTML = `
@@ -285,44 +277,34 @@
                 }
             }
 
-            // SELECTION LOGIC
             window.selectClass = (btn, className) => {
                 window.selectedClass = className;
-                // Highlight UI
                 document.querySelectorAll('#step1 .selection-btn').forEach(b => b.classList.remove('selected'));
                 btn.classList.add('selected');
 
-                // Mark Step 1 Complete & Activate Step 2
                 window.markStepComplete('step1');
                 window.activateStep('step2');
                 window.updateSummary();
 
-                // Render Subjects (Assuming subjects are global for now, based on profile structure)
                 renderSubjectGrid(userProfile.classes && userProfile.subjects ? userProfile.subjects : []);
 
-                // Reset subsequent selections
                 window.selectedSubject = null;
-                document.getElementById('subjectSelectionGrid').innerHTML = ''; // Clear usually, but we just rendered it.
-                // Re-render actually
+                document.getElementById('subjectSelectionGrid').innerHTML = '';
                 renderSubjectGrid(userProfile.subjects || []);
             };
 
             window.selectSubject = (btn, subjectName) => {
                 window.selectedSubject = subjectName;
-                // Highlight UI
                 document.querySelectorAll('#step2 .selection-btn').forEach(b => b.classList.remove('selected'));
                 btn.classList.add('selected');
 
-                // Mark Step 2 Complete & Activate Step 3
                 window.markStepComplete('step2');
                 window.activateStep('step3');
                 window.updateSummary();
 
-                // Load Chapters
                 populateChapterDropdown();
             };
 
-            // OLD selectMarks removed
 
             window.checkStep3 = () => {
                 const chapter = document.getElementById('chapterSelect').value;
@@ -342,7 +324,6 @@
 
             window.validateStep3 = () => {
                 window.markStepComplete('step3');
-                // Show final button
                 const step4 = document.getElementById('step4');
                 step4.classList.add('active');
                 step4.style.opacity = '1';
@@ -351,8 +332,6 @@
 
                 window.updateSummary();
 
-                // LOAD EXISTING QUESTIONS HERE
-                // We use the new logic to filter
                 const chapter = document.getElementById('chapterSelect').value;
                 const marks = document.getElementById('marksSelect').value;
 
@@ -398,7 +377,6 @@
                 const marks = document.getElementById('marksSelect').value || '1';
                 const topic = document.getElementById('topicInput').value || '';
 
-                // Construct URL with params
                 const params = new URLSearchParams({
                     class: window.selectedClass || 'N/A',
                     subject: window.selectedSubject || 'N/A',
@@ -411,12 +389,12 @@
                 window.location.href = 'add_question.html?' + params.toString();
             };
 
-            // Start
             init();
         </script>
     </div>
 
     <script type="module" src="../assets/js/firebase-auth.js"></script>
-<script src="../assets/js/app_security.js"></script></body>
+    <script src="../assets/js/app_security.js"></script>
+</body>
 
 </html>

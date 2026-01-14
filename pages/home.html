@@ -13,12 +13,31 @@
 
 <body>
 
+    <div id="initialLoader"
+        style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; background:#000; color:#fff; position:fixed; top:0; left:0; width:100%; z-index:9999;">
+        <div class="loader-spinner"
+            style="width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid var(--yellow); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px;">
+        </div>
+        <p style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #888;">Preparing your workspace...</p>
+        <style>
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </div>
+
     <div class="app-container" style="display:none;" id="mainApp">
 
-        
+
         <header class="app-header">
             <div class="header-left">
-                
+
             </div>
             <div class="header-center">
                 <h1 class="app-logo-text">BEEPREPARE</h1>
@@ -30,15 +49,15 @@
             </div>
         </header>
 
-        
+
         <main class="main-content fade-in">
             <div style="padding-bottom: 20px;">
 
-                
+
                 <section class="section-home">
                     <div class="section-header">
                         <h2 class="section-title">Your Subjects</h2>
-                        
+
                         <a href="profile.html" style="opacity:0.5; color: inherit;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -52,13 +71,13 @@
                     </div>
                 </section>
 
-                
+
                 <section class="section-home" style="margin-top: 32px;">
                     <div class="section-header">
                         <h2 class="section-title">Classes You Teach</h2>
                         <a href="profile.html" class="icon-btn edit">
                             <img src="../assets/images/icon-edit.svg" width="18" alt="Edit">
-                            
+
                         </a>
                     </div>
                     <div id="homeClassesContainer" class="classes-scroll-container">
@@ -66,13 +85,13 @@
                     </div>
                 </section>
 
-                
+
                 <section class="section-home" style="margin-top: 32px;">
                     <div class="section-header">
                         <h2 class="section-title">Your Activity</h2>
                     </div>
                     <div class="activity-list">
-                        
+
                         <div class="activity-item highlight">
                             <div class="activity-dot"></div>
                             <div class="activity-content">
@@ -85,7 +104,7 @@
             </div>
         </main>
 
-        
+
         <nav class="bottom-nav">
             <a href="home.html" class="nav-item active">
                 <img src="../assets/images/icon-home.svg" class="nav-icon" alt="Home">
@@ -108,59 +127,59 @@
     </div>
 
     <script type="module">
+        import { auth, onAuthStateChanged } from '../assets/js/firebase-auth.js';
         import { getUserProfileData, getUserActivity } from '../assets/js/firestore.js';
-        import { getSubjectIcon } from '../assets/js/icons.js';
+        import { getSubjectIcon, getSubjectColor } from '../assets/js/icons.js';
 
-        const initHome = async () => {
-            const userJson = localStorage.getItem('qp_user');
-            const user = userJson ? JSON.parse(userJson) : null;
+        const initHome = async (user) => {
+            if (!user) return;
 
-            if (user) {
-                try {
-                    // FORCE FRESH FETCH
-                    // We must ensure we get the latest 'isPremium' status from Firestore, 
-                    // not just trust what might be in some local state if we were caching.
-                    // getUserProfileData does a direct getDoc.
+            try {
+                const [profile, activity] = await Promise.all([
+                    getUserProfileData(user.uid),
+                    getUserActivity(user.uid, 5)
+                ]);
 
-                    // Parallel Fetch
-                    const [profile, activity] = await Promise.all([
-                        getUserProfileData(user.uid),
-                        getUserActivity(user.uid, 5)
-                    ]);
-
-                    // LOGIC:
-                    // If profile doesn't exist (new user who skipped setup?) -> Redirect to Activate (effectively blocking them)
-                    // If profile exists but isPremium is missing or false -> Redirect to Activate
-
-                    const isPremium = profile?.isPremium === true;
-
-                    if (!isPremium) {
-                        console.log("User is not premium. Redirecting to activation.");
-                        window.location.replace('activate.html'); // Use replace to prevent back-button loop
-                        return;
-                    }
-
-                    // Reveal Content
-                    document.getElementById('mainApp').style.display = 'block';
-
-                    renderSubjects(profile ? profile.subjects : []);
-                    renderClasses(profile ? profile.classes : []);
-                    renderActivity(activity);
-
-                } catch (e) {
-                    console.error("Home load error", e);
-                    // If error (e.g. network), we might want to block access too?
-                    // For now, let's alert or retry.
+                const isPremium = profile?.isPremium === true;
+                if (!isPremium) {
+                    console.log("User is not premium. Redirecting to activation.");
+                    window.location.replace('activate.html');
+                    return;
                 }
-            } else {
-                // If no user, auth.js redirects usually, but just in case
-                renderSubjects([]);
-                renderClasses([]);
+
+                renderSubjects(profile ? profile.subjects : []);
+                renderClasses(profile ? profile.classes : []);
+                renderActivity(activity);
+
+                const loader = document.getElementById('initialLoader');
+                if (loader) loader.style.display = 'none';
+
+                document.getElementById('mainApp').style.display = 'block';
+
+            } catch (e) {
+                console.error("Home load error", e);
+                const loader = document.getElementById('initialLoader');
+                if (loader) {
+                    loader.innerHTML = `<div style="color:var(--danger); text-align:center; padding:20px;">
+                        <p>Error loading profile.</p>
+                        <p style="font-size:0.8rem; margin-top:8px;">${e.message}</p>
+                        <button onclick="window.location.reload()" style="margin-top:16px; padding:8px 16px; background:#333; border:none; color:#fff; border-radius:4px; cursor:pointer;">Retry</button>
+                    </div>`;
+                }
             }
         };
 
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                initHome(user);
+            } else {
+                console.log("Waiting for auth redirect...");
+            }
+        });
+
         const renderActivity = (activities) => {
             const container = document.querySelector('.activity-list');
+            if (!container) return;
             container.innerHTML = '';
 
             if (!activities || activities.length === 0) {
@@ -169,7 +188,6 @@
             }
 
             activities.forEach(act => {
-                // Convert Timestamp
                 let timeStr = 'Just now';
                 if (act.timestamp) {
                     const date = act.timestamp.toDate ? act.timestamp.toDate() : new Date(act.timestamp);
@@ -183,9 +201,7 @@
 
                 const item = document.createElement('div');
                 item.className = 'activity-item highlight';
-                // Add fade-in animation inline or via class
                 item.style.animation = 'fadeIn 0.5s ease forwards';
-
                 item.innerHTML = `
                     <div class="activity-dot"></div>
                     <div class="activity-content">
@@ -200,6 +216,7 @@
 
         const renderSubjects = (subjects) => {
             const container = document.getElementById('homeSubjectsGrid');
+            if (!container) return;
             container.innerHTML = '';
 
             if (!subjects || subjects.length === 0) {
@@ -209,52 +226,35 @@
 
             subjects.forEach(sub => {
                 const iconHtml = getSubjectIcon(sub);
+                const color = getSubjectColor(sub);
 
-                // Extract color from helper if needed, but getSubjectIcon returns SVG with color. 
-                // However, the card background logic in previous version used color for circle background.
-                // The new getSubjectIcon returns an SVG with inline styles.
-                // We want the circle background style still? 
-                // The user said "remove that alphabets logo... replace with eye catching logos".
-                // Let's modify the card to just show the large icon, or keep the circle container but with the icon inside.
-                // The getSubjectIcon function I wrote returns an <svg> with a specific color.
-                // I should extract the color to set the background of the circle to a faded version of that color, or keep solid color with white icon.
-
-                // Let's parse the color from our helper for the background
-                import('../assets/js/icons.js').then(module => {
-                    const color = module.getSubjectColor(sub);
-
-                    const div = document.createElement('div');
-                    div.className = 'subject-card';
-                    div.innerHTML = `
-                        <div class="subject-icon" style="
-                            background-color: ${color}20; 
-                            width: 56px; 
-                            height: 56px; 
-                            border-radius: 50%; 
-                            display: flex; 
-                            align-items: center; 
-                            justify-content: center;
-                            color: ${color};
-                            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-                            margin-bottom: 8px;
-                            border: 1px solid ${color}40;
-                        ">
-                             ${iconHtml}
-                        </div>
-                        <span class="subject-name" style="font-weight: 600; font-size: 0.9rem;">${sub}</span>
-                     `;
-                    // Fix: iconHtml already has style="color: ...". We might want to override or use it. 
-                    // My helper returns <svg ... style="color: COLOR ...">. 
-                    // If I put it in a container with color: COLOR, it inherits if I use currentColor, but the helper sets it explicitly.
-                    // The helper sets the color on the SVG. So inside the container it will look correct.
-
-                    container.appendChild(div);
-                });
+                const div = document.createElement('div');
+                div.className = 'subject-card';
+                div.innerHTML = `
+                    <div class="subject-icon" style="
+                        background-color: ${color}20; 
+                        width: 56px; 
+                        height: 56px; 
+                        border-radius: 50%; 
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center;
+                        color: ${color};
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                        margin-bottom: 8px;
+                        border: 1px solid ${color}40;
+                    ">
+                            ${iconHtml}
+                    </div>
+                    <span class="subject-name" style="font-weight: 600; font-size: 0.9rem;">${sub}</span>
+                    `;
+                container.appendChild(div);
             });
         };
 
         const renderClasses = (classes) => {
             const container = document.getElementById('homeClassesContainer');
+            if (!container) return;
             container.innerHTML = '';
 
             if (!classes || classes.length === 0) {
@@ -274,10 +274,9 @@
                 container.appendChild(div);
             });
         };
-
-        initHome();
     </script>
     <script type="module" src="../assets/js/firebase-auth.js"></script>
-<script src="../assets/js/app_security.js"></script></body>
+    <script src="../assets/js/app_security.js"></script>
+</body>
 
 </html>

@@ -12,7 +12,7 @@
     <style>
         .filter-header {
             background: var(--card-grey);
-            
+
             padding: 16px;
             border-bottom: 1px solid var(--border-grey);
             position: sticky;
@@ -38,7 +38,7 @@
             padding: 8px 12px;
             border-radius: 8px;
             background: var(--card-grey);
-            
+
             border: 1px solid var(--border-grey);
             color: var(--text-primary);
             width: 100%;
@@ -47,7 +47,7 @@
         .filter-select:disabled {
             opacity: 0.5;
             background: var(--light-grey);
-            
+
         }
 
         .section-group {
@@ -70,7 +70,7 @@
             margin: 0;
             font-size: 1rem;
             color: var(--yellow-hover);
-            
+
         }
 
         .section-header .count-badge {
@@ -141,7 +141,7 @@
 
     <div class="app-container" style="padding-bottom: 20px;">
 
-        
+
         <header class="app-header">
             <div class="header-left">
                 <a href="profile.html">
@@ -154,7 +154,7 @@
             <div class="header-right"></div>
         </header>
 
-        
+
         <div class="filter-header">
             <div class="filter-grid">
                 <select id="filterClass" class="filter-select">
@@ -180,53 +180,49 @@
 
         <main class="main-content fade-in" style="padding: 20px; max-width: 900px; margin: 0 auto;">
 
-            
+
             <div id="initialState" style="text-align: center; margin-top: 60px; color: #888;">
                 <p>Please select Class, Subject, and Chapter to view questions.</p>
             </div>
 
-            
+
             <div id="loadingState" style="display: none; text-align: center; margin-top: 60px; color: var(--yellow);">
                 Loading...
             </div>
 
-            
+
             <div id="emptyState" style="display: none; text-align: center; margin-top: 60px; color: #888;">
                 <p>No questions added yet for this chapter.</p>
                 <a href="add_question.html" class="btn btn-outline" style="margin-top: 16px;">Add New Question</a>
             </div>
 
-            
+
             <div id="contentArea" style="display: none;">
-                
+
             </div>
 
         </main>
 
     </div>
 
-    
+
     <script type="module">
         import { getUserQuestions, getUserProfileData, deleteQuestionFromBank } from '../assets/js/firestore.js';
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-        // DOM Inputs
         const filterClass = document.getElementById('filterClass');
         const filterSubject = document.getElementById('filterSubject');
         const filterChapter = document.getElementById('filterChapter');
 
-        // DOM States
         const initialState = document.getElementById('initialState');
         const loadingState = document.getElementById('loadingState');
         const emptyState = document.getElementById('emptyState');
         const contentArea = document.getElementById('contentArea');
 
-        // Cache
         let cachedQuestions = [];
         let currentUid = null;
         let userProfile = null;
 
-        // --- Init Auth ---
         const init = async () => {
             const localUser = JSON.parse(localStorage.getItem('qp_user'));
             if (!localUser) {
@@ -235,7 +231,6 @@
             }
             currentUid = localUser.uid;
 
-            // Fetch Profile for Dropdowns
             try {
                 userProfile = await getUserProfileData(currentUid);
                 if (userProfile) {
@@ -257,7 +252,6 @@
                     filterClass.appendChild(opt);
                 });
             } else {
-                // Fallback if no classes set? Or empty.
             }
         };
 
@@ -273,12 +267,9 @@
             }
         };
 
-        // --- Event Listeners ---
-
         filterClass.addEventListener('change', () => {
             if (filterClass.value) {
                 filterSubject.disabled = false;
-                // If subject already selected, trigger refresh of chapters logic
                 if (filterSubject.value) {
                     filterSubject.dispatchEvent(new Event('change'));
                 }
@@ -310,7 +301,6 @@
                     });
                     filterChapter.disabled = false;
                 } else {
-                    // No chapters found for this combo
                     filterChapter.disabled = true;
                 }
             } else {
@@ -331,8 +321,6 @@
         });
 
 
-        // --- Core Functions ---
-
         function resetView() {
             contentArea.style.display = 'none';
             emptyState.style.display = 'none';
@@ -346,24 +334,14 @@
             contentArea.style.display = 'none';
             emptyState.style.display = 'none';
 
-            // Filter Criteria
             const criteria = {
                 class: filterClass.value,
                 subject: filterSubject.value,
-                // FireStore function currently supports only these. 
-                // We will manually filter Chapter from the result set if needed, 
-                // or if we updated firestore.js to support more, we use it. 
-                // Currently firestore.js getUserQuestions supports 'class' and 'subject'.
-                // So we fetch by Subj/Class and filter Chapter in memory.
             };
 
-            // Fetch
             try {
-                // Determine if we need to re-fetch or use cache?
-                // For 'View My Questions', strict consistency is better. Let's fetch.
                 const allQuestions = await getUserQuestions(currentUid, criteria);
 
-                // In-Memory Filter for Chapter
                 const filtered = allQuestions.filter(q => q.chapter === filterChapter.value);
 
                 loadingState.style.display = 'none';
@@ -385,7 +363,6 @@
         function renderGROUPS(questions) {
             contentArea.innerHTML = '';
 
-            // Grouping Buckets
             const groups = {
                 'MCQ': [],
                 '1-2 Marks': [],
@@ -404,7 +381,6 @@
                 }
             });
 
-            // Render Each Group
             Object.keys(groups).forEach(key => {
                 const list = groups[key];
                 if (list.length > 0) {
@@ -413,7 +389,6 @@
 
                     const sectionId = 'sec-' + key.replace(/ /g, '-');
 
-                    // Header
                     section.innerHTML = `
                         <div class="section-header" onclick="document.getElementById('${sectionId}').classList.toggle('collapsed')">
                             <h3>${key}</h3>
@@ -463,7 +438,6 @@
         window.removeQuestion = async (qId) => {
             if (!confirm("Are you sure you want to delete this question? This cannot be undone.")) return;
 
-            // Optimistic UI update
             const el = document.getElementById(`q-${qId}`);
             if (el) el.style.opacity = '0.5';
 
@@ -471,8 +445,6 @@
                 await deleteQuestionFromBank(currentUid, qId);
                 if (el) {
                     el.remove();
-                    // Update counts or empty state checks if needed
-                    // Simple re-check empty groups
                     document.querySelectorAll('.section-group').forEach(group => {
                         const content = group.querySelector('.section-content');
                         if (content && content.children.length === 0) {
@@ -488,6 +460,7 @@
         };
 
     </script>
-<script src="../assets/js/app_security.js"></script></body>
+    <script src="../assets/js/app_security.js"></script>
+</body>
 
 </html>

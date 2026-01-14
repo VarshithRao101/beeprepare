@@ -8,17 +8,16 @@
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/animations.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <link rel="icon" type="image/png" href="../assets/images/logo-icon.png">
     <style>
-        
         .page-container {
             max-width: 480px;
             margin: 0 auto;
             width: 100%;
         }
 
-        
+
         :root {
             --paper-content-size: 10pt;
         }
@@ -41,7 +40,7 @@
             margin-bottom: 4px !important;
         }
 
-        
+
         .paper-promo-footer {
             position: absolute;
             bottom: 10px;
@@ -51,7 +50,7 @@
             color: rgba(0, 0, 0, 0.3);
             font-weight: 600;
             pointer-events: none;
-            
+
             user-select: none;
         }
     </style>
@@ -60,12 +59,12 @@
 <body>
 
     <div id="drawer">
-        
+
     </div>
 
     <div class="app-container">
 
-        
+
         <header class="app-header">
             <div class="header-left">
                 <a href="blueprint.html" class="menu-trigger" style="padding: 4px;">
@@ -86,37 +85,35 @@
 
             <div class="preview-container-wrapper">
 
-                
+
                 <div class="a4-paper">
 
-                    
+
                     <div class="paper-header-section">
-                        
+
                     </div>
 
-                    
 
-                    
                     <div class="paper-question-list">
-                        
+
                     </div>
 
-                    
+
                     <div class="paper-promo-footer">BS</div>
                 </div>
             </div>
 
-            
+
             <div style="height: 60px;"></div>
 
         </main>
 
 
-        
+
         <div class="action-bar"
             style="position: fixed; bottom: 0; left: 0; width: 100%; padding: 16px; background: var(--card-grey); border-top: 1px solid var(--border-grey); display: flex; gap: 12px; align-items: center; justify-content: center; z-index: 100;">
 
-            
+
             <div style="display: flex; flex-direction: column; gap: 2px; flex: 0.8; margin-right: 8px;">
                 <div
                     style="display:flex; justify-content: space-between; color: var(--text-secondary); font-size: 0.75rem;">
@@ -140,7 +137,6 @@
         import { generateQuestionPaperPDF } from '../assets/js/pdfGenerator.js';
         import { getUserProfileData } from '../assets/js/firestore.js';
 
-        // STRICT GATEKEEPER
         const checkAccess = async () => {
             const userJson = localStorage.getItem('qp_user');
             if (!userJson) {
@@ -159,11 +155,9 @@
         };
         checkAccess();
 
-        // Global Draft Ref
         let currentDraft = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Load Draft
             currentDraft = getPaperDraft();
             if (!currentDraft) {
                 if (confirm("No active paper draft found. Create one now?")) {
@@ -172,13 +166,10 @@
                 return;
             }
 
-            // 2. Render Initial State
             renderPaper(currentDraft);
 
-            // 3. Enable Editing Immediately
             enableEditMode();
 
-            // 4. Initialize Font Size Slider
             const fontSizeSlider = document.getElementById('fontSizeSlider');
             const sizeDisplay = document.getElementById('fontSizeDisplay');
             const paperRoot = document.documentElement;
@@ -193,7 +184,6 @@
         });
 
         const renderPaper = (draft) => {
-            // Header rendering (unchanged)
             const headerSection = document.querySelector('.paper-header-section');
             if (headerSection) {
                 headerSection.innerHTML = `
@@ -212,7 +202,6 @@
                 `;
             }
 
-            // Questions
             const container = document.querySelector('.paper-question-list');
             if (!container) return;
             container.innerHTML = '';
@@ -220,7 +209,6 @@
             let globalQCount = 1;
 
             const renderGroup = (label, typeFilter, marksDisplay) => {
-                // Improved Filtering Logic
                 let subset = [];
 
                 if (typeFilter === "MCQ") {
@@ -231,7 +219,6 @@
 
                 if (subset.length === 0) return;
 
-                // Section Header
                 const sectionHeader = document.createElement('div');
                 sectionHeader.style.cssText = "text-align: center; font-weight: 700; margin: 12px 0 8px 0; text-decoration: underline; font-size: 11pt;";
                 sectionHeader.textContent = `${label} (${marksDisplay} Marks Each)`;
@@ -274,7 +261,6 @@
                     renderGroup(sectionLabels[index], type, marksDisplay);
                 });
             } else {
-                // Fallback
                 renderGroup("SECTION A", "MCQ", 1);
                 renderGroup("SECTION B", "2", 2);
                 renderGroup("SECTION C", "4", 4);
@@ -286,7 +272,6 @@
             }
         };
 
-        // --- Interaction Logic ---
         const finalizeBtn = document.querySelector('.btn-primary');
         const pdfBtn = document.querySelector('.btn-disabled');
 
@@ -299,22 +284,16 @@
                 finalizeBtn.disabled = true;
 
                 try {
-                    // 1. Scrape Final Data
                     const finalData = scrapePaperData(currentDraft);
 
-                    // 2. Lock Editing
                     disableEditMode();
 
-                    // 3. Save to Firestore
                     const paperId = await saveFinalPaper(finalData);
 
                     if (paperId) {
                         finalizeBtn.textContent = "Finalized";
-                        // Update current draft with finalized data in case they want PDF right away
-                        // scrapePaperData returns the structure we need
                         currentDraft = { ...currentDraft, ...finalData };
 
-                        // Enable PDF Button
                         if (pdfBtn) {
                             pdfBtn.disabled = false;
                             pdfBtn.classList.remove('btn-disabled');
@@ -344,7 +323,6 @@
                 const element = document.querySelector('.a4-paper');
                 const overlay = document.getElementById('pdfSuccessOverlay');
 
-                // Show loading
                 const originalText = pdfBtn.textContent;
                 pdfBtn.textContent = "Downloading...";
                 pdfBtn.style.opacity = '0.7';
@@ -364,6 +342,7 @@
         }
     </script>
 
-<script src="../assets/js/app_security.js"></script></body>
+    <script src="../assets/js/app_security.js"></script>
+</body>
 
 </html>
