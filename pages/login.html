@@ -93,19 +93,54 @@
             <h1 class="app-logo-large">BEEPREPARE</h1>
             <p class="login-subtitle">Sign in with Google to continue</p>
 
-            <button id="googleLoginBtn" class="google-btn">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
-                    class="google-icon">
-                Continue with Google
+            <button id="googleLoginBtn" class="google-btn" disabled style="opacity: 0.6; cursor: wait;">
+                <span class="loader-mini"
+                    style="margin-right:8px; border: 2px solid #333; border-top: 2px solid transparent; border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite; display: inline-block;"></span>
+                Loading...
+                <style>
+                    @keyframes spin {
+                        0% {
+                            transform: rotate(0deg)
+                        }
+
+                        100% {
+                            transform: rotate(360deg)
+                        }
+                    }
+                </style>
             </button>
         </div>
     </div>
 
 
+    <script>
+        // Failsafe for module loading
+        window.moduleLoaded = false;
+        setTimeout(() => {
+            const btn = document.getElementById('googleLoginBtn');
+            if (!window.moduleLoaded && btn) {
+                btn.innerHTML = "<span style='color:red'>Connection Failed</span>";
+                alert("Unable to load Google Sign-In resources. Please check your internet connection.");
+                const retryBtn = document.createElement('button');
+                retryBtn.innerText = "Retry";
+                retryBtn.onclick = () => window.location.reload();
+                retryBtn.style.cssText = "display:block; margin: 10px auto; padding: 5px 10px;";
+                btn.parentNode.appendChild(retryBtn);
+            }
+        }, 10000);
+    </script>
     <script type="module">
         import { signInWithGoogle } from '../assets/js/firebase-auth.js';
 
+        window.moduleLoaded = true;
         const btn = document.getElementById('googleLoginBtn');
+
+        // Restore button state once loaded
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        btn.innerHTML = `<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="google-icon"> Continue with Google`;
+
         const originalBtnContent = btn.innerHTML;
 
         btn.addEventListener('click', async () => {
@@ -115,9 +150,27 @@
             btn.innerHTML = `<span style="margin-right:8px">Connecting...</span>`;
 
             try {
-                await signInWithGoogle();
+                // Race condition to prevent infinite hanging
+                const loginPromise = signInWithGoogle();
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Request timed out. Please try again.")), 15000)
+                );
+
+                await Promise.race([loginPromise, timeoutPromise]);
+
             } catch (error) {
-                console.log("Resetting login button");
+                console.error("Login Error:", error);
+
+                // Show user friendly error via alert since they can't open console easily
+                if (error.code === 'auth/popup-closed-by-user') {
+                    // Ignore, user just closed it
+                } else if (error.message && error.message.includes("timed out")) {
+                    alert("Login timed out. Your connection might be slow. Please try again.");
+                } else {
+                    alert("Login Failed: " + (error.message || "Unknown error"));
+                }
+
+                // Reset button
                 btn.disabled = false;
                 btn.style.opacity = '1';
                 btn.style.cursor = 'pointer';

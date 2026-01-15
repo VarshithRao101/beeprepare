@@ -9,10 +9,33 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.
 
 const auth = getAuth();
 
+const waitForAuth = async () => {
+    if (auth.currentUser) return auth.currentUser;
+    return new Promise((resolve) => {
+        let attempts = 0;
+        const interval = setInterval(() => {
+            attempts++;
+            if (auth.currentUser) {
+                clearInterval(interval);
+                resolve(auth.currentUser);
+            } else if (attempts > 20) { // 2 seconds timeout
+                clearInterval(interval);
+                resolve(null);
+            }
+        }, 100);
+    });
+};
+
 export const handleSaveNewQuestion = async (text, questionPayload) => {
-    const user = auth.currentUser;
+    const user = await waitForAuth();
     if (!user) {
-        alert("You must be logged in to save questions.");
+        // Fallback: Check localStorage to see if we SHOULD be logged in
+        if (localStorage.getItem('qp_user')) {
+             console.warn("Auth check timed out, but local session exists. Network might be slow.");
+             alert("Connection to server is slow. Please check your internet and try again.");
+        } else {
+             alert("You must be logged in to save questions.");
+        }
         return false;
     }
 
@@ -42,9 +65,11 @@ export const handleSaveNewQuestion = async (text, questionPayload) => {
 };
 
 export const fetchAndRenderQuestions = async (containerId, filters) => {
-    const user = auth.currentUser;
+    const user = await waitForAuth();
     if (!user) {
-        console.log("User not logged in, cannot fetch questions.");
+        console.log("User not logged in (or auth timeout), cannot fetch questions.");
+        const container = document.getElementById(containerId);
+        if(container) container.innerHTML = '<div style="text-align:center; padding:20px;">Please login to view questions.</div>';
         return;
     }
 

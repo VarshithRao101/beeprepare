@@ -133,26 +133,64 @@
             if (loader && loader.style.display !== 'none') {
                 const p = loader.querySelector('p');
                 if (p) {
-                    p.innerHTML = "<span style='color:#ff4444; font-weight:bold;'>Connection Timeout</span><br><br>The app is having trouble loading resources.<br><span style='font-size:0.8em; color:#888'>Please check your internet connection.</span>";
+                    p.innerHTML = `
+                        <span style='color:#ff4444; font-weight:bold; font-size:1.1rem;'>Connection Timeout</span>
+                        <div style="margin-top:12px; color:#ccc; font-size:0.9rem;">
+                            The app takes longer than expected to load.<br>
+                            This could be due to a slow network or a cache issue.
+                        </div>
+                    `;
 
-                    const btn = document.createElement('button');
-                    btn.innerText = "FORCE RELOAD";
-                    btn.style.marginTop = "20px";
-                    btn.style.padding = "10px 20px";
-                    btn.style.borderRadius = "6px";
-                    btn.style.border = "none";
-                    btn.style.fontWeight = "bold";
-                    btn.style.cursor = "pointer";
-                    btn.style.background = "#F59E0B";
-                    btn.style.color = "#000";
-                    btn.onclick = () => window.location.reload();
+                    const btnContainer = document.createElement('div');
+                    btnContainer.style.marginTop = "24px";
+                    btnContainer.style.display = "flex";
+                    btnContainer.style.gap = "12px";
+                    btnContainer.style.justifyContent = "center";
 
-                    p.appendChild(document.createElement('br'));
-                    p.appendChild(btn);
+                    const btnReload = document.createElement('button');
+                    btnReload.innerText = "Try Reloading";
+                    btnReload.style.padding = "10px 20px";
+                    btnReload.style.borderRadius = "8px";
+                    btnReload.style.border = "none";
+                    btnReload.style.fontWeight = "600";
+                    btnReload.style.cursor = "pointer";
+                    btnReload.style.background = "#F59E0B";
+                    btnReload.style.color = "#000";
+                    btnReload.onclick = () => window.location.reload();
+
+                    const btnReset = document.createElement('button');
+                    btnReset.innerText = "Reset App Data";
+                    btnReset.style.padding = "10px 20px";
+                    btnReset.style.borderRadius = "8px";
+                    btnReset.style.border = "1px solid #ff4444";
+                    btnReset.style.fontWeight = "600";
+                    btnReset.style.cursor = "pointer";
+                    btnReset.style.background = "transparent";
+                    btnReset.style.color = "#ff4444";
+
+                    btnReset.onclick = () => {
+                        if (confirm("This will clear your local app data and log you out. Continue?")) {
+                            localStorage.clear();
+                            sessionStorage.clear();
+                            // Attempt to clear service workers if any (though we aren't using them explicitly yet)
+                            if ('serviceWorker' in navigator) {
+                                navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                                    for (let registration of registrations) {
+                                        registration.unregister();
+                                    }
+                                });
+                            }
+                            window.location.href = 'login.html';
+                        }
+                    };
+
+                    btnContainer.appendChild(btnReload);
+                    btnContainer.appendChild(btnReset);
+                    p.appendChild(btnContainer);
                 }
                 console.error("App load timeout triggered via failsafe.");
             }
-        }, 8000);
+        }, 20000); // Increased to 20 seconds
     </script>
 
     <script type="module">

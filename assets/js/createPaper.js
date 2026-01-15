@@ -4,11 +4,32 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.
 
 const auth = getAuth();
 
+const waitForAuth = async () => {
+    if (auth.currentUser) return auth.currentUser;
+    return new Promise((resolve) => {
+        let attempts = 0;
+        const interval = setInterval(() => {
+            attempts++;
+            if (auth.currentUser) {
+                clearInterval(interval);
+                resolve(auth.currentUser);
+            } else if (attempts > 20) { // 2 seconds
+                clearInterval(interval);
+                resolve(null);
+            }
+        }, 100);
+    });
+};
+
 export const generatePaperDraft = async (config) => {
 
-    const user = auth.currentUser;
+    const user = await waitForAuth();
     if (!user) {
-        alert("Please login to generate paper.");
+        if (localStorage.getItem('qp_user')) {
+            alert("Network delay: Auth not ready. Please try again in a moment.");
+        } else {
+            alert("Please login to generate paper.");
+        }
         return false;
     }
 
