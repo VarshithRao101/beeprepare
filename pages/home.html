@@ -126,6 +126,35 @@
 
     </div>
 
+    <!-- failsafe script: runs independently of modules -->
+    <script>
+        window.appLoadTimer = setTimeout(() => {
+            const loader = document.getElementById('initialLoader');
+            if (loader && loader.style.display !== 'none') {
+                const p = loader.querySelector('p');
+                if (p) {
+                    p.innerHTML = "<span style='color:#ff4444; font-weight:bold;'>Connection Timeout</span><br><br>The app is having trouble loading resources.<br><span style='font-size:0.8em; color:#888'>Please check your internet connection.</span>";
+
+                    const btn = document.createElement('button');
+                    btn.innerText = "FORCE RELOAD";
+                    btn.style.marginTop = "20px";
+                    btn.style.padding = "10px 20px";
+                    btn.style.borderRadius = "6px";
+                    btn.style.border = "none";
+                    btn.style.fontWeight = "bold";
+                    btn.style.cursor = "pointer";
+                    btn.style.background = "#F59E0B";
+                    btn.style.color = "#000";
+                    btn.onclick = () => window.location.reload();
+
+                    p.appendChild(document.createElement('br'));
+                    p.appendChild(btn);
+                }
+                console.error("App load timeout triggered via failsafe.");
+            }
+        }, 8000);
+    </script>
+
     <script type="module">
         import { auth, onAuthStateChanged } from '../assets/js/firebase-auth.js';
         import { getUserProfileData, getUserActivity } from '../assets/js/firestore.js';
@@ -135,15 +164,22 @@
             if (!user) return;
 
             try {
+                console.log("Initializing Home for user:", user.uid);
+
                 const [profile, activity] = await Promise.all([
-                    getUserProfileData(user.uid),
-                    getUserActivity(user.uid, 5)
+                    getUserProfileData(user.uid).catch(e => null),
+                    getUserActivity(user.uid, 5).catch(e => [])
                 ]);
+
+                // Clear the failsafe timer
+                if (window.appLoadTimer) clearTimeout(window.appLoadTimer);
 
                 const isPremium = profile?.isPremium === true;
                 if (!isPremium) {
                     console.log("User is not premium. Redirecting to activation.");
-                    window.location.replace('activate.html');
+                    const loaderP = document.querySelector('#initialLoader p');
+                    if (loaderP) loaderP.textContent = "Account not activated. Redirecting...";
+                    setTimeout(() => window.location.replace('activate.html'), 1000);
                     return;
                 }
 
@@ -152,18 +188,30 @@
                 renderActivity(activity);
 
                 const loader = document.getElementById('initialLoader');
-                if (loader) loader.style.display = 'none';
+                if (loader) {
+                    loader.style.opacity = '0';
+                    loader.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => { loader.style.display = 'none'; }, 500);
+                }
 
-                document.getElementById('mainApp').style.display = 'block';
+                const mainApp = document.getElementById('mainApp');
+                mainApp.style.display = 'block';
+                mainApp.style.opacity = 0;
+                requestAnimationFrame(() => {
+                    mainApp.style.transition = 'opacity 0.5s ease';
+                    mainApp.style.opacity = 1;
+                });
 
             } catch (e) {
-                console.error("Home load error", e);
+                console.error("Home load critical error", e);
+                if (window.appLoadTimer) clearTimeout(window.appLoadTimer);
+
                 const loader = document.getElementById('initialLoader');
                 if (loader) {
-                    loader.innerHTML = `<div style="color:var(--danger); text-align:center; padding:20px;">
-                        <p>Error loading profile.</p>
-                        <p style="font-size:0.8rem; margin-top:8px;">${e.message}</p>
-                        <button onclick="window.location.reload()" style="margin-top:16px; padding:8px 16px; background:#333; border:none; color:#fff; border-radius:4px; cursor:pointer;">Retry</button>
+                    loader.innerHTML = `<div style="color:#ff4444; text-align:center; padding:20px;">
+                        <p style="font-size:1.1rem; font-weight:600;">Unable to load profile</p>
+                        <p style="font-size:0.8rem; margin-top:8px; color:#aaa;">${e.message || "Unknown Network Error"}</p>
+                        <button onclick="window.location.reload()" style="margin-top:20px; padding:10px 20px; background:#f59e0b; border:none; color:#000; font-weight:bold; border-radius:6px; cursor:pointer;">Retry Connection</button>
                     </div>`;
                 }
             }
@@ -171,9 +219,14 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
+                // Determine if we need to clear the timer immediately or wait for data
+                // We wait for data in initHome, so simply calling initHome is enough.
                 initHome(user);
             } else {
                 console.log("Waiting for auth redirect...");
+                // If user is null, firebase-auth.js handles redirect. 
+                // However, if that fails, we might still be stuck. 
+                // The global timeout will catch this case too.
             }
         });
 
@@ -275,7 +328,6 @@
             });
         };
     </script>
-    <script type="module" src="../assets/js/firebase-auth.js"></script>
     <script src="../assets/js/app_security.js"></script>
 </body>
 

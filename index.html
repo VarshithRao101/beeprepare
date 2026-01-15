@@ -5,12 +5,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BEEPREPARE</title>
-    
     <meta http-equiv="refresh" content="0; url=pages/home.html">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #333;
+            border-top: 4px solid #F59E0B;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        a {
+            color: #F59E0B;
+            text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+        }
+    </style>
+    <script>
+        // JavaScript fallback redirect
+        setTimeout(() => {
+            window.location.href = 'pages/home.html';
+        }, 100);
+    </script>
 </head>
 
 <body>
-    <p>Redirecting to app...</p>
+    <div class="container">
+        <div class="spinner"></div>
+        <p>Loading application resources...</p>
+        <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">If not redirected automatically, <a
+                href="pages/home.html">click here</a>.</p>
+    </div>
 </body>
 
 </html>
